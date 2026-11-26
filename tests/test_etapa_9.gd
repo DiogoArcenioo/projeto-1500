@@ -190,7 +190,9 @@ func integracao() -> void:
 	ok(not X.enviar(e,"obra_2","caca",14,[equipe[0]]).ok,"Limite de uma equipe")
 	var exp: Dictionary=e.expedicoes[-1]
 	passo(e,3+exp.viagem+exp.duracao_exploracao)
-	ok(exp.fase=="confronto" and not exp.combate.is_empty(),"Busca cria confronto único")
+	# Etapa 11: a caça simulada abre um alerta de intervenção antes do confronto.
+	ok(exp.fase=="alerta" and not exp.combate.is_empty(),"Busca cria confronto único com alerta")
+	ok(X.simular(e,exp.id)=="" and exp.fase=="confronto","Deixar simular inicia o confronto")
 	ok(exp.combate.animal!="onca_pintada","Primeira caça não encontra onça")
 	ok(exp.carga.is_empty(),"Sem carne antes de vencer")
 	var erro:=E.validar(e.serializar())
@@ -220,6 +222,7 @@ func integracao() -> void:
 	X.enviar(e,"obra_2","caca",14,equipe)
 	exp=e.expedicoes[-1]
 	passo(e,3+exp.viagem+exp.duracao_exploracao)
+	X.simular(e,exp.id)
 	B.ator(exp.combate,"animal").vida=0
 	B.verificar_fim(exp.combate)
 	X.terminar_confronto(e,exp,[])
@@ -233,6 +236,7 @@ func integracao() -> void:
 	X.enviar(e,"obra_2","caca",14,[e.habitantes[0].id])
 	exp=e.expedicoes[-1]
 	passo(e,3+exp.viagem+exp.duracao_exploracao)
+	X.simular(e,exp.id)
 	var a: Dictionary=exp.combate.atores[0]
 	a.vida=0
 	a.resistencia=-100

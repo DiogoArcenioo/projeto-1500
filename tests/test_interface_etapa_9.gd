@@ -82,6 +82,9 @@ func executar() -> void:
 	ok(x.armas[e.habitantes[1].id]=="lanca","Kit da equipe preservado")
 	cena.fechar_expedicoes()
 	cena._process(3+x.viagem+x.duracao_exploracao)
+	# Etapa 11: o encontro abre um alerta; "Deixar simular" inicia o confronto simulado.
+	ok(x.fase=="alerta","Encontro abre alerta de intervenção")
+	cena.simular_alerta(x.id)
 	ok(x.fase=="confronto","Aldeia entrou em confronto simulado")
 	cena.abrir_expedicoes("obra_2")
 	p.apresentar("acompanhar")

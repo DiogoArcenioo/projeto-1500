@@ -3,12 +3,16 @@ extends RefCounted
 const Regioes=preload("res://scripts/partida/regioes.gd")
 const Alimentacao=preload("res://scripts/partida/alimentacao.gd")
 const Caca=preload("res://scripts/partida/caca.gd")
-const ATIVAS:=["preparacao","ida","exploracao","confronto","retorno"]
+const ATIVAS:=["preparacao","ida","exploracao","alerta","confronto","retorno"]
+const POLITICAS:=["prudente","equilibrada","agressiva"]
+## Etapa 11 (provisório, aprovado): prazo de intervenção em segundos de jogo a 1×.
+const PRAZO_ALERTA:=15.0
+const NOMES_ATIVIDADE:={"coleta":"Coleta","pesca":"Pesca","reconhecimento":"Reconhecimento","caca":"Caça"}
 static var parametros: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/configuracoes/expedicoes.json"))
 
 static func erro_envio(estado,centro: String,tipo: String,regiao: int,equipe: Array,modo: String) -> String:
 	if modo not in ["simulado","manual"]: return "Modo indisponível."
-	if modo=="manual" and (tipo!="caca" or regiao not in [14,21]): return "Caça manual disponível nos Arredores e na Margem do rio (capivara)."
+	if modo=="manual" and (tipo!="caca" or regiao not in Caca.regioes_manuais()): return "Caça manual disponível onde vivem capivaras (Arredores, Margem do rio) ou queixadas (serras e encostas)."
 	if tipo not in ["coleta","reconhecimento","pesca","caca"]: return "Atividade desconhecida."
 	if regiao<0 or regiao>=30 or regiao==20: return "Escolha uma região fora da aldeia."
 	if tipo=="coleta" and int(estado.conhecimento[str(regiao)])<2: return "Investigue os recursos desta região primeiro."
@@ -36,9 +40,14 @@ static func erro_envio(estado,centro: String,tipo: String,regiao: int,equipe: Ar
 		vistos[id]=true
 	return ""
 
-static func enviar(estado,centro: String,tipo: String,regiao: int,equipe: Array,modo: String="simulado",armas: Dictionary={}) -> Dictionary:
+static func politica_padrao(tipo: String) -> String:
+	return "equilibrada" if tipo=="caca" else "prudente"
+
+static func enviar(estado,centro: String,tipo: String,regiao: int,equipe: Array,modo: String="simulado",armas: Dictionary={},politica:="") -> Dictionary:
 	var erro:=erro_envio(estado,centro,tipo,regiao,equipe,modo)
 	if erro!="": return {"ok":false,"erro":erro}
+	if politica=="": politica=politica_padrao(tipo)
+	if politica not in POLITICAS: return {"ok":false,"erro":"Política da equipe inválida."}
 	for id in armas:
 		if id not in equipe or armas[id] not in ["arco","lanca"]: return {"ok":false,"erro":"Equipamento inválido."}
 	estado.sequencia_expedicao+=1
@@ -58,7 +67,7 @@ static func enviar(estado,centro: String,tipo: String,regiao: int,equipe: Array,
 		"explorado":0.0,"ciclos":0,"carga":{},"entregue":{},"xp":0,"conhecimento":0,
 		"rng":str(rng.state),"cancelada":false,"eventos":[],"duracao_exploracao":exploracao,
 		"intervalo_atividade":float(Alimentacao.parametros.pesca.intervalo) if tipo=="pesca" else (60.0 if tipo=="coleta" else 12.0),
-		"capturas_alvo":capturas,"equilibrada":true,"vencimentos":{}}
+		"capturas_alvo":capturas,"equilibrada":true,"vencimentos":{},"politica":politica}
 	if tipo=="caca":
 		e.modo=modo
 		e.armas=armas.duplicate()
@@ -75,6 +84,33 @@ static func buscar(estado,id: String) -> Dictionary:
 	for e: Dictionary in estado.expedicoes:
 		if e.id==id: return e
 	return {}
+
+static func alertas(estado) -> Array:
+	return estado.expedicoes.filter(func(e): return e.fase=="alerta")
+
+## Assumir só existe para animais com apresentação manual (capivara e queixada),
+## em qualquer atividade: fora da caça a equipe luta com a ferramenta básica.
+static func manual_disponivel(e: Dictionary) -> bool:
+	return e.get("fase")=="alerta" and e.get("combate",{}).get("animal","") in Caca.APRESENTACAO_MANUAL
+
+## Clique em "Assumir combate": mesmo estado já sorteado, agora controlado pelo jogador.
+static func assumir(estado,id: String) -> String:
+	var e:=buscar(estado,id)
+	if e.is_empty() or e.fase!="alerta": return "O alerta já foi resolvido."
+	if not manual_pendente(estado).is_empty(): return "Conclua o combate em andamento antes de assumir outro."
+	if not manual_disponivel(e): return "Combate manual ainda indisponível para este animal."
+	e.modo="manual"
+	iniciar_fase(e,"confronto",2)
+	registrar(e,"Você assumiu o combate.",[])
+	return ""
+
+## "Deixar simular" (ou fim do prazo): a equipe resolve sozinha com a sua política.
+static func simular(estado,id: String,avisos: Array[String]=[]) -> String:
+	var e:=buscar(estado,id)
+	if e.is_empty() or e.fase!="alerta": return "O alerta já foi resolvido."
+	iniciar_fase(e,"confronto",2)
+	registrar(e,"A equipe enfrenta o perigo sozinha (%s)."%e.get("politica","equilibrada"),avisos)
+	return ""
 
 static func manual_pendente(estado) -> Dictionary:
 	for e: Dictionary in estado.expedicoes:
@@ -116,6 +152,7 @@ static func retornar(estado,id: String) -> String:
 		if erro!="": return erro
 		terminar_confronto(estado,e,[])
 		return ""
+	if not e.is_empty() and e.fase=="alerta": return "Assuma o combate ou deixe a equipe simular."
 	if e.is_empty() or e.fase not in ["preparacao","ida","exploracao"]: return "Retorno indisponível nesta fase."
 	e.cancelada=true
 	if e.fase=="preparacao":
@@ -129,7 +166,15 @@ static func retornar(estado,id: String) -> String:
 static func terminar_confronto(estado,e: Dictionary,avisos: Array[String]) -> void:
 	if e.fase!="confronto" or e.combate.resultado=="": return
 	for msg in Caca.aplicar(estado,e): registrar(e,msg,avisos)
-	if e.combate.resultado in ["retirada","impasse"]: e.cancelada=true
+	if e.combate.resultado in ["retirada","impasse","derrota"]: e.cancelada=true
+	# Fora da caça, vencer ou ver o animal fugir com todos de pé retoma o trabalho.
+	var aptos: bool=e.combate.atores.all(func(a): return a.lado!="equipe" or (not a.morto and a.vida>0))
+	if e.tipo!="caca" and e.combate.resultado in ["vitoria","animal_fugiu"] and aptos and float(e.get("retomar",0))>0:
+		iniciar_fase(e,"exploracao",float(e.retomar))
+		e.erase("retomar")
+		registrar(e,"A equipe retomou a atividade.",avisos)
+		return
+	e.erase("retomar")
 	iniciar_fase(e,"retorno",e.viagem)
 
 static func quantidade(carga: Dictionary) -> int:
@@ -156,14 +201,92 @@ static func descarregar(estado,e: Dictionary,avisos: Array[String]) -> void:
 	if e.carga.is_empty():
 		e.fase="concluida"
 		registrar(e,"Retorno concluído. Carga entregue.",avisos)
+		registrar(e,resumo(estado,e),avisos)
+
+## Resumo final da viagem: recursos trazidos, perdas, experiência e condição da equipe.
+static func resumo(estado,e: Dictionary) -> String:
+	var linhas: Array[String]=["Resumo · %s em %s"%[NOMES_ATIVIDADE.get(e.tipo,e.tipo),Regioes.definicoes()[int(e.regiao)].nome]]
+	var r: Dictionary=e.get("relatorio",{})
+	if not r.is_empty():
+		linhas.append("%s · %s · %s"%[Caca.Combate.nome_animal(r.animal),"jogado" if r.modo=="manual" else "simulado",str(r.resultado).replace("_"," ")])
+	var trazido: Array[String]=[]
+	for k in e.entregue:
+		if int(e.entregue[k])>0: trazido.append("%d %s"%[e.entregue[k],str(k).replace("_"," ")])
+	linhas.append("Trazido: "+(", ".join(trazido) if not trazido.is_empty() else "nada"))
+	var perdas: Array[String]=[]
+	for k in r.get("perdas",{}): perdas.append("%d %s"%[r.perdas[k],str(k).replace("_"," ")])
+	var xp: Array[String]=[]
+	for id in e.equipe:
+		var h: Dictionary=estado.pessoa(id)
+		if h.is_empty(): continue
+		var ganho:=int(r.get("xp",{}).get(h.nome,0))+(0 if e.tipo=="caca" else int(e.xp))
+		xp.append("%s +%d"%[h.nome,ganho])
+	linhas.append("XP: "+" · ".join(xp))
+	var condicao: Array[String]=[]
+	for nome in r.get("feridos",[]): condicao.append(nome+" ferido")
+	for nome in r.get("mortos",[]): condicao.append(nome+" morreu")
+	linhas.append("Equipe: "+(" · ".join(condicao) if not condicao.is_empty() else "todos bem")+(" · Perdas: "+", ".join(perdas) if not perdas.is_empty() else ""))
+	return "\n".join(linhas)
+
+## Sorteio único do encontro de coleta, pesca ou reconhecimento ao iniciar a exploração.
+## Guarda o instante e o animal; salvar/carregar não sorteia de novo.
+static func planejar_encontro(estado,e: Dictionary) -> void:
+	if e.tipo=="caca" or e.has("encontro"): return
+	var rng:=RandomNumberGenerator.new()
+	rng.state=int(e.rng)
+	var regiao:=int(e.regiao)
+	var fauna:=Caca.fauna(regiao)
+	var perigosos:=fauna.filter(func(a): return a!="capivara")
+	var chance:=0.0
+	match e.tipo:
+		"coleta": chance=.15 if int(Regioes.definicoes()[regiao].perigo)==0 else .30
+		"pesca":
+			chance=.10 if "jacare_papo_amarelo" in fauna else .05
+			perigosos=perigosos.filter(func(a): return a=="jacare_papo_amarelo")
+		"reconhecimento": chance=.12 if int(estado.conhecimento[str(regiao)])>=2 else .25
+	var encontro:={"em":-1.0,"animal":""}
+	if rng.randf()<chance and not fauna.is_empty():
+		var animal: String=Caca.sortear_animal(estado,perigosos,rng) if not perigosos.is_empty() else "capivara"
+		if animal=="": animal="capivara" if "capivara" in fauna else ""
+		if animal!="":
+			encontro.animal=animal
+			encontro.em=snappedf(rng.randf_range(.15,.85)*float(e.get("duracao_exploracao",parametros.exploracao_segundos)),.01)
+	e.encontro=encontro
+	e.rng=str(rng.state)
+
+static func disparar_encontro(estado,e: Dictionary,avisos: Array[String]) -> void:
+	var animal: String=e.encontro.animal
+	e.encontro.em=-1.0
+	if animal=="capivara":
+		registrar(e,"Uma capivara cruzou o caminho e seguiu para a água.",avisos)
+		return
+	e.retomar=e.restante
+	Caca.criar(estado,e,animal)
+	abrir_alerta(e,avisos)
+
+static func abrir_alerta(e: Dictionary,avisos: Array[String]) -> void:
+	iniciar_fase(e,"alerta",PRAZO_ALERTA)
+	registrar(e,"PERIGO · %s ameaça a equipe."%Caca.Combate.nome_animal(e.combate.animal),avisos)
+
+## Enquanto houver alerta aberto o relógio fica em 1×; depois volta à velocidade escolhida.
+static func ajustar_velocidade(estado) -> void:
+	var aberto:=not alertas(estado).is_empty()
+	if aberto and int(estado.velocidade_antes_alerta)==0:
+		estado.velocidade_antes_alerta=estado.relogio.velocidade
+		estado.relogio.definir_velocidade(1)
+	elif not aberto and int(estado.velocidade_antes_alerta)>0 and manual_pendente(estado).is_empty():
+		if estado.relogio.velocidade==1: estado.relogio.definir_velocidade(int(estado.velocidade_antes_alerta))
+		estado.velocidade_antes_alerta=0
 
 static func praticar(estado,e: Dictionary,avisos: Array[String]) -> void:
 	if e.tipo=="caca":
 		e.ciclos+=1
 		if e.combate.is_empty():
 			Caca.criar(estado,e)
-			iniciar_fase(e,"confronto",2)
 			registrar(e,("Ataque defensivo · " if e.combate.tipo=="defensivo" else "Encontro de caça · ")+Caca.Combate.nome_animal(e.combate.animal),avisos)
+			# Caça manual escolhida no envio entra direto; a simulada abre o alerta de intervenção.
+			if e.get("modo","simulado")=="manual": iniciar_fase(e,"confronto",2)
+			else: abrir_alerta(e,avisos)
 		return
 	var rng:=RandomNumberGenerator.new()
 	rng.state=int(e.rng)
@@ -234,8 +357,14 @@ static func validar(dados: Dictionary,numero: Callable) -> String:
 		if (e.tipo=="pesca")!=(obras[e.centro].tipo=="pesca"): return "Atividade incompatível com centro."
 		if (e.tipo=="caca")!=(obras[e.centro].tipo=="caca"): return "Atividade incompatível com caça."
 		if e.get("modo","simulado") not in ["simulado","manual"]: return "Modo de expedição inválido."
-		if e.get("modo","simulado")=="manual" and (e.tipo!="caca" or int(e.regiao) not in [14,21]): return "Região sem encontro manual disponível."
-		if e.fase=="confronto" and e.tipo!="caca": return "Confronto fora da caça."
+		if e.get("modo","simulado")=="manual" and e.get("combate",{}).is_empty() and (e.tipo!="caca" or int(e.regiao) not in Caca.regioes_manuais()): return "Região sem encontro manual disponível."
+		if e.get("politica","equilibrada") not in POLITICAS: return "Política da equipe inválida."
+		var plano: Variant=e.get("encontro",{"em":-1.0,"animal":""})
+		if not plano is Dictionary or not numero.call(plano.get("em"),-1,3600) or not plano.get("animal") is String: return "Encontro planejado inválido."
+		if plano.animal!="" and plano.animal not in Caca.fauna(int(e.regiao)): return "Animal fora da fauna da região."
+		if e.has("retomar") and not numero.call(e.retomar,0,3600): return "Retomada da atividade inválida."
+		if e.has("relatorio") and not e.relatorio is Dictionary: return "Relatório do encontro inválido."
+		if not numero.call(e.get("xp_encontro",0),0,1000,true): return "XP do encontro inválido."
 		if not numero.call(e.get("duracao_exploracao",60),1,3600) or not numero.call(e.get("intervalo_atividade",12),1,3600):
 			return "Duração da expedição inválida."
 		if not numero.call(e.get("regiao"),0,29,true) or int(e.regiao)==20: return "Região da expedição inválida."
@@ -247,7 +376,7 @@ static func validar(dados: Dictionary,numero: Callable) -> String:
 			if not numero.call(e.get(chave),0,100000,true): return "Experiência da expedição inválida."
 		if int(e.ciclos)!=floori((float(e.explorado)+.000001)/intervalo(e)) or (e.tipo!="caca" and int(e.xp)!=int(e.ciclos)):
 			return "Ciclos de exploração inconsistentes."
-		if e.tipo=="caca":
+		if e.tipo=="caca" or e.has("combate"):
 			var erro_caca:=Caca.validar(e,numero)
 			if erro_caca!="": return erro_caca
 		if not numero.call(e.get("capturas_alvo",0),0,4,true) or not e.get("equilibrada",false) is bool:
@@ -273,7 +402,7 @@ static func validar(dados: Dictionary,numero: Callable) -> String:
 			if e.fase in ATIVAS:
 				var h: Dictionary=pessoas[id]
 				if h.estado=="morto":
-					if e.tipo!="caca" or not e.combate.get("aplicado",false) or not e.combate.sobrevivencia.get(id,{}).get("morto",false): return "Morte sem resultado de confronto."
+					if not e.get("combate",{}).get("aplicado",false) or not e.combate.sobrevivencia.get(id,{}).get("morto",false): return "Morte sem resultado de confronto."
 					continue
 				if ocupados.has(id) or h.estado!="em_expedicao" or h.get("expedicao")!=e.id or h.obra!="": return "Integrante em duas atividades."
 				if h.setor!="" and h.setor!=e.centro: return "Integrante vinculado a outro centro."
@@ -291,6 +420,7 @@ static func avancar(estado,segundos: float) -> Array[String]:
 	if not is_finite(segundos) or segundos<=0: return avisos
 	if not manual_pendente(estado).is_empty(): return avisos
 	for e: Dictionary in estado.expedicoes:
+		if e.fase=="exploracao": planejar_encontro(estado,e)
 		for r in e.get("vencimentos",{}):
 			if e.carga.has(r) and e.vencimentos[r]<=estado.tempo_economia+.000001:
 				e.carga.erase(r)
@@ -305,14 +435,21 @@ static func avancar(estado,segundos: float) -> Array[String]:
 			if e.fase=="exploracao":
 				var proxima: float=(e.ciclos+1)*intervalo(e)-e.explorado
 				passo=minf(passo,maxf(0,proxima))
+				if float(e.get("encontro",{}).get("em",-1))>=0: passo=minf(passo,maxf(0,e.encontro.em-e.explorado))
 				e.explorado+=passo
 			e.restante=maxf(0,e.restante-passo)
 			if e.restante<.000001: e.restante=0.0
 			saldo-=passo
+			if e.fase=="exploracao" and float(e.get("encontro",{}).get("em",-1))>=0 and e.explorado+0.000001>=e.encontro.em:
+				disparar_encontro(estado,e,avisos)
+				continue
 			if e.fase=="exploracao" and e.explorado+0.000001>=(e.ciclos+1)*intervalo(e):
 				praticar(estado,e,avisos)
 			if e.restante>0: continue
 			match e.fase:
+				"alerta":
+					registrar(e,"Prazo encerrado: a equipe resolve sozinha.",avisos)
+					iniciar_fase(e,"confronto",2)
 				"confronto":
 					Caca.Combate.agir_automatico(e.combate)
 					if e.combate.resultado!="": terminar_confronto(estado,e,avisos)
@@ -322,6 +459,7 @@ static func avancar(estado,segundos: float) -> Array[String]:
 					registrar(e,"Equipe a caminho.",avisos)
 				"ida":
 					iniciar_fase(e,"exploracao",e.get("duracao_exploracao",parametros.exploracao_segundos))
+					planejar_encontro(estado,e)
 					registrar(e,"A equipe iniciou a exploração.",avisos)
 				"exploracao":
 					iniciar_fase(e,"retorno",e.viagem)
@@ -331,4 +469,5 @@ static func avancar(estado,segundos: float) -> Array[String]:
 					iniciar_fase(e,"aguardando_descarga",0)
 					descarregar(estado,e,avisos)
 					if not e.carga.is_empty(): registrar(e,"Estoque cheio. Excedente preservado para descarga.",avisos)
+	ajustar_velocidade(estado)
 	return avisos

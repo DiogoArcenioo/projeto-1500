@@ -253,7 +253,7 @@ static func decisao(c: Dictionary) -> Dictionary:
 			if h.lado=="equipe":
 				vida+=h.vida
 				maxima+=h.vida_max
-		if maxima>0 and vida/maxima<.30 and a.pa>=2: return {"acao":"fugir"}
+		if a.pa>=2 and deve_recuar(c,vida,maxima): return {"acao":"fugir"}
 	else:
 		var fugir: bool=c.animal=="capivara" or (c.animal=="anta" and a.vida>a.vida_max*.25)
 		if fugir:
@@ -267,7 +267,8 @@ static func decisao(c: Dictionary) -> Dictionary:
 				var p: Vector2i=melhor[mini(int(a.movimento),melhor.size())-1]
 				return {"acao":"mover","x":p.x,"z":p.y}
 	if not a.atacou and pode_atacar(c,a,b):
-		if a.pa>=2 and a.lado=="equipe" and a.mira==0: return {"acao":"mirar"}
+		# Agressiva ataca de imediato; as demais miram antes quando há PA.
+		if a.pa>=2 and a.lado=="equipe" and a.mira==0 and politica(c)!="agressiva": return {"acao":"mirar"}
 		return {"acao":"atacar","alvo":b.id}
 	if a.pa>0 and not a.atacou:
 		var melhor: Array=[]
@@ -284,9 +285,25 @@ static func decisao(c: Dictionary) -> Dictionary:
 			return {"acao":"mover","x":p.x,"z":p.y}
 	if a.lado=="equipe":
 		for h: Dictionary in vivos(c,"equipe"):
-			if h.id!=a.id and h.vida<h.vida_max*.5 and distancia(a,h)==1: return {"acao":"proteger","alvo":h.id}
+			var limite:=.75 if politica(c)=="prudente" else .5
+			if h.id!=a.id and h.vida<h.vida_max*limite and distancia(a,h)==1: return {"acao":"proteger","alvo":h.id}
 	if a.defesa_temp==0: return {"acao":"defender"}
 	return {"acao":"passar"}
+## Etapa 11: política da equipe na simulação (prudente, equilibrada ou agressiva).
+## Muda quando recuar e o estilo de ataque; usa as mesmas ações e não garante segurança.
+static func politica(c: Dictionary) -> String:
+	return str(c.get("politica","equilibrada"))
+static func deve_recuar(c: Dictionary,vida: float,maxima: float) -> bool:
+	var p: Dictionary=regras.politicas_equipe
+	match politica(c):
+		"prudente":
+			if c.animal in p.prudente.retirada_predadores: return true
+			return c.atores.any(func(h): return h.lado=="equipe" and not h.morto and h.vida_max>0 and float(h.vida)/h.vida_max<float(p.prudente.retirada_vida_individual))
+		"agressiva":
+			var total: int=c.atores.filter(func(h): return h.lado=="equipe").size()
+			var caidos: int=total-vivos(c,"equipe").size()
+			return total>0 and float(caidos)/total>=float(p.agressiva.retirada_fracao_incapacitados)
+	return maxima>0 and vida/maxima<float(p.equilibrada.retirada_vida_total)
 static func agir_automatico(c: Dictionary) -> String:
 	var d:=decisao(c)
 	if d.is_empty(): return ""
@@ -326,7 +343,7 @@ static func validar(c: Variant,numero: Callable) -> String:
 		if a.vida>a.vida_max or a.vida_max<1 or a.pa>2 or a.xp>8 or not a.get("atacou") is bool or not a.get("morto") is bool or not a.get("protegendo") is String: return "Condição de combate inválida."
 		for k in ["agilidade","percepcao","resistencia","atributo_ataque","especializacao"]:
 			if not numero.call(a.get(k),-100,100,true): return "Modificador inválido."
-		if a.get("equipamento") not in ["arco","lanca","natural"] or not a.get("dano") is String or not numero.call(a.get("alcance"),1,8,true) or not numero.call(a.get("iniciativa"),-100,200,true): return "Arma inválida."
+		if a.get("equipamento") not in ["arco","lanca","ferramenta","natural"] or not a.get("dano") is String or not numero.call(a.get("alcance"),1,8,true) or not numero.call(a.get("iniciativa"),-100,200,true): return "Arma inválida."
 		var re:=RegEx.new()
 		re.compile("^[1-2]d[468](\\+[0-3])?$")
 		if re.search(a.dano)==null: return "Dano inválido."
@@ -335,6 +352,7 @@ static func validar(c: Variant,numero: Callable) -> String:
 	if not ids.has("animal") or c.atores.filter(func(a): return a.lado=="animal").size()!=1: return "Animal inválido."
 	for a: Dictionary in c.atores:
 		if a.protegendo!="" and not ids.has(a.protegendo): return "Proteção inválida."
+	if c.get("politica","equilibrada") not in ["prudente","equilibrada","agressiva"]: return "Política da equipe inválida."
 	if not c.get("recursos") is Dictionary or not c.get("sobrevivencia") is Dictionary: return "Recompensas inválidas."
 	for r in c.recursos:
 		if r not in ["carne","couro"] or not numero.call(c.recursos[r],0,100,true): return "Recurso de caça inválido."

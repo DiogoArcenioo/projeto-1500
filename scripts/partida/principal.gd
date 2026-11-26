@@ -83,6 +83,11 @@ func _ready() -> void:
 		painel.atualizar(true))
 	painel.pausa_solicitada.connect(alternar_pausa)
 	painel.velocidade_solicitada.connect(definir_velocidade)
+	painel.topo_hud.alerta_assumir.connect(assumir_alerta)
+	painel.topo_hud.alerta_simular.connect(simular_alerta)
+	if mapa_regional.barra.has_signal("alerta_assumir"):
+		mapa_regional.barra.alerta_assumir.connect(assumir_alerta)
+		mapa_regional.barra.alerta_simular.connect(simular_alerta)
 	nova_partida(false)
 	if OS.is_debug_build():
 		print("[1500] WASD: deslocar | scroll: zoom | meio+arraste: deslocar | Q/E: girar | R: recentrar")
@@ -316,7 +321,7 @@ func enviar_expedicao(centro: String,tipo: String,regiao: int,equipe: Array) -> 
 	var armas: Dictionary={}
 	if tipo=="caca":
 		for id in equipe: armas[id]=painel_expedicoes.armas.get(id,"arco")
-	var resultado:=Estado.Expedicoes.enviar(estado,centro,tipo,regiao,equipe,painel_expedicoes.modo_caca if tipo=="caca" else "simulado",armas)
+	var resultado:=Estado.Expedicoes.enviar(estado,centro,tipo,regiao,equipe,painel_expedicoes.modo_caca if tipo=="caca" else "simulado",armas,painel_expedicoes.politica)
 	if not resultado.ok:
 		painel_expedicoes.notificar(resultado.erro)
 		painel_expedicoes.apresentar("preparar")
@@ -340,6 +345,23 @@ func retornar_expedicao(id: String) -> void:
 	painel_expedicoes.apresentar("acompanhar")
 	aldeia.sincronizar()
 	painel.atualizar(true)
+
+## Etapa 11: "Assumir combate" no cartão de alerta. O estado já sorteado é mantido;
+## o combate manual abre no próximo quadro e congela a aldeia.
+func assumir_alerta(id: String) -> void:
+	var erro:=Estado.Expedicoes.assumir(estado,id)
+	if erro!="":
+		painel.topo_hud.notificar(erro)
+		return
+	abrir_combate_pendente()
+
+## "Deixar simular": a equipe resolve sozinha com a sua política.
+func simular_alerta(id: String) -> void:
+	var avisos: Array[String]=[]
+	var erro:=Estado.Expedicoes.simular(estado,id,avisos)
+	if erro!="": painel.topo_hud.notificar(erro)
+	Estado.Expedicoes.ajustar_velocidade(estado)
+	painel.topo_hud.atualizar()
 
 func abrir_combate_pendente() -> bool:
 	if is_instance_valid(combate_manual): return true

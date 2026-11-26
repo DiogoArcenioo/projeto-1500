@@ -75,7 +75,19 @@
       "dano": "1d6+1",
       "alcance": 5,
       "precisao": 0
+    },
+    "ferramenta": {
+      "dano": "1d4",
+      "alcance": 1,
+      "precisao": 0,
+      "nota": "Etapa 11 (provisório, aprovado): equipe de coleta, pesca ou reconhecimento surpreendida usa a ferramenta básica do centro."
     }
+  },
+  "politicas_equipe": {
+    "nota": "Etapa 11 (provisório, aprovado). Usadas só pela simulação; o combate manual ignora a política.",
+    "prudente": {"retirada_vida_individual": 0.5, "retirada_predadores": ["jacare_papo_amarelo", "onca_pintada"]},
+    "equilibrada": {"retirada_vida_total": 0.3},
+    "agressiva": {"retirada_fracao_incapacitados": 0.5}
   },
   "humanos_defesa": "10 + bônus de agilidade + efeitos de defesa/cobertura, sem contar armadura como esquiva",
   "animais": [

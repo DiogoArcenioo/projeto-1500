@@ -5,7 +5,8 @@ signal fechar_solicitado
 signal regiao_apontada(indice: int)
 signal hud_alternado(visivel: bool)
 signal gerenciar_solicitado(centro: String)
-const FASES:={"preparacao":"Preparando","ida":"Viajando","exploracao":"Explorando","confronto":"Confronto simulado","retorno":"Retornando","aguardando_descarga":"Aguardando espaço no estoque","concluida":"Concluída"}
+const FASES:={"preparacao":"Preparando","ida":"Viajando","exploracao":"Explorando","alerta":"Alerta de perigo","confronto":"Confronto simulado","retorno":"Retornando","aguardando_descarga":"Aguardando espaço no estoque","concluida":"Concluída"}
+const NOMES_POLITICA:={"prudente":"Prudente · recua cedo","equilibrada":"Equilibrada","agressiva":"Agressiva · só recua no limite"}
 var aberto:=false
 var centro:=""
 var tela_atual:="preparar"
@@ -21,6 +22,8 @@ var linhas: Dictionary={}
 var aviso_texto:=""
 var origem_contextual:=false
 var modo_caca:="simulado"
+## Etapa 11: política da equipe para a simulação de encontros ("" = padrão da atividade).
+var politica:=""
 func _ready() -> void:
 	previa=false
 	super._ready()
@@ -34,6 +37,7 @@ func reiniciar(novo) -> void:
 	hide()
 func abrir(novo,origem: String="",destino: int=-1) -> void:
 	modo_caca="simulado"
+	politica=""
 	estado=novo
 	equipe.clear()
 	armas.clear()
@@ -151,6 +155,7 @@ func escolher_equipe() -> void:
 		seletor_tipo.select(1 if tipo=="reconhecimento" else 0)
 		seletor_tipo.item_selected.connect(func(i: int):
 			tipo="coleta" if i==0 else "reconhecimento"
+			politica=""
 			mostrar_passo(1))
 	super.escolher_equipe()
 	if estado.moradores_vivos().is_empty(): texto(conteudo,"Construa uma oca para receber moradores.",18)
@@ -160,16 +165,23 @@ func confirmacao() -> void:
 	if tipo=="caca":
 		var escolha:=seletor(conteudo)
 		escolha.add_item("Simular a caça")
-		escolha.add_item("Jogar combate manual · capivara")
+		escolha.add_item("Jogar combate manual · capivara ou queixada")
 		escolha.select(1 if modo_caca=="manual" else 0)
 		escolha.item_selected.connect(func(i: int):
 			modo_caca="manual" if i==1 else "simulado"
-			if modo_caca=="manual" and regiao not in [14,21]: regiao=14
+			if modo_caca=="manual" and regiao not in Exp.Caca.regioes_manuais(): regiao=14
 			mostrar_passo(3))
+	if politica=="": politica=Exp.politica_padrao(tipo)
+	var escolha_politica:=seletor(conteudo)
+	for p: String in Exp.POLITICAS:
+		escolha_politica.add_item("Se houver perigo · "+NOMES_POLITICA[p])
+	escolha_politica.select(Exp.POLITICAS.find(politica))
+	escolha_politica.tooltip_text="Usada quando a equipe resolve um encontro sozinha. Não garante segurança; no combate manual você decide."
+	escolha_politica.item_selected.connect(func(i: int): politica=Exp.POLITICAS[i])
 	var dest:=seletor(conteudo)
 	seletor_destino=dest
 	for r: Dictionary in Regioes.definicoes():
-		if tipo=="caca" and modo_caca=="manual" and r.id not in [14,21]: continue
+		if tipo=="caca" and modo_caca=="manual" and r.id not in Exp.Caca.regioes_manuais(): continue
 		if r.id==20: continue
 		var nivel:=int(estado.conhecimento[str(r.id)])
 		if tipo=="reconhecimento":
@@ -202,7 +214,7 @@ func confirmacao() -> void:
 		var viagem:=Regioes.viagem(regiao,estado.conhecimento)
 		texto(resumo,"Ida %d s · Atividade %d s · Retorno %d s"%[ceili(viagem),ceili(Exp.duracao_planejada(tipo,viagem)),ceili(viagem)],18)
 		regiao_apontada.emit(regiao)
-	var nota:=texto(resumo,"Há risco de ferimentos e mortes. O confronto acrescenta tempo à viagem." if tipo=="caca" else "Os recursos chegam no retorno. Excedentes aguardam espaço no estoque.",17,"7b3523")
+	var nota:=texto(resumo,"Há risco de ferimentos e mortes. O confronto acrescenta tempo à viagem." if tipo=="caca" else "Os recursos chegam no retorno. Excedentes aguardam espaço no estoque. Animais podem surpreender a equipe: um alerta permite intervir.",17,"7b3523")
 	nota.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 func rodape() -> void:
 	var linha:=HBoxContainer.new()
@@ -289,19 +301,21 @@ func atualizar_acompanhamento() -> void:
 		l.fase.text=FASES[e.fase]+(" · %d s"%ceili(e.restante) if e.fase in Exp.ATIVAS else "")
 		l.progresso.value=100*(1-float(e.restante)/maxf(.001,e.duracao_fase)) if e.fase in Exp.ATIVAS else 100
 		l.retorno.disabled=e.fase not in ["preparacao","ida","exploracao","confronto"]
+		if e.fase=="alerta":
+			l.fase.text="Alerta · %s · %d s"%[Exp.Caca.Combate.nome_animal(e.combate.animal),ceili(e.restante)]
 		l.retorno.text="Cancelar preparação" if e.fase=="preparacao" else ("Tentar retirada" if e.fase=="confronto" else "Solicitar retorno")
-		if e.fase=="confronto":
+		if e.fase=="confronto" and not e.combate.is_empty():
 			var atual:=Exp.Caca.Combate.atual(e.combate)
 			l.retorno.disabled=atual.is_empty() or atual.lado!="equipe" or atual.pa<2
 			l.fase.text="%s · rodada %d"%[Exp.Caca.Combate.nome_animal(e.combate.animal),e.combate.rodada]
 		l.evento.text=e.eventos[-1] if not e.eventos.is_empty() else "Equipe em preparação."
-		if e.tipo=="caca" and not e.combate.is_empty(): l.evento.text=e.combate.registro[-1] if not e.combate.registro.is_empty() else "Confronto preparado."
+		if e.fase in ["alerta","confronto"] and not e.get("combate",{}).is_empty(): l.evento.text=e.combate.registro[-1] if not e.combate.registro.is_empty() else "Confronto preparado."
 		l.condicao.text=""
-		if e.tipo=="caca" and not e.combate.is_empty():
+		if not e.get("combate",{}).is_empty():
 			var condicoes: Array[String]=[]
 			for a: Dictionary in e.combate.atores:
 				if a.lado=="equipe": condicoes.append("%s: %s"%[a.nome,"morto" if a.morto else ("incapacitado" if a.vida==0 else "%d/%d HP"%[a.vida,a.vida_max])])
-			l.condicao.text="No encontro · "+" · ".join(condicoes)
+			l.condicao.text="No encontro · "+" · ".join(condicoes)+" · Política "+str(e.get("politica","equilibrada"))
 		l.condicao.visible=l.condicao.text!=""
 
 

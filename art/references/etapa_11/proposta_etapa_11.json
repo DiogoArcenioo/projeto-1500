@@ -1,0 +1,53 @@
+{
+  "etapa": 11,
+  "titulo": "Encontros perigosos, intervenção no feed e simulação completa",
+  "estado": "Portão A — propostas aguardando escolha e aprovação no chat. Nada desta proposta foi integrado à partida.",
+  "propostas_visuais": {
+    "origem": "Composições produzidas no próprio Godot 4.7.2 por tools/propostas_alerta_etapa_11.gd, com o tema de casca aprovado, Alegreya SC/Sans e retratos reais, sobre a captura exports/revisao_menus_casca/01_aldeia_inicio.png. Não são capturas da mecânica funcionando.",
+    "opcoes": {
+      "A": {"arquivo": "a_cartao_no_feed.png", "descricao": "Cartão no topo do feed: faixa urucum com pegada, título do perigo, retratos da equipe, região, barra de prazo e dois botões (Assumir combate / Deixar simular). Avisos comuns continuam abaixo.", "recomendada": true,
+            "motivo": "Mostra tudo o que o GDD pede (ícone, região, equipe, prazo) sem cobrir a aldeia; empilha bem alertas simultâneos; reaproveita a coluna de avisos que o jogador já conhece."},
+      "B": {"arquivo": "b_faixa_central.png", "descricao": "Faixa horizontal sob a barra superior, com anel de prazo. Mais chamativa, mas ocupa o centro da visão e não comporta bem dois alertas."},
+      "C": {"arquivo": "c_selo_e_marcador.png", "descricao": "Selo compacto no feed + contador urucum no botão Expedições. Mínima intrusão; exige um clique extra para ver as opções e o prazo pode passar despercebido."}
+    },
+    "estados_da_recomendada": "a_estados_fila_e_resumo.png — dois alertas em fila (um sem combate manual disponível) e o cartão de resumo após a simulação."
+  },
+  "decisao_bloqueante": {
+    "questao": "Somente a capivara tem modelo, animações e apresentação manual aprovados. Queixada, jacaré, anta e onça são os animais perigosos de coleta/pesca/reconhecimento, mas não têm modelo.",
+    "opcao_1_recomendada": "A etapa 11 entrega alertas, prazo, fila, política, simulação, consequências e resumo para todos os animais. 'Assumir combate' fica disponível onde houver apresentação aprovada (capivara); para os demais o cartão informa 'Manual ainda indisponível'. Cada novo animal passa depois pelos portões A/B próprios (sugestão: queixada primeiro, o perigo mais comum).",
+    "opcao_2": "Produzir já o modelo da queixada (portões A e B) dentro da etapa 11, antes de integrar, para que o primeiro perigo real possa ser jogado manualmente."
+  },
+  "regras_provisorias": {
+    "chance_de_encontro_por_viagem": {
+      "caca": "Mantida: um encontro garantido por viagem (etapa 9).",
+      "coleta": "15% nas regiões de perigo baixo; 30% nas de perigo pouco conhecido. Aldeia (região 20): 0%.",
+      "pesca": "10% nas regiões com jacaré; 5% nas demais com peixes.",
+      "reconhecimento": "25% em fronteiras e regiões não investigadas; 12% nas conhecidas.",
+      "sorteio": "Uma única rolagem com a RNG persistente da expedição, no início da exploração, que também define o instante do encontro. Salvar/carregar não rerrola."
+    },
+    "animais_por_atividade": "Mesma fauna da região (Caca.fauna). Fora da caça, a capivara aparece como encontro tranquilo (cruza o caminho; registra no feed, sem alerta); o alerta só existe para queixada, anta, jacaré e onça. Onça continua rara e só após a primeira caça concluída, como hoje.",
+    "equipamento_fora_da_caca": "Ferramenta básica do centro: 1d4 de dano, alcance 1. Penalidade de não especialista já aprovada (−2) vale para quem não é caçador.",
+    "alerta": {
+      "prazo": "15 s de jogo a 1×.",
+      "velocidade": "Ao surgir o primeiro alerta, a velocidade cai para 1×; ao fechar o último, volta à escolhida antes. Pausa congela o prazo.",
+      "assumir": "Abre o combate manual existente com o estado já sorteado e congela a aldeia.",
+      "deixar_simular_ou_ignorar": "Resolve automaticamente com a política da equipe e envia o resumo pelo feed/Acompanhar.",
+      "fila": "Alertas distintos ficam em fila e não se perdem. Durante um combate manual o relógio está congelado, então os prazos dos outros alertas também param. Só uma cena de combate por vez."
+    },
+    "politica_da_equipe": {
+      "onde": "Escolhida na confirmação do envio. Padrão: equilibrada na caça; prudente em coleta, pesca e reconhecimento.",
+      "prudente": "Tenta retirada quando alguém fica abaixo de 50% da vida ou o animal é jacaré/onça; prioriza defender/proteger.",
+      "equilibrada": "Política automática atual da etapa 9.",
+      "agressiva": "Só recua com metade da equipe incapacitada; prioriza atacar e mirar.",
+      "limites": "Usa as mesmas ações e regras; não garante segurança. No combate manual o jogador decide tudo."
+    },
+    "consequencias": {
+      "uma_vez": "Encontro aplicado uma única vez (marcação persistida), como na caça atual.",
+      "carga": "Retirada ou derrota perde 50% da carga já reunida; vitória ou fuga do animal não perde carga.",
+      "equipamento": "Sem perda de equipamento nesta etapa (o artesanato ainda não existe para repor).",
+      "continuidade": "Vitória ou fuga do animal com todos aptos: a atividade continua. Qualquer incapacitado, retirada ou derrota: inicia o retorno.",
+      "ferimentos_xp_mortes": "Regras já aprovadas da etapa 9 (caca.gd), inclusive teste de sobrevivência."
+    },
+    "resumo_final": "Recursos trazidos (entram ao chegar), perdas, XP por pessoa, feridos/mortos e como o encontro foi resolvido (manual/simulado). No feed e em Acompanhar."
+  }
+}

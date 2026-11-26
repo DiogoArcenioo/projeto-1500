@@ -3,6 +3,9 @@ signal pausa_solicitada
 signal velocidade_solicitada(valor: int)
 signal escala_solicitada(valor: float)
 signal ocultar_solicitado
+## Etapa 11: botões do cartão de alerta de perigo.
+signal alerta_assumir(id: String)
+signal alerta_simular(id: String)
 const Icone=preload("res://scripts/partida/icone_recurso.gd")
 const Casca=preload("res://scripts/ui/estilo_casca.gd")
 const RECURSOS := {"madeira":"Madeira","pedra":"Pedra","fibras_vegetais":"Fibras vegetais","vegetais":"Vegetais","carne":"Carne","peixe":"Peixe","couro":"Couro","plantas_medicinais":"Plantas medicinais"}
@@ -16,6 +19,28 @@ var barra: PanelContainer
 var linha: HBoxContainer
 var feed: VBoxContainer
 var avisos: Array[Dictionary]=[]
+## Cartões de alerta (topo do feed), lidos do estado das expedições a cada atualização.
+var cartoes: VBoxContainer
+var alertas: Dictionary={}
+const URUCUM:=Color("b5482a")
+
+class Pata extends Control:
+	## Ícone de perigo: pegada desenhada em vetor.
+	var cor:=Color("fff1cf")
+	func _draw() -> void:
+		var s:=size.x
+		draw_circle(Vector2(s*.5,s*.66),s*.22,cor)
+		for p: Vector2 in [Vector2(.22,.36),Vector2(.4,.2),Vector2(.6,.2),Vector2(.78,.36)]:
+			draw_circle(p*s,s*.1,cor)
+
+class Prazo extends Control:
+	var fracao:=1.0:
+		set(v):
+			fracao=v
+			queue_redraw()
+	func _draw() -> void:
+		draw_rect(Rect2(Vector2.ZERO,size),Color(0.21,0.15,0.1,.35))
+		draw_rect(Rect2(Vector2.ZERO,Vector2(size.x*clampf(fracao,0,1),size.y)),Color("b5482a"))
 var escala_indice:=1
 var acumulado:=0.0
 
@@ -94,6 +119,10 @@ func _ready() -> void:
 	feed.add_theme_constant_override("separation",6)
 	add_child(feed)
 	feed.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	cartoes=VBoxContainer.new()
+	cartoes.add_theme_constant_override("separation",6)
+	cartoes.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	feed.add_child(cartoes)
 	resized.connect(ajustar)
 	ajustar()
 
@@ -104,13 +133,16 @@ func trocar_escala() -> void:
 func ajustar() -> void:
 	if not feed: return
 	barra.size.x=size.x
-	feed.position=Vector2(maxf(8,size.x-320),barra.size.y+12)
-	feed.size.x=308
+	feed.position=Vector2(maxf(8,size.x-352),barra.size.y+12)
+	feed.size.x=340
 
 func configurar(novo) -> void:
 	estado=novo
 	avisos.clear()
-	for filho in feed.get_children(): filho.queue_free()
+	for filho in feed.get_children():
+		if filho!=cartoes: filho.queue_free()
+	for c in cartoes.get_children(): c.queue_free()
+	alertas.clear()
 	atualizar()
 
 func atualizar() -> void:
@@ -126,15 +158,133 @@ func atualizar() -> void:
 	pausa.text="▶" if estado.relogio.pausado else "Ⅱ"
 	for i in range(velocidades.size()):
 		velocidades[i].disabled=estado.relogio.velocidade==i+1
+	atualizar_alertas()
+
+func texto_casca(pai: Node,valor: String,tam: int,cor: Color,titulo:=false) -> Label:
+	var l:=Label.new()
+	l.text=valor
+	l.add_theme_font_override("font",Casca.FONTE_TITULO if titulo else Casca.FONTE_TEXTO)
+	l.add_theme_font_size_override("font_size",tam)
+	l.add_theme_color_override("font_color",cor)
+	pai.add_child(l)
+	return l
+
+## Título do perigo conforme o animal (texto curto, legível no feed).
+static func titulo_perigo(animal: String) -> String:
+	return {"queixada":"Queixada cerca a equipe","anta":"Anta assustada avança","jacare_papo_amarelo":"Jacaré na margem",
+		"onca_pintada":"Onça-pintada à espreita","capivara":"Capivara à vista"}.get(animal,"Animal ameaça a equipe")
+
+func cartao_alerta(e: Dictionary) -> Dictionary:
+	var painel:=PanelContainer.new()
+	painel.add_theme_stylebox_override("panel",Casca.painel())
+	painel.mouse_filter=Control.MOUSE_FILTER_STOP
+	cartoes.add_child(painel)
+	var v:=VBoxContainer.new()
+	v.add_theme_constant_override("separation",4)
+	painel.add_child(v)
+	var faixa:=PanelContainer.new()
+	var sb:=StyleBoxFlat.new()
+	sb.bg_color=URUCUM
+	sb.set_corner_radius_all(4)
+	sb.content_margin_left=8
+	sb.content_margin_right=8
+	sb.content_margin_top=3
+	sb.content_margin_bottom=3
+	faixa.add_theme_stylebox_override("panel",sb)
+	v.add_child(faixa)
+	var h:=HBoxContainer.new()
+	faixa.add_child(h)
+	var pata:=Pata.new()
+	pata.custom_minimum_size=Vector2(20,20)
+	h.add_child(pata)
+	texto_casca(h,"Perigo · "+estado.Expedicoes.NOMES_ATIVIDADE.get(e.tipo,e.tipo),15,Casca.CREME,true)
+	texto_casca(v,titulo_perigo(e.combate.animal),17,Casca.TINTA_DESTAQUE,true)
+	var linha_equipe:=HBoxContainer.new()
+	v.add_child(linha_equipe)
+	for id in e.equipe:
+		var p: Dictionary=estado.pessoa(id)
+		var t:=TextureRect.new()
+		t.texture=load("res://assets/ui/retratos/%s.png"%p.get("visual","homem_01"))
+		t.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
+		t.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		t.custom_minimum_size=Vector2(30,30)
+		t.tooltip_text=p.get("nome","")
+		linha_equipe.add_child(t)
+	var regiao: int=int(e.regiao)
+	var nome_regiao: String=estado.Regioes.definicoes()[regiao].nome if int(estado.conhecimento[str(regiao)])>0 else "Região desconhecida"
+	texto_casca(linha_equipe,"  "+nome_regiao,14,Casca.TINTA_SUAVE)
+	var prazo:=Prazo.new()
+	prazo.custom_minimum_size=Vector2(0,7)
+	v.add_child(prazo)
+	var contagem:=texto_casca(v,"",13,Casca.TINTA_SUAVE)
+	var botoes:=HBoxContainer.new()
+	botoes.add_theme_constant_override("separation",6)
+	v.add_child(botoes)
+	var id_exp: String=e.id
+	var assumir:=Button.new()
+	assumir.text="Assumir combate"
+	Casca.botao(assumir,true)
+	assumir.add_theme_font_size_override("font_size",14)
+	assumir.focus_mode=Control.FOCUS_NONE
+	assumir.pressed.connect(func(): alerta_assumir.emit(id_exp))
+	botoes.add_child(assumir)
+	var indisponivel:=texto_casca(botoes,"Manual ainda indisponível",13,Casca.TINTA_SUAVE)
+	var simular:=Button.new()
+	simular.text="Deixar simular"
+	Casca.botao(simular)
+	simular.add_theme_font_size_override("font_size",14)
+	simular.focus_mode=Control.FOCUS_NONE
+	simular.pressed.connect(func(): alerta_simular.emit(id_exp))
+	botoes.add_child(simular)
+	return {"painel":painel,"prazo":prazo,"contagem":contagem,"assumir":assumir,"indisponivel":indisponivel,"simular":simular}
+
+func atualizar_alertas() -> void:
+	if not cartoes or estado==null: return
+	var abertos:={}
+	for e: Dictionary in estado.Expedicoes.alertas(estado):
+		abertos[e.id]=true
+		if not alertas.has(e.id): alertas[e.id]=cartao_alerta(e)
+		var c: Dictionary=alertas[e.id]
+		c.prazo.fracao=float(e.restante)/estado.Expedicoes.PRAZO_ALERTA
+		c.contagem.text="Intervir em %d s · velocidade reduzida para 1×"%ceili(e.restante)
+		var manual: bool=estado.Expedicoes.manual_disponivel(e)
+		var ocupado: bool=not estado.Expedicoes.manual_pendente(estado).is_empty()
+		c.assumir.visible=manual
+		c.assumir.disabled=ocupado
+		c.assumir.tooltip_text="Conclua o combate em andamento antes." if ocupado else "Jogar este encontro no tabuleiro (o sorteio já feito é mantido)."
+		c.indisponivel.visible=not manual
+		c.simular.tooltip_text="A equipe resolve sozinha com a política %s."%e.get("politica","equilibrada")
+	for id in alertas.keys():
+		if not abertos.has(id):
+			alertas[id].painel.queue_free()
+			alertas.erase(id)
 
 func notificar(msg: String) -> void:
 	if msg.is_empty(): return
+	# O alerta de perigo tem cartão próprio; não repetir como aviso simples.
+	if msg.contains("PERIGO ·"):
+		atualizar_alertas()
+		return
 	var painel:=PanelContainer.new()
-	painel.add_theme_stylebox_override("panel",estilo())
-	feed.add_child(painel)
-	var texto:=rotulo(painel,msg)
-	texto.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	avisos.append({"painel":painel,"restante":9.0})
+	var duracao:=9.0
+	if msg.contains("Resumo ·"):
+		# Resumo final da viagem: título e linhas, mais tempo na tela.
+		painel.add_theme_stylebox_override("panel",Casca.painel())
+		feed.add_child(painel)
+		var v:=VBoxContainer.new()
+		painel.add_child(v)
+		var partes:=msg.substr(msg.find("Resumo ·")).split("\n")
+		texto_casca(v,partes[0],16,Casca.TINTA_DESTAQUE,true)
+		for linha in partes.slice(1):
+			var l:=texto_casca(v,linha,14,Casca.TINTA)
+			l.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+		duracao=20.0
+	else:
+		painel.add_theme_stylebox_override("panel",estilo())
+		feed.add_child(painel)
+		var texto:=rotulo(painel,msg)
+		texto.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	avisos.append({"painel":painel,"restante":duracao})
 	if avisos.size()>3:
 		avisos.pop_front().painel.queue_free()
 

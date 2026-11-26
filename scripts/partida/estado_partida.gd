@@ -15,6 +15,8 @@ var camera: Dictionary = {}
 var conhecimento: Dictionary = Regioes.iniciais()
 var expedicoes: Array = []
 var sequencia_expedicao: int = 0
+## Etapa 11: velocidade escolhida antes de um alerta de perigo (0 = nenhum alerta).
+var velocidade_antes_alerta: int = 0
 
 static func nova(configuracao: Resource) -> RefCounted:
 	var estado = load("res://scripts/partida/estado_partida.gd").new()
@@ -31,7 +33,7 @@ func serializar() -> Dictionary:
 	return {"id_partida": id_partida, "modo": modo, "relogio": relogio.serializar(),
 		"fogueira": {"nivel": nivel_fogueira}, "habitantes": habitantes.duplicate(true),
 		"construcoes": construcoes.duplicate(true), "estoque": estoque.duplicate(true), "camera": camera.duplicate(true),
-		"conhecimento":conhecimento.duplicate(true),"expedicoes":expedicoes.duplicate(true),"sequencia_expedicao":sequencia_expedicao,
+		"conhecimento":conhecimento.duplicate(true),"expedicoes":expedicoes.duplicate(true),"sequencia_expedicao":sequencia_expedicao,"velocidade_antes_alerta":velocidade_antes_alerta,
 		"tempo_economia":tempo_economia,"alimentos":alimentos.duplicate(true)}
 
 static func numero(valor: Variant, minimo: float, maximo: float, inteiro: bool = false) -> bool:
@@ -57,6 +59,8 @@ static func validar(dados: Variant) -> String:
 		return "Tempo de jogo inválido."
 	if not numero(tempo.get("velocidade"), 1, 3, true) or not tempo.get("pausado") is bool:
 		return "Velocidade ou pausa inválida."
+	if not numero(dados.get("velocidade_antes_alerta", 0), 0, 3, true):
+		return "Velocidade anterior ao alerta inválida."
 	var fogueira: Variant = dados.get("fogueira")
 	if not fogueira is Dictionary or not numero(fogueira.get("nivel"), 1, 1, true):
 		return "Fogueira incompatível com a etapa 2."
@@ -199,6 +203,7 @@ static func desserializar(dados: Dictionary) -> RefCounted:
 	estado.conhecimento = dados.get("conhecimento",Regioes.iniciais()).duplicate(true)
 	estado.expedicoes = dados.get("expedicoes",[]).duplicate(true)
 	estado.sequencia_expedicao = int(dados.get("sequencia_expedicao",0))
+	estado.velocidade_antes_alerta = int(dados.get("velocidade_antes_alerta",0))
 	estado.tempo_economia=float(dados.get("tempo_economia",dados.relogio.tempo_total))
 	estado.alimentos=dados.get("alimentos",{}).duplicate(true)
 	Alimentacao.assegurar(estado)
@@ -231,6 +236,7 @@ func avancar_simulacao(segundos: float) -> Array[String]:
 			passo=minf(passo,e.restante)
 			if e.fase=="exploracao":
 				passo=minf(passo,(e.ciclos+1)*Expedicoes.intervalo(e)-e.explorado)
+				if float(e.get("encontro",{}).get("em",-1))>=0: passo=minf(passo,e.encontro.em-e.explorado)
 		passo=minf(saldo,maxf(.00001,passo))
 		tempo_economia+=passo
 		avisos.append_array(Agricultura.avancar(self,passo,eficiencia))

@@ -28,8 +28,9 @@ func clicar(botao: Control) -> void:
 		botao.pressed.emit()
 		return
 	await aguardar()
-	if cena.painel_expedicoes.rolagem.is_ancestor_of(botao):
-		cena.painel_expedicoes.rolagem.ensure_control_visible(botao)
+	var rolagem: Variant = cena.painel_expedicoes.rolagem
+	if is_instance_valid(rolagem) and rolagem.is_ancestor_of(botao):
+		rolagem.ensure_control_visible(botao)
 		await aguardar()
 	var p:=botao.get_global_rect().get_center()
 	var movimento:=InputEventMouseMotion.new()

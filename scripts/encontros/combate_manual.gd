@@ -33,7 +33,8 @@ func _ready() -> void:
 		nomes[a.id]=nome
 		var antigo:=get_node(nome)
 		remove_child(antigo);antigo.queue_free()
-		var caminho: String="res://assets/models/animais/batalha/capivara.glb" if a.lado=="animal" else "res://assets/models/habitantes/batalha/"+estado.pessoa(a.id).visual+".glb"
+		# O nó do animal mantém o nome "Capivara" da cena; o modelo segue a espécie sorteada.
+		var caminho: String="res://assets/models/animais/batalha/%s.glb"%combate.animal if a.lado=="animal" else "res://assets/models/habitantes/batalha/"+estado.pessoa(a.id).visual+".glb"
 		var modelo: Node3D=load(caminho).instantiate()
 		modelo.name=nome;add_child(modelo);atores[nome]=modelo
 		if a.lado=="equipe": equipe.append(modelo)
@@ -45,7 +46,8 @@ func _ready() -> void:
 	sincronizar_atores()
 	for a: Dictionary in combate.atores:
 		if a.lado=="equipe":
-			armar(atores[nomes[a.id]],a.equipamento)
+			# A ferramenta básica (coleta, pesca, reconhecimento) usa a lança como pau de cavar.
+			armar(atores[nomes[a.id]],"lanca" if a.equipamento=="ferramenta" else a.equipamento)
 			if a.equipamento=="arco": arcos.append({"nome":nomes[a.id],"suporte":arco_suporte,"corda":corda})
 		for m: MeshInstance3D in atores[nomes[a.id]].find_children("*","MeshInstance3D",true,false): m.layers=3
 	criar_grade()
@@ -63,7 +65,7 @@ func _ready() -> void:
 	transicao=create_tween()
 	transicao.tween_interval(1.1)
 	transicao.tween_callback(func():
-		$Capivara.show();revelou=true;fichas.show();dados.show();legenda.text="Capivara";atualizar_interface();sinal_sonoro(false))
+		$Capivara.show();revelou=true;fichas.show();dados.show();legenda.text=Regras.nome_animal(combate.animal);atualizar_interface();sinal_sonoro(false))
 	transicao.tween_interval(1.4)
 	transicao.tween_callback(func():iniciar_decisoes(false))
 	atualizar_interface()
@@ -194,7 +196,7 @@ func atualizar_interface() -> void:
 		detalhe.text="Observe a mata ou pule a introdução com Espaço."
 		return
 	if acabou:
-		titulo_turno.text={"vitoria":"Caça concluída","animal_fugiu":"A capivara escapou","retirada":"Equipe em retirada","derrota":"Equipe derrotada","impasse":"Confronto encerrado sem avanço"}.get(combate.resultado,"Confronto encerrado")
+		titulo_turno.text={"vitoria":"Caça concluída","animal_fugiu":"%s escapou"%Regras.nome_animal(combate.animal),"retirada":"Equipe em retirada","derrota":"Equipe derrotada","impasse":"Confronto encerrado sem avanço"}.get(combate.resultado,"Confronto encerrado")
 		var carga: Array[String]=[]
 		for recurso in viagem.carga: carga.append("%d %s"%[viagem.carga[recurso],recurso.replace("_"," ")])
 		var condicao: Array[String]=[]

@@ -134,7 +134,8 @@ func criar_legendas() -> void:
 	hud.add_child(raiz)
 	legenda=Label.new()
 	legenda.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	legenda.offset_top=24
+	# Abaixo das fichas: com dois moradores e o animal elas ocupam o topo.
+	legenda.offset_top=134
 	legenda.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
 	legenda.add_theme_font_override("font",FONTE)
 	legenda.add_theme_font_size_override("font_size",27)
