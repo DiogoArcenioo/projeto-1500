@@ -1,0 +1,406 @@
+# Progresso — 1500
+
+## Etapa 10 — integração funcional concluída para teste do responsável
+
+Após a demonstração das animações/interface, o responsável pediu o próximo passo e autorizou explicitamente finalizar a integração com **“Termina então”**. Esse aceite autoriza conectar o conjunto visual demonstrado (portão B) às regras reais (C). Capivara A e composição/câmera já aprovadas; focinho voltado ao centro da equipe mantido. Aceite da entrega funcional ainda depende do teste do responsável; etapa 11 não iniciada. As seções abaixo são o histórico das entregas anteriores.
+
+- `scripts/partida/painel_expedicoes.gd`: opção Simular/Jogar combate manual na confirmação da caça; manual limitado às regiões 14/21, com fauna capivara já aprovada. Coleta, reconhecimento, pesca e demais caças simuladas preservados. Modo gravado na expedição; saves anteriores sem campo continuam simulados. Validação rejeita modo/região/espécie incompatíveis, sem rerrolar ou forçar outro animal.
+- `scripts/partida/expedicoes.gd`: confronto manual permanece pendente; comandos usam o mesmo `combate.gd` e a mesma RNG persistente da etapa 9. Finalização aplica saúde, sobrevivência/morte, XP e carga uma vez, muda para retorno e não reinicia viagem em chamadas repetidas. Recompensa só é descarregada ao retornar. `estado_partida.gd` para no instante do encontro, inclusive em avanços grandes, mantendo as outras equipes no mesmo relógio.
+- `scripts/partida/principal.gd`: troca de apresentação no mesmo estado da partida, com aldeia/mapa/menus/câmera desativados temporariamente. Relógio e expedições paralelas congelados por toda a apresentação/luta/resultado. Não altera velocidade ou pausa desejada: retoma exatamente como estava, inclusive após carregar. Ambiente/câmera da aldeia restaurados ao concluir. F6/F7 e fechamento com autosave continuam disponíveis. Carregar confronto em andamento abre a mesma luta; carregar resultado aplicado não reabre nem paga outra recompensa.
+- `scenes/encontros/combate_manual.tscn` e `scripts/encontros/combate_manual.gd`: reutilizam a clareira aprovada; entrada curta com animal/fichas inicialmente ocultos, revelação e câmera atrás da equipe. Iniciativa já sorteada no motor; IA atua quando necessário e câmera abre suavemente no primeiro turno humano. Espaço/botão pulam apresentação sem mudar o estado. Tabuleiro real 8×8 com bloqueios/cobertura, casas alcançáveis, alvo válido, fichas com retratos/nomes/HP/PA/iniciativa, registro rolável de D20 e modificadores. Mover/Atacar/Proteger selecionam casa/alvo por raycast no terreno; Mirar/Defender/Fugir/Encerrar turno despacham comandos reais. Ações inválidas preservam PA/RNG. Controles bloqueados durante animações.
+- Animações visuais seguem o resultado já calculado: lança/arco acerta ou erra, alvo recebe golpe/esquiva, defesa/proteção, caminhada articulada por rota, flecha e corda por mão real (inclusive dois arcos), câmera aproxima no ataque e retorna suavemente. Pequenos sinais tonais originais de revelação/impacto/erro via AudioStreamWAV. Derrotados ficam ocultos após reação, sem gore. A capivara conserva sua política natural de priorizar fuga; não recebeu agressividade artificial para exibir o ataque.
+- Blender **5.2.2 LTS via MCP** confirmado; ampliado `tools/animar_moradores_batalha.py` às oito aparências aprovadas, 17 ossos/9 clipes (inclui andar) por personagem. Recomendação mantida: Blender para deformação/animação articulada, Godot para câmera/UI/efeitos e regras. Fonte atualizada `art/blender/moradores_batalha.blend`, oito GLBs em `assets/models/habitantes/batalha/`; modelos originais preservados. Capivara usa a cópia animada aprovada. Sem serviço externo pago ou instalação.
+- Teste rápido jogável: `scenes/inspecao/combate_manual_etapa_10.tscn` (**F6 no editor**), com `scripts/inspecao/partida_caca_manual.gd`. Prepara uma aldeia/equipe/expedição com atributos normais e antecipa a espera até o encontro, usando as mesmas regras; slots exclusivos `user://inspecao_etapa_10`. Na partida principal F5, usar Caçar → equipe → armas → confirmar modo manual → Arredores/Margem do rio → enviar e aguardar a busca.
+
+**Validação executada no Godot 4.7.2:** `tests/test_etapa_10.gd`: **159 verificações headless / 163 gráficas, zero falhas**. Inclui cliques reais em mover/atacar/mirar/defender/proteger/fugir/retorno, bloqueio de clique repetido, snapshot durante animação, persistência de sorteio/turno, congelamento de equipe paralela, pausa/velocidade anteriores, uma pessoa/dois arcos, clipes das oito aparências, vitória/retirada/derrota/fuga e idempotência de consequências/viagem. Casos de desfecho e alcance usam condições controladas internas (inclusive bônus elevados para garantir o resultado esperado); não mudam números da partida. Capturas `exports/revisao_etapa_10/` revisadas sob Forward+/Vulkan. Cena rápida também executada headless sem erros.
+
+Regressões headless: regras etapa 9 **449**, menu casca integrado **73**, etapa 8 **100**, etapas 6/7 **146**, interface 7 **29**, interface 9 **26**, construção modular **201**, seleção/plantio **55** — todas sem falhas. Persistência entre processos passou nas duas fases (`--gravar`, depois leitura); a primeira invocação sem a preparação obrigatória não encontrou a fixture e foi refeita com o procedimento correto. Nenhum slot real alterado. Editor validado pelo executável local; MCP do Godot havia estado indisponível nas entregas anteriores.
+
+**Limites:** somente a capivara tem apresentação manual nesta etapa; demais animais continuam simulados. Sem alertas/intervenção da etapa 11, cura completa/fadiga futura, novas armas ou rebalanceamento. Recarregar uma luta pode repetir a introdução visual; não repete iniciativa, dano ou recompensa. Sons são feedback curto original, sem trilha/ambiência de batalha completa. Inspeções demonstrativas antigas preservadas e identificadas como tal. Próximo passo depende do teste/aceite do responsável.
+
+## Etapa 10 — cena aprovada; novas animações e interface para aprovação B
+
+O responsável aceitou a composição/câmera produzida com “Pode fazer” e acrescentou a exigência de animações ao acertar, errar e receber ataques, tanto dos indígenas quanto dos animais. A aprovação B da cena foi registrada. O requisito de focinho voltado à equipe na abertura foi preservado. O portão B das novas animações e da interface requer demonstração antes de ligar às regras, conforme GDD; isso foi explicado no início do trabalho no chat. Esta entrega não conclui o combate manual ou a etapa 10.
+
+Blender via MCP, 5.2.2 LTS, confirmado conectado. Os modelos dos moradores aprovados tinham morph targets de caminhada/trabalho, sem esqueleto articulado. Criadas cópias de `homem_01.glb` e `mulher_01.glb` com rig de 17 ossos, pesos por regiões anatômicas e soluções analíticas de dois segmentos para os braços. Aparência, roupas, cabelos e geometria de referência preservadas. Correções após render: transição de pesos nos punhos/cotovelos e tratamento dos dedos, cabelo preso à cabeça e exclusão da roupa da seleção de braços. Rigs em `assets/models/habitantes/batalha/`, fonte editável `art/blender/moradores_batalha.blend`; produção reprodutível `tools/animar_moradores_batalha.py`. Clipes pronto, atacar/errar lança, atacar/errar arco, receber golpe, esquivar e defender. Primeira dupla para validar o conjunto antes de aplicar às outras seis aparências.
+
+Cópia da capivara aprovada em `assets/models/animais/batalha/capivara.glb`, fonte `art/blender/capivara_batalha.blend`, script `tools/animar_capivara_batalha.py`. Mantidos os clipes anteriores; adicionados investida, erro de ataque, receber golpe e esquivar. Anatomia/pintura preservadas, pós-importador mantém cores por vértice. Não foi alterada a IA de fuga da capivara; o ataque defensivo é demonstrado numa sequência visual controlada.
+
+`scenes/inspecao/batalha_animacoes_etapa_10.tscn` e `scripts/inspecao/inspecao_animacoes_batalha.gd` reutilizam a composição aprovada. Armas recortadas do centro de caça acompanham as mãos via BoneAttachment3D; arco orientado no plano de tiro, corda dinâmica acompanha a mão de puxada, flecha visível em voo. Preparação, golpe/disparo e recuperação; alvo reage ao impacto no acerto ou esquiva no erro. Efeito de texto distingue −4 HP e ERROU, exclusivamente ilustrativos. Casca/Alegreya preservadas nos controles. Incluída proposta da interface tática com fichas de vida/PA e Mover/Atacar/Mirar/Defender/Proteger/Fugir/Encerrar turno; botões ainda não alteram dados da partida.
+
+`tools/revisar_animacoes_batalha.gd` passou em **46 verificações headless e 54 gráficas**, sem falhas. Confere clipes dos dois lados, rigs, rotação efetiva de braços, seis estados, ausência de dano ilustrativo no erro, direção da ponta da lança, bloqueio/liberação dos controles e interface com três participantes. Modo gráfico usa cliques reais e oito capturas, em `exports/revisao_animacoes_batalha/`. Fonte original dos moradores/capivara e a partida real não foram alterados por esta demonstração; nenhum slot de partida é usado.
+
+Vídeo `movimentos_batalha.mp4`: 180 frames reais do Godot, 1280 × 720, 12 fps, 15 s. Captura por `tools/filmar_animacoes_batalha.gd`, codificação H.264 pelo sequenciador nativo do Blender em `tools/codificar_video_batalha.py`, sem instalar FFmpeg ou usar serviço externo. Frames e capturas revisados. Importação final do Godot sem erros/avisos.
+
+Para avaliar: abrir a cena e F6, teclas 1–6 ou botões para os seis exemplos, câmera lenta e Interface para o painel tático. Pendente o aceite visual B desse conjunto; depois estender às variantes e integrar comandos, resultados reais, pausa da aldeia e persistência da etapa 10. Não foi implementada intervenção do feed da etapa 11, nem marcada a etapa como concluída.
+
+## Etapa 10 — apresentação do encontro produzida; portão B da cena pendente
+
+O responsável aprovou explicitamente o storyboard: “Aprovo, so garante q o focinho do animal sempre estará virado para as pessoas no inicio da luta”, seguido de “Continua”. Referência A da cena registrada. Produção em Godot, conforme recomendação, reutilizando modelos e geometria aprovados; sem novo Blender, serviço pago ou arquivo Markdown adicional.
+
+`scenes/inspecao/encontro_capivara_etapa_10.tscn` e `scripts/inspecao/inspecao_encontro_capivara.gd` compõem a dupla, capivara e clareira à margem do rio. Revelação atrás da equipe, legenda, pausa curta e Tween suave de 2,8 s abrindo para visão elevada, com grade 8 × 8, seleção e casas de demonstração. Atalhos para ver estados, repetir/pular e alternar tarde/noite. A câmera se posiciona a partir do centro da equipe; a introdução completa e o salto chegam à mesma visão final. Não há sorteio, simulação de combate ou salvamento nesta inspeção.
+
+`scripts/encontros/orientacao_encontro.gd` centraliza a orientação de abertura. Calcula o centro dos moradores e faz o animal encará-lo no plano horizontal usando +Z, frente real do GLB aprovado; os moradores também encaram o animal. Aplicado antes da primeira câmera e a cada repetição. Trata equipe de uma pessoa, alturas distintas, equipe vazia e direção horizontal nula sem gerar look_at inválido. A implementação futura da luta deve reutilizar essa orientação na abertura, preservando a exigência do responsável.
+
+`scripts/encontros/recortes_visuais.gd` reutiliza áreas da geometria aprovada, sem alterar malhas originais: limpa o capim do espaço de decisão e recorta arco/lança do GLB do centro de caça. Encaixe das armas estimado pelos vértices das mãos dos moradores (os modelos atuais usam morph targets, sem Skeleton3D). Bromélias aprovadas nas bordas; fogueira oculta somente nesta instância. `solo_vivo.gdshader` recebeu parâmetro de centro da clareira, com padrão zero preservando a partida e valor diferente somente no material duplicado desta cena.
+
+Validação por `tools/revisar_encontro_capivara.gd`: **26 verificações headless sem falhas**. Inclui 12 direções ao redor da equipe, correspondência do eixo real da cabeça, casos degenerados, orientação antes/durante/depois da apresentação, enquadramento dos quatro cantos da grade e equivalência de câmeras entre pular/assistir. A rodada gráfica final inclui a transição intermediária e sequência automática completa. Quatro capturas Forward+/Vulkan em `exports/revisao_encontro_capivara/`, revisadas visualmente. Importação e inicialização da partida principal sem erros/avisos após a alteração do shader. O MCP do editor segue desconectado; validação feita diretamente pelo executável Godot 4.7.2. Não foi iniciada a etapa 11.
+
+Para avaliar: abrir a cena e F6. 1 revelação, 2/Espaço visão tática, R repetir introdução automática, N tarde/noite. O aceite B da composição/movimento da câmera permanece pendente no chat; combate manual, comandos, persistência e integração à expedição aguardam esse aceite. Não marcar a etapa 10 como concluída.
+
+## Etapa 10 — modelo da capivara aprovado; referência do encontro pendente
+
+O responsável respondeu “Aprovado” à apresentação do modelo da capivara no Godot, incluindo rig, movimentos de inspeção e comparação de escala. Portão B da capivara registrado como aprovado, sem presumir conclusão da etapa 10. Modelo, materiais e proporções devem ser preservados.
+
+Próximo portão pendente: escolha explícita da direção da cena `art/references/etapa_10/encontro_cinematografico.png`, reapresentada no chat. Propõe revelação atrás da equipe e abertura para vista tática elevada à margem do rio. Recomendação técnica: composição no Godot com moradores, capivara, terreno e vegetação aprovados, para validar câmeras e legibilidade sob iluminação real. O “A” anterior escolheu o animal; o “Aprovado” atual aceitou seu modelo, sem responder à questão da cena. Não foi iniciado o combate manual ou outro animal nesta rodada.
+
+## Etapa 10 — capivara A modelada para aprovação B
+
+Escolha explícita do responsável: “A”, referente à prancha `art/references/etapa_10/capivara_opcoes.png`. Não foi presumida aprovação do storyboard de encontro, que permanece pendente. Ferramenta confirmada: Blender via MCP, conectado e atualizado, Blender 5.2.2 LTS. Produção original por malha anatômica unificada, cabeça de focinho rombo, olhos com pálpebras, pequenas orelhas, narinas, boca fechada e unhas. Refinamentos feitos após renders: focinho encurtado/alargado, saliências das patas reduzidas, olhos ajustados à superfície por ray cast e orelhas encaixadas na cabeça.
+
+Fonte independente em `art/blender/capivara.blend`, GLB `assets/models/animais/capivara.glb`. Script reprodutível `tools/modelar_capivara.py`, seguido de `tools/finalizar_capivara.py`. Uma malha, duas superfícies, 4.252 triângulos no fonte e 16 ossos, dimensões aproximadas 1,14 m de comprimento, 0,48 m de largura e 0,76 m de altura incluindo orelhas. Pintura por face em cores de vértice, sem textura externa. Metadados em `art/references/etapa_10/medidas_capivara.json`. Os arquivos das ocas, centros e moradores e as cenas anteriores foram preservados.
+
+Três movimentos em loop para inspeção: parada com respiração discreta, caminhada e corrida no lugar. Pesos normalizados e separação dos membros, cabeça e tronco. Foram revisados quatro frames de caminhada no Blender. Exportação pelas três trilhas NLA do rig atual, evitando duplicar ações de outras cenas abertas. A primeira importação revelou cores presentes na malha, mas desabilitadas em uma superfície do material; `scripts/inspecao/importar_capivara.gd` corrige a configuração no pós-importador do GLB, preservando o marrom/caramelo sob a iluminação real.
+
+Cena isolada `scenes/inspecao/capivara_etapa_10.tscn`, com `scripts/inspecao/inspecao_capivara.gd`. Clareira aprovada, escala comparada com `homem_01.glb`, câmeras frente/lateral/costas/geral e tarde/noite. Não cria partida, envia expedições, acessa salvamentos ou altera regras. Aprovação B do modelo e movimentos pendente da revisão do responsável; integração funcional da etapa 10 não iniciada. A direção da clareira cinematográfica do conceito também continua pendente.
+
+Para revisar no Godot: abrir a cena e F6; 1 geral, 2 frente, 3 lateral, 4 costas, 5 escala com morador, P parada, C andar, F correr, N tarde/noite. Capturas em `exports/revisao_capivara/`. `tools/revisar_capivara.gd`: **17 verificações headless e 24 gráficas sem falhas**, incluindo dimensões, solo, uma malha/duas superfícies, cores de vértice habilitadas, 16 ossos, pesos normalizados, três clipes e rotação efetiva das patas dianteiras. Sete capturas em Forward+/Vulkan; o aceite artístico permanece com o responsável.
+
+## Etapa 10 — referências da capivara e do primeiro encontro
+
+O responsável autorizou iniciar a etapa 10 após a explicação do combate manual/câmera cinematográfica e da necessidade de aprovar referências primeiro. Nesta rodada foi executado somente o portão A, sem presumir aprovação dos conceitos ou implementar a apresentação jogável.
+
+Pesquisa anatômica/ecológica em fontes primárias: Fiocruz (`https://curtabiodiversidade.fiocruz.br/megabio_posts/capivara/`), Brasília Ambiental (`https://ibram.df.gov.br/caracteristicas-gerais-das-capivaras`), San Diego Zoo (`https://zoo.sandiegozoo.org/animals/capybara`) e fotografia do ICMBio registrada no JSON. Capivara adulta, corpo robusto, cabeça alongada de focinho rombo, membros curtos, orelhas pequenas e associação com rios/lagoas. A pesquisa sustenta espécie/habitat, não uma alegação de costume de caça Tupinambá ou reconstrução histórica da cena.
+
+Produzidas pela image_gen integrada duas pranchas de conceito: `art/references/etapa_10/capivara_opcoes.png` (A mais facetada, recomendada; B mais arredondada) e `encontro_cinematografico.png` (revelação atrás dos dois moradores e visão tática elevada da mesma clareira). Referências de estilo são capturas reais do rio e dos oito moradores aprovados. Verde esmeralda/água azul-petróleo, terra ocre, luz dourada e pequenos acentos coral; vegetação mantida fora da área principal de decisão. São propostas geradas, não capturas de implementação. A grade desenhada é indicativa; na produção, o motor seguirá 8 × 8 e a escala será validada no Godot.
+
+Ferramenta recomendada: Blender via MCP para modelagem original, controle anatômico, malha preparada para rig e animações de postura/caminhada/fuga; fonte `.blend` em `art/blender/`, GLB em `assets/models/animais/`. Godot para validar o asset com iluminação/escala reais e depois as câmeras. Não foi usado ou autorizado Meshy. A capivara deve conservar o comportamento existente de priorizar fuga, sem inventar agressividade para forçar confronto.
+
+Prompts completos, origens, proposta de escala e limites em `art/references/etapa_10/proposta_capivara_encontro.json`. Imagens revisadas visualmente. Aguardando escolha da capivara A/B e aceite da direção da cena no chat, conforme portão A do GDD. Nenhum novo modelo, animação, código de gameplay ou mudança de balanceamento produzido nesta rodada; sem avanço para a etapa 11.
+
+## Menu de casca — integração funcional autorizada e entregue para testes
+
+O responsável aprovou explicitamente o visual com “Perfeito agr qual p proximo?” e autorizou a integração à partida com “Faz isso então”. Portão B aprovado; integração C executada dentro das atividades existentes, sem avanço à etapa 10 e sem mudanças no balanceamento.
+
+- Visual aprovado compartilhado em `scripts/ui/menu_expedicao_casca.gd`; fixture de demonstração isolada em `scripts/inspecao/menu_expedicao_casca.gd`. A partida usa o estado real via `scripts/partida/painel_expedicoes.gd`; não cria habitantes ou XP fictícios. Retratos seguem o campo `visual` do mesmo morador identificado por ID.
+- `scripts/partida/principal.gd` encaminha a seleção de centros prontos ao menu compacto. Ação de atividade, acompanhamento e Gerenciar; este último mantém acesso à alocação original. Entrada geral permite trocar de centro e a entrada do mapa preserva o destino; fronteiras escolhem um centro de coleta compatível.
+- Equipe → Equipamentos → Confirmação usa as regras existentes. Moradores ocupados/em viagem/sem saúde ficam indisponíveis; mortos são excluídos. Limite de dois, seleção preservada ao voltar, arco/lança por integrante, dados reais de XP/atributos/saúde. Reconhecimento mostra XP total, pois não existe uma habilidade separada de exploração. Listas têm rolagem para aldeias maiores.
+- Destinos filtrados por conhecimento, caminho, peixes ou fauna; coleta/reconhecimento continuam disponíveis. Validação do motor permanece antes do envio. Equipamentos são passados à expedição real e persistidos pelo salvamento existente, sem novo esquema ou banco externo.
+- Acompanhamento mantém fases, tempo, progresso, carga, entrega, XP, conhecimento, condição dos participantes, registro do confronto e solicitação de retorno/retirada conforme PA/turno. Atualização a cada 0,25 s; mudanças no estado refazem a tela preservando a rolagem. Texto escuro sobre a casca, barras de progresso na paleta aprovada. Fechar devolve o controle da câmera e seleção da aldeia.
+
+Validação: `tests/test_menu_casca_integrado.gd` passou em **73 verificações headless**; a rodada gráfica dos quatro fluxos passou em **90 verificações, zero falhas**, com cliques reais nas fichas, armas, navegação, envio e retorno. Testados slots exclusivos, salvamento/carregamento durante viagem, equipe indisponível, cancelamento, viagem completa de pesca, entrega e ausência de duplicação ao carregar. Checks adicionais headless cobrem mortos, trabalhadores de outro centro e entrada de fronteira do mapa. Vinte capturas em `exports/revisao_menu_casca_integrado/` inspecionadas. Atualizados os testes das interfaces antigas para navegar pela sequência nova: interface 7 (29), interface 9 (26), etapa 8 (102) e regras etapa 9 (449), todos headless sem falhas. Prévia visual preservada: 46 checks headless sem falhas. Importação final no Godot 4.7.2 sem erros/avisos. Nenhum slot real usado pelos testes.
+
+Teste do responsável: F5, carregar a partida se desejado, clicar em centro pronto, iniciar atividade, selecionar equipe, avançar/equipar/confirmar. Usar Acompanhar para o retorno e Gerenciar para trabalhadores. F6/F7 na janela salvam/carregam. Aprovação da entrega funcional pendente do teste do responsável.
+
+### Revisão do menu de casca — margens e tipografia
+
+Após avaliar as capturas, o responsável pediu que textos e botões ficassem integralmente na superfície clara, afastados da borda escura, e uma fonte mais adequada à estética do jogo. Corrigida a causa: os cortes de nine-patch atravessavam partes irregulares da borda e as esticavam para dentro. A folha agora é escalada inteira e tem margens de conteúdo ampliadas; o rodapé, cabeçalho, fichas e menu pequeno preservam respiro interno. Ajustada a altura dos botões das fichas para manter os oito moradores visíveis e melhorar o contraste dos botões desativados.
+
+Tipografia da prévia: Alegreya SC Bold nos títulos, nomes e ações; Alegreya Sans Medium nas informações e atributos. Arquivos originais obtidos do repositório oficial Google Fonts (`ofl/alegreyasc` e `ofl/alegreyasans`), com licenças integrais SIL OFL 1.1 em `assets/ui/fonts/`. Fontes sem alterações; origem e justificativa em `art/references/menu_expedicoes/proposta_casca.json`. Escolha artística para avaliação, sem atribuir identidade histórica à tipografia. Estado demonstrativo agora tem ID fixo para manter as mesmas fichas entre capturas.
+
+Validação final: **46 verificações headless e 52 gráficas sem falhas**, em Godot 4.7.2, seis capturas atualizadas em `exports/revisao_menu_casca/`. Além da navegação existente, verifica textos/botões dentro de um retângulo seguro da arte, largura do texto dentro dos componentes e presença dos acentos portugueses nas duas fontes. Capturas de equipe, equipamentos, confirmação, kits e menu compacto inspecionadas. A conexão MCP do editor estava indisponível; execução e validação feitas diretamente pelo executável Godot. Mantido o portão B pendente: somente a cena de prévia foi alterada; não houve integração funcional ou avanço de etapa.
+
+## Menu de expedições — prévia em casca interna para aprovação B
+
+Direção visual solicitada explicitamente no chat: um menu pequeno junto à construção, ação Caçar/Pescar/Enviar expedição, depois fichas de moradores com retrato, nome, experiência e atributos; equipamentos e confirmação. Superfície com aparência da parte interna de uma casca de árvore, substituindo o verde simples dos menus de expedição. Pedido tratado como orientação A; aprovação B do protótipo visual permanece pendente, conforme regra do GDD. Não houve avanço de etapa.
+
+Produção em Godot com Controls, StyleBoxTexture e ícones vetoriais; Blender não foi necessário para uma interface 2D. Textura original de casca produzida pela image_gen integrada em `assets/ui/expedicoes/casca_interna_painel.png`, com contorno RGBA realmente transparente. Prompt e origem em `art/references/menu_expedicoes/proposta_casca.json`. Oito retratos transparentes em `assets/ui/retratos/`, renderizados diretamente dos GLBs aprovados por `tools/gerar_retratos_moradores.gd`; não são personagens novos ou imagens geradas de pessoas.
+
+Protótipo em `scenes/inspecao/menu_expedicoes_casca.tscn`, `scripts/inspecao/menu_expedicao_casca.gd`, `inspecao_menu_expedicoes.gd` e `icone_arma_menu.gd`. Menu recolhido compacto, seleção de até dois integrantes em oito fichas, equipamento individual com atributos já existentes do arco/lança, resumo com destino, tempo e risco. F1/F2/F3 alternam caça/pesca/coleta. As duas últimas usam o material básico do centro; não foram inventados equipamentos ou bônus futuros. O protótipo de coleta demonstra a atividade Coleta; a escolha de Reconhecimento e o acompanhamento real serão preservados na integração. Dados pertencem a uma partida separada de demonstração, XP ilustrativo. O envio final está desativado, sem salvamento e sem substituir a interface funcional.
+
+Validação em Godot 4.7.2: `tools/revisar_menu_casca.gd`, **32 verificações headless e 38 gráficas sem falhas**, com cliques reais no modo gráfico. Verificados oito retratos, transparência da casca, menu compacto, limite de equipe, navegação, escolha de lança, escolhas preservadas ao voltar, ajuste vertical em 1280 × 720, três contextos de atividade, destinos de pesca com peixes e ausência de expedições enviadas. Seis capturas Forward+/Vulkan em `exports/revisao_menu_casca/` inspecionadas visualmente. Para revisar: abrir a cena e F6, usar Caçar e Seguinte; F1/F2/F3 alternam atividades, Esc recolhe. A integração dos cliques nas construções, disponibilidade de moradores, envio, acompanhamento e atualização em tempo real aguarda o aceite visual B. Regras, partida principal e slots reais preservados.
+
+## Etapa 9 — integração concluída para testes com pessoas
+
+O responsável aprovou as regras com “Aprovado, vamos balancear melhor a partir dos testes com pessoas”. Modelo A1 já aprovado nos portões A e B. Regras implementadas como ponto de partida, sem declarar equilíbrio definitivo e sem avançar à etapa 10.
+
+- `assets/configuracoes/combate.json` reúne parâmetros aprovados. `scripts/partida/combate.gd` é um motor de dados com semente e estado aleatório persistidos, tabuleiro 8 × 8, iniciativa, dois PA, máximo de um ataque/turno, movimento ortogonal, alcance, linha de tiro, cobertura, mira, defesa, proteção, retirada e término do encontro. Armadura subtrai dano uma vez; agilidade altera defesa. Crítico dobra somente dados. Ações rejeitadas não consomem pontos nem sorteios. Proteções não encadeiam. A mesma API de ação atende comandos manuais da arena e política automática.
+- Cinco perfis abstratos: capivara, queixada, anta, jacaré-de-papo-amarelo e onça-pintada. Comportamentos incluem fuga, defesa e agressividade. Água impede movimento humano; jacaré pode ocupá-la. Onça aparece raramente nas matas remotas como ameaça defensiva e é excluída da primeira caça. Encontros sem progresso encerram em retirada sem recompensa. Não foram criados modelos de animais ou apresentação cinematográfica.
+- Centro de caça funcional com custos 25/12, duração 60 segundos, duas vagas e uma equipe simultânea. Modelo, escala e rotação aprovados integrados à construção, seleção e navegação existentes. Painel Construir ajustado para manter a nova opção acessível. Regiões investigadas oferecem destinos de caça; registros de fauna respeitam o conhecimento do mapa. A correspondência de espécies aos setores é ficcional de gameplay, apoiada nas referências ecológicas registradas anteriormente.
+- Formulário de expedições reutilizado para Caça e escolha do kit de cada integrante (arco/lança). Kit é dado reservado à expedição, sem criação/venda de itens. Busca de referência e viagem somam 720 segundos; confronto adiciona ações de dois segundos de relógio cada. Um encontro por viagem, com fase de confronto persistida. Acompanhar mostra animal, rodada, HP, condição de cada membro, eventos e retirada condicionada a turno humano/PA. O resultado do teste de retirada é informado. Coleta e pesca continuam sem ataques incidentais; esses encontros são da etapa 11.
+- `scripts/partida/caca.gd` aplica ferimentos, teste de sobrevivência em derrota, mortes, XP e carga uma vez por confronto. Carne/couro chegam somente no retorno. Validade começa na captura, inclusive para excedente. Mortos não agem, não aparecem nem consomem alimento; sua saúde não é restaurada pelo sistema alimentar. Registro e IDs dos moradores permanecem no estado para histórico das viagens. População e ocupação visível de casas contam vivos. Não há reaparecimento automático ao recarregar.
+- Arena de debug em `scenes/inspecao/arena_combate_etapa_9.tscn`, com `scripts/inspecao/arena_combate.gd` e `tabuleiro_combate_teste.gd`. Marcadores abstratos, sem representar arte final. Escolha de espécie/semente, tabuleiro clicável, ações manuais, passo automático, resolução completa e arquivos isolados em `user://arena_etapa_9/`. Permite controlar ambos os lados para testar regras; não altera a partida.
+
+Validação: `tests/test_etapa_9.gd`, **449 verificações sem falhas**. Inclui 100 confrontos (20 sementes por espécie), reprodução manual da política automática, retomada via JSON, sobrevivência sem rerrolagem, combate salvo em arquivo, equivalência de passos de tempo, entrega controlada de carne/couro, prevenção de recompensa duplicada e morte persistente. Os testes encontraram uma diferença de comparação de bordas após JSON converter inteiros para float; corrigida com normalização das coordenadas antes da comparação. `tests/test_interface_etapa_9.gd`: **21 verificações headless e 27 gráficas sem falhas**, com cliques reais em construção, envio e arena, seleção de célula, persistência em combate e cinco capturas. Regressões headless sem falhas: etapa 2 (60), etapa 4 (40), etapa 5 (48), etapas 6/7 (146), interface 7 (29), alimentação/etapa 8 (100 nesta rodada), construção modular (201) e seleção de plantio (55).
+
+Diagnóstico numérico em `exports/revisao_etapa_9_final/simulacoes.json`. Com a equipe controlada de dois caçadores de atributos 5, um arco e uma lança: capivara 19 fugas/1 vitória, anta 20 fugas, queixada 19 vitórias/1 retirada, jacaré 2 vitórias/13 retiradas/5 derrotas e onça 8 retiradas/12 derrotas, em 20 sementes por perfil. Isso identifica fuga frequente das presas e perigo alto dos predadores; não estima taxas universais da partida. Os números não foram alterados automaticamente, conforme pedido de balancear a partir de testes com pessoas.
+
+Teste manual: F5, construir oca e centro de caça, alocar equipe, abrir Expedições e enviar à região investigada com kit escolhido. Consultar Acompanhar e testar F6/F7 durante confronto. A arena abre com F6 no editor pela cena acima e usa salvamento independente. Capturas reais em `exports/revisao_etapa_9_final/`. Etapa 9 pronta para avaliação funcional; cinematografia, apresentação manual na partida e aprovação de animais em 3D permanecem na etapa 10.
+
+Revisão final adicional: regressão gráfica da interface da etapa 5 passou em 65 verificações, sem falhas. Importação final no editor headless sem erros ou avisos.
+
+## Etapa 9 — modelo 3D do centro aprovado; regras em revisão
+
+O responsável aprovou explicitamente o asset com “3d aprovado pode me mandar dnv as regras?”. Portões A e B do centro de caça A1 concluídos. A aprovação não se estende aos números de combate: o responsável solicitou reenvio da proposta no chat. Status registrado em `art/references/etapa_9/proposta_combate.json` e `medidas_centro.json`. Integração de caça e combate aguarda aceite ou ajustes das regras; nenhuma funcionalidade nova foi implementada nesta confirmação.
+
+## Etapa 9 — centro de caça A1 modelado para aprovação no Godot
+
+O responsável escolheu **A1**, o abrigo aberto da prancha `art/references/etapa_9/centro_caca_opcoes.png`. Esse aceite corresponde à referência visual A. A proposta numérica não foi presumida aprovada; a confirmação das regras foi solicitada separadamente no chat e continua pendente.
+
+Blender via MCP verificado: versão 5.2.2 LTS, complemento conectado. Modelagem original via `tools/modelar_centro_caca.py`, reutilizando os helpers de folhas, madeira, fibras e cestaria já aprovados. Abrigo aberto com quatro apoios, reforços e amarrações; bancada de ripas, três cestos, recipiente para flechas, dois arcos com cordas e empunhaduras, três lanças de madeira. Sem ornamentação ritual, metais ou animais. Paleta e proporções verificadas no Blender e na iluminação da clareira.
+
+Fonte independente em `art/blender/centro_caca_nivel_1.blend`; exportação em `assets/models/centro_caca_nivel_1.glb`; cena reutilizável em `scenes/construcoes/centro_caca_nivel_1.tscn`. Escala aproximada: 4,13 m de largura, 3,29 m de profundidade e 3,06 m de altura. Frente Blender −Y / Godot +Z. Quatorze malhas/superfícies e 47.244 triângulos. Medidas e estado em `art/references/etapa_9/medidas_centro.json`. Os apoios chegam ao solo com pequeno encaixe; cestos superiores apoiam na bancada; equipamento fica no cavalete ao fundo e mantém a frente aberta. Não foram sobrescritos fontes ou modelos das etapas anteriores.
+
+`scenes/inspecao/centro_caca_etapa_9.tscn` é independente do estado de partida. F6 executa no editor; na janela, 1 câmera normal, 2 frente, 3 lateral, 4 costas, 5 equipamentos e N dia/noite. Não salva nem habilita a caça. `tools/capturar_centro_caca.gd` passou em 55 verificações headless e 61 na execução gráfica Forward+/Vulkan, zero falhas. Verificou escala, limite de triângulos, solo, materiais, superfícies, ausência de câmera/luzes exportadas e cinco vistas de câmera. Seis capturas reais em `exports/revisao_centro_caca/`: frente, lateral, costas, detalhes, geral e noite. Importação final sem erros/avisos e partida F5 em smoke headless sem erros/avisos.
+
+Portão B do modelo pendente no chat. Regras numéricas e integração funcional da caça/combatе permanecem pendentes. A exportação nesta rodada serve à inspeção visual exigida pelo GDD antes do aceite do asset; não houve habilitação na partida nem avanço para a etapa 10. Foi usada a skill build-3d-game-rooms como referência de escala, contato, circulação, enquadramento e revisão, adaptada ao abrigo externo individual e ao fluxo de aprovação do projeto; não houve serviço de geração 3D pago ou pacote de sala com arquivos Markdown adicionais.
+
+## Etapa 9 — proposta de combate e referência do centro de caça
+
+O responsável confirmou a solicitação da etapa 9 após concluir os ajustes da agricultura. Projeto e requisitos inspecionados. O motor atual oferece coleta/reconhecimento/pesca, até dois integrantes e uma equipe simultânea por centro; a fauna do mapa ainda é abstrata. Não há caça ou combate implementados.
+
+Propostas visuais do centro em `art/references/etapa_9/centro_caca_opcoes.png`, geradas pela image_gen integrada. A: abrigo aberto, com boa leitura de equipamentos na câmera elevada; B: triangular, próximo da silhueta das ocas. Recomendação A para distinguir local de trabalho da moradia. São adaptações artísticas, não capturas Godot nem reconstruções históricas. Recomendação de produção: Blender via MCP, reutilizando folhas, madeira, amarrações, paleta e escala aprovadas; preservar fonte `.blend`, exportar GLB e inspecionar sob iluminação real antes de integrar a atividade.
+
+Proposta revisável e prompt integral em `art/references/etapa_9/proposta_combate.json`, explicitamente pendentes de aprovação e sem carregamento no jogo. Centro: 25 madeira, 12 fibras, 60 segundos, duas vagas. Referência de viagem/busca de 12 minutos, no máximo um encontro. Tabuleiro 8 × 8, dois PA/turno, um ataque/turno; mover custa um PA e permite três casas; atacar, mirar, defender ou proteger custa um PA; retirada da equipe custa dois. D20 com modificadores identificados, falha natural 1 e crítico 20 dobrando só dados da arma. Lança e arco básicos causam 1d6+1, com alcances um e cinco. Armadura reduz dano, agilidade altera defesa. Treinamento limitado a +4 e penalidade de −2 para não especialistas. Incapacitação não equivale a morte automática; derrota completa exige teste de sobrevivência, mais difícil contra onça. Política automática usa as mesmas ações. Encerramento por falta de progresso termina em retirada sem recompensa. Perfil dos cinco animais e números detalhados permanecem propostas, sem simulação de balanceamento realizada.
+
+Pesquisa: diagnóstico oficial do Parque Nacional do Descobrimento/ICMBio para queixada e anta; projeto Pró-Carnívoros no extremo sul da Bahia para a comunidade de mamíferos/onça-pintada; avaliação ICMBio para distribuição do jacaré-de-papo-amarelo; plano da Mata Escura para referência mais ampla de capivara. Links e limites registrados no JSON. Fontes contemporâneas dão suporte ecológico, sem demonstrar abundância ou distribuição exata em 1500. Dados de HP, dano, rendimento e dificuldade são abstrações de jogo.
+
+Pendente no chat: escolher A/B e aprovar ou ajustar pacote de regras. Conforme GDD, seção 0/Portão A e etapa 9, a modelagem do centro aguarda referência escolhida e a integração aguarda aceite do asset no Godot. Regras numéricas não foram implementadas. A etapa 10 não foi iniciada. Sem mudanças nos scripts da partida, modelos existentes ou saves; nenhuma nova documentação Markdown criada. Validação desta rodada: inspeção e proposta, sem alegar testes de um combate ainda inexistente.
+
+## Ajuste do fluxo de plantio — terreno vazio, seleção e escolha de cultura
+
+O responsável esclareceu que o quadrado representa terreno preparado, inicialmente vazio. O jogador deve clicar num terreno ou arrastar para selecionar vários e só depois escolher o que plantar. Esse fluxo substitui o plantio imediato descrito na entrega anterior.
+
+- **Preparar terrenos** cria solo vazio de 1 × 1 m, sem planta, crescimento ou XP, mesmo com agricultor alocado. Encerrar a preparação com Esc ou botão direito permite selecionar no cenário.
+- Clique seleciona um terreno. Clique e arraste desenha um retângulo e seleciona os centros dos terrenos dentro dele, nos dois sentidos do arraste. Terrenos selecionados recebem contorno dourado. O painel inferior apresenta quantidade, culturas atuais, terrenos vazios e trocas programadas, com botões **Plantar milho**, **Plantar mandioca** e **Limpar seleção**.
+- O cultivo é definido apenas na seleção, inclusive em terrenos de áreas diferentes. Vazios recebem a cultura escolhida e começam do zero. Plantações em crescimento mantêm safra, progresso e eventual excedente, trocando no replantio. Seleção inválida é rejeitada integralmente, sem alteração parcial. Terrenos vazios não entram na divisão do trabalho do agricultor.
+- Seleção e retângulo são apresentação temporária. Esc, botão direito ou perda de foco cancelam o arraste; abrir mapa/expedições também o encerra. Carregar uma partida remove a seleção e preserva terrenos vazios, culturas, progresso e próxima safra. Células de saves anteriores sem o novo marcador continuam plantadas.
+
+`tests/test_selecao_plantio.gd` passou em 55 verificações headless, zero falhas. A suíte modular atualizada passou em 201 verificações headless. Regressões das etapas 2, 4, 5, 6/7, interface 7 e economia da etapa 8 passaram sem falhas. A revisão gráfica exercita clique individual, retângulo nos dois sentidos, botões reais e capturas em `exports/revisao_selecao_plantio/`. Arquivos principais: `agricultura.gd`, `aldeia_visual.gd`, `celula_cultivo_visual.gd`, `selecao_terrenos_visual.gd`, `painel_aldeia.gd` e `principal.gd`. Documentação existente atualizada; nenhum Markdown adicional criado.
+
+Revisão gráfica final desse ajuste: 60 verificações, zero falhas, com cliques e arrastes reais, três capturas e persistência tanto de terrenos vazios quanto plantados. Importação final no editor headless sem erros ou avisos.
+
+## Melhorias solicitadas — plantio modular, rotação e margem da pesca
+
+Após a etapa 8, o responsável pediu células quadradas com uma planta por quadrado, expansão para formar plantações, rotação de todas as construções e exigência de água próxima para a pesca. A implementação atual substitui o plantio automático dos dois grupos fixos em novas roças. Os registros anteriores permanecem como histórico.
+
+- O abrigo agrícola começa com duas áreas vazias. No painel, escolher cultura e **Adicionar quadrados** ativa colocação repetida. Cada clique válido coloca uma célula de 1 × 1 m alinhada à grade, com uma planta. Células adjacentes se encaixam. Esc, botão direito ou Cancelar encerram. Planta nova começa com progresso zero, preservando as anteriores. Ampliação é permitida durante o cultivo.
+- Cada célula possui crescimento, cultura atual/próxima safra, colheita pendente e orientação próprios. O agricultor da área divide seu trabalho: seis milhos ou nove mandiocas mantêm o ritmo base anterior; áreas maiores levam mais tempo. Rendimento e XP fracionários são acumulados para manter a economia equivalente. Novas células não cobram materiais adicionais. Colheita, replantio, pausa, velocidade, validade e capacidade continuam integrados.
+- Quadrados não podem ocupar água, pedras, fogueira, construções ou células existentes. O alcance de trabalho é de 14 metros do abrigo. Construções também não podem ser posicionadas sobre a plantação. Selecionar uma planta abre seu abrigo responsável. O painel informa quantidade de plantas e progresso médio.
+- Oca, coleta, abrigo agrícola e pesca giram durante o posicionamento por Z/X ou botões do painel, em incrementos de 15°. Prévia, modelo final, seleção, ocupação do terreno e navegação acompanham a orientação. O valor mostrado permanece correto após atualização do painel. Rotação e células são persistidas e reconstituídas ao carregar.
+- `scripts/partida/terreno_construcao.gd` centraliza formas orientadas, colisões e limites do rio. O abrigo de pesca precisa estar em terra, sem interseção com a água, e a no máximo dois metros da margem. A checagem percorre bordas/interior e considera curvas do rio e rotação. O gerador `tools/montar_cenario.gd` usa as mesmas fórmulas; os testes comparam a regra com vértices da malha real já carregada. O mapa atual possui rio; não foi acrescentado um lago fictício.
+- Talhões de saves anteriores preservam safra, XP e produção. Ao acrescentar quadrados, a área original é preservada como unidade legada, compartilhando o trabalho com as novas plantas. Não é necessário recriar a partida para carregar seus dados. Não foram alterados arquivos Blender nem adicionados documentos Markdown.
+
+Arquivos principais: `scripts/partida/agricultura.gd`, `terreno_construcao.gd`, `aldeia.gd`, `estado_partida.gd`, `principal.gd`, `painel_aldeia.gd`, `scripts/ambientes/aldeia_visual.gd` e `celula_cultivo_visual.gd`. Fontes visuais de plantas e abrigos já aprovados foram reutilizados.
+
+Validação: `tests/test_construcao_modular.gd`, 199 verificações headless, zero falhas. Exercita rotação de todos os tipos, posições aceitas/rejeitadas de pesca, comparação com a água real, grade, colisões, crescimento individual, expansão em andamento, rendimento equivalente, passos de tempo, migração e arquivos de salvamento. A execução gráfica inclui teclado X, clique no botão de giro, clique no terreno e Esc, além de capturas em `exports/revisao_construcao_modular/`. Regressões headless das etapas 2, 4, 5, 6/7, interface 7 e economia da etapa 8 passaram sem falhas. A suíte antiga de agricultura continua cobrindo os talhões legados; a suíte nova cobre o plantio modular.
+
+Execução gráfica final: 201 verificações, zero falhas, incluindo atalhos, cliques reais e duas capturas. Importação final no editor headless concluída sem erros ou avisos.
+
+Teste: F5, construir oca e roça. Girar com Z/X antes de confirmar. No abrigo agrícola, escolher cultura, adicionar quadrados e atribuir agricultor à área. Colocar pesca próxima ao rio: a prévia fica vermelha quando distante, sobre a água ou sobreposta. F6/F7 na janela do jogo testam persistência. Aguardando avaliação do responsável.
+
+## Etapa 8 — integração funcional concluída para teste
+
+O responsável aprovou os modelos A1/P1 no Godot com “Aprovado”, após o aceite dos cultivos, da operação automática e dos parâmetros alimentares. Os registros de pendência abaixo descrevem fases anteriores e foram superados. A etapa 8 está integrada à partida F5 e aguarda avaliação funcional do responsável. A etapa 9 não foi iniciada.
+
+- Roça com dois talhões independentes, escolha de milho/mandioca, um trabalhador por talhão, três estágios visuais, crescimento por tempo, colheita e replantio automáticos. Trocar um cultivo iniciado programa a safra seguinte. Liberar o agricultor pausa o crescimento sem apagar o progresso. A prática concede seis XP por colheita; patamares provisórios de 12/40/100 XP aumentam rendimento em 10/20/30%, com frações acumuladas para não perder bônus por arredondamento.
+- Pesca construída em margem livre, com até dois trabalhadores e viagens simuladas pelo motor existente, enviadas manualmente. Regiões precisam estar investigadas e conter peixes. A viagem ao rio inicial dura 480 segundos a 1×; cada integrante rende uma unidade e tem 25% de chance da segunda. Há eventos de captura/escape, XP de pesca, retorno antecipado e entrega somente na volta.
+- Oito vegetais iniciais, consumo proporcional de duas unidades/adulto/dia e capacidade alimentar compartilhada de 24. Vegetais duram quatro dias; peixe e a categoria futura carne, dois. Consumo prioriza menor validade. Excedente agrícola aguarda espaço no campo, sem novo crescimento, até efetiva coleta. Pescado excedente continua na carga e pode estragar; salvar/carregar não reinicia sua validade.
+- Comunidade apresenta estoque por categoria, consumo, autonomia estimada sem descontar futuras perdas, qualidade, produtividade e contadores diários. Dicas da barra superior explicam a capacidade alimentar. Roça apresenta progresso e próximo cultivo, com alocação pelo painel e pela comunidade. A ficha apresenta rendimento agrícola e resistência efetiva, sem alterar o atributo base.
+- Histórico de três dias distingue milho, mandioca e outras fontes consumidas. Duas fontes relevantes normalizam a dieta; três dão +10%. Uma fonte prolongada produz −5/−10/−25% aos 3/5/8 dias, com aviso no feed. Fontes vegetais diferentes são reconhecidas. Escassez reduz alimentação gradualmente; alimentação adequada permite recuperação. Deficiência prolongada pode retirar um ponto de saúde/dia, com piso de um; não há morte agrícola. A saúde se recupera gradualmente com condições adequadas. Limiares e custos permanecem provisórios para balanceamento.
+- Coleta local rebalanceada para materiais/XP a cada 60 segundos por trabalhador ativo e vegetal a cada 20 ciclos. Novas expedições de coleta usam 240 segundos de atividade e intervalos de 60 segundos, com menor acesso a vegetais. Expedições já salvas conservam seus tempos anteriores. Melhorias de construções e automação das viagens permanecem nas etapas 16 e 18.
+
+Regras em `scripts/partida/agricultura.gd`, `alimentacao.gd`, `aldeia.gd`, `expedicoes.gd` e `estado_partida.gd`; parâmetros alimentares em `assets/configuracoes/alimentacao.json`. O relógio único divide avanços nos eventos de produção, consumo, deterioração e mudança de dieta, preservando resultados com passos distintos. Novos campos são salvos e validados. Saves antigos sem lotes são migrados preservando a reserva, inclusive acima da nova capacidade; nesse caso novas entradas aguardam espaço. Sem necessidade de PostgreSQL.
+
+Validações executadas: `tests/test_etapa_8.gd`, 100 verificações headless e 104 na execução gráfica Forward+/Vulkan, zero falhas. Cobertura inclui falta/recuperação, variedade vegetal, XP, troca de safra, excedente agrícola, validade da carga, migração de viagens, gravação em arquivos, equivalência de avanços de 4.800 segundos e passos de cinco segundos, pausa, velocidade, fluxo da interface e clique real de envio. Capturas em `exports/revisao_etapa_8_final/`. Regressões headless: etapa 2, 60; etapa 4, 40; etapa 5, 48; etapas 6/7, 146; interface 7, 29 verificações, todas sem falhas. Fixtures antigas foram atualizadas para os novos intervalos e para separar depósito material dos lotes alimentares.
+
+Teste manual: F5, construir oca, roça em clareira livre e pesca na margem. Atribuir um agricultor à roça e enviar outro morador à pesca no rio conhecido. Escolher a próxima safra no painel da roça. Comunidade mostra reserva, dieta e perdas. Espaço pausa; 1/2/3 controlam o tempo; F6 salva e F7 carrega com a janela do jogo focada. Os números estão disponíveis para ajuste durante os testes do responsável; não representam validação final do equilíbrio de longo prazo.
+
+## Etapa 8 — modelos A1/P1 produzidos para avaliação
+
+O responsável aprovou a roça A1, o abrigo de pesca P1 e os parâmetros alimentares propostos, aceitando verificar o equilíbrio nos testes. A aprovação dos parâmetros está registrada em `art/references/etapa_8/propostas.json`. O aceite será a base da integração funcional após aprovação dos modelos no Godot.
+
+Blender via MCP confirmado e usado para produzir os dois abrigos, madeira, folhas em camadas, amarrações, cestos, rede e armadilha em fibras. A geometria de folhas, madeira e a paleta reutilizam os helpers da oca aprovada. Script em `tools/modelar_agricultura_pesca.py`. Fontes em `art/blender/centro_agricola_nivel_1.blend`, `centro_pesca_nivel_1.blend` e `cultivos_etapa_8.blend`. GLBs correspondentes em `assets/models/`.
+
+Há seis estágios visuais de cultivo, broto/jovem/maduro de mandioca e milho, exportados com uma superfície por planta e cor por vértice. `scripts/ambientes/talhao_visual.gd` apresenta os cultivos e configura as cores no Godot. O abrigo agrícola é independente dos cultivos para permitir trocar o plantio durante a integração funcional. O fonte Blender da roça contém a composição completa.
+
+`scenes/inspecao/agricultura_pesca_etapa_8.tscn` apresenta os assets na clareira com a iluminação existente. F6 executa a inspeção. 1 câmera do jogo; 2 roça; 3 pesca; 4 costas da pesca; Z/X/C estágios de crescimento; N alterna dia e noite. A inspeção não usa o estado nem os slots da partida. Capturas em `exports/revisao_agricultura_pesca/`.
+
+Aguardando aprovação visual B dos modelos no chat. A integração de produção, consumo, conservação, capacidade alimentar e rebalanceamento usará os parâmetros já aprovados. O jogo continua com a economia da etapa anterior até essa integração.
+
+Validação final da arte no Godot Forward+: 99 verificações, zero falhas, incluindo os seis estágios com cores importadas, uma superfície por planta e sete capturas. A primeira execução headless passou em 47 verificações, antes da inclusão da conferência explícita de cores. As capturas finais mostram roça, pesca, costas, câmera geral, brotos, plantas jovens e noite. A conferência visual encontrou a necessidade de habilitar a cor por vértice no material dos cultivos, corrigida em `talhao_visual.gd` e verificada novamente na execução gráfica.
+
+## Etapa 8 — cultivos aprovados e propostas em avaliação
+
+O responsável aprovou mandioca e milho e o funcionamento automático após escolha de cultivo e alocação. Pediu propostas de arte e uma economia mais escassa e demorada no início, que fique mais tranquila com experiência dos agricultores e melhorias. O trabalho manual inicial foi interpretado como planejamento, gestão de trabalhadores e expedições enviadas pelo jogador, preservando cultivo e colheita automáticos.
+
+Conceitos gerados pela image_gen integrada em `art/references/etapa_8/propostas_agricultura_pesca.png`: roça A1 com abrigo aberto, A2 com abrigo triangular; pesca P1 com abrigo de margem, P2 com cobertura triangular. Recomendação A1/P1. Fontes e prompt em `propostas.json`. Os modelos serão produzidos no Blender para controlar os abrigos de folhas, plantas, redes e cestos e integrados ao Godot. Os conceitos são adaptações artísticas; fontes contemporâneas não certificam reconstrução de 1500.
+
+A proposta numérica, ainda sem aceite, usa oito vegetais iniciais e consumo de duas unidades por adulto/dia (dia de dez minutos). Um talhão com agricultor iniciante rende seis vegetais de milho a cada dezoito minutos ou onze de mandioca a cada vinte e oito minutos. Pesca de referência com um pescador leva oito minutos e rende uma a duas unidades, média teórica de 1,25. Um agricultor no milho e um pescador produzem cerca de 4,9 alimentos/dia para um consumo de quatro. É uma margem teórica pequena e ainda exige teste de fluxo real. Propõe-se bônus de rendimento por prática até +30%, conservação inicial de quatro dias para vegetais e dois para peixe e capacidade total de 24 alimentos.
+
+O código atual oferece um vegetal a cada doze segundos por trabalhador de coleta. A proposta exige rebalancear também essa fonte e as expedições de coleta. Melhorias de construções e automação de equipes respeitam as etapas 16 e 18. Nenhum número da economia nem novo modelo foi aplicado nesta rodada. Aguardando escolhas de arte e aceite ou ajuste dos parâmetros no chat.
+
+## Etapa 7 — integração funcional concluída para teste
+
+O responsável aprovou o painel Preparar/Acompanhar no chat com "Aprovado". A interface de `scripts/partida/painel_expedicoes.gd` está ligada ao motor já testado. É acessível pelo menu da comunidade, por um centro de coleta pronto e pelo mapa. O painel usa centro, equipe, atividade, regiões elegíveis e tempos reais. A seleção bloqueia integrantes ocupados. Envios são revalidados pelo motor e a lista de acompanhamento exibe fase, progresso, equipe, carga, XP, conhecimento e último evento.
+
+Os botões Confirmar envio, Cancelar preparação e Solicitar retorno executam as regras reais. Fechar o painel permite continuar administrando a aldeia. O mapa se atualiza ao descobrir informações, e os eventos aparecem no feed superior direito. A interface H preserva a seleção, e o painel mantém rolagem para listas maiores.
+
+`tests/test_interface_etapa_7.gd` passou em 37 verificações gráficas no Forward+, com cliques reais, duas equipes de centros distintos, reconhecimento de uma fronteira desconhecida, coleta, gravação/carregamento durante a exploração, retorno pelo botão, descarga, restauração do HUD e capturas em 960×540, 1280×720 e 1920×1080. A execução headless desse fluxo passou em 29 verificações. O motor e o mapa passaram novamente em 146 verificações. Regressões das etapas 2 e 4 passaram em 60 e 40 verificações headless; a interface da etapa 5 foi revalidada graficamente.
+
+Capturas reais da partida em `exports/revisao_etapa_7_final/`. A antiga cena de inspeção permanece como registro da proposta visual aprovada. O fluxo da partida está em F5.
+
+Para testar, construir uma oca e um centro de coleta, abrir Expedições, escolher centro, atividade, destino e equipe e confirmar. Reconhecimento oferece fronteiras próximas e regiões conhecidas. Coleta exige recursos investigados. Acompanhar mostra os grupos e permite retorno antecipado. M abre o mapa, F6 salva e F7 carrega a partida na janela do jogo.
+
+Os parâmetros de tempo, viagem, carga e rendimento continuam provisórios. Há até dois integrantes e uma expedição simultânea por centro nível 1. Excedente da carga aguarda espaço no estoque. A etapa 7 está pronta para avaliação do responsável. A etapa 8 depende de nova solicitação.
+
+## Etapa 6 integrada e etapa 7 em preparação
+
+Após o aceite do mapa ampliado, o responsável autorizou fazer a etapa 7. A dependência funcional da etapa 6 foi concluída. M e o botão Mapa abrem a cartografia na partida. A câmera da aldeia fica bloqueada durante a consulta e M/Esc retornam. A interface reutiliza o mapa aprovado com zoom, movimento e informações condicionadas ao conhecimento, sem revelar dados das regiões desconhecidas. O conhecimento é persistido, com migração dos saves anteriores para os três locais iniciais.
+
+As trinta regiões compartilham definições em `scripts/partida/regioes.gd`, com posições, áreas, conexões, recursos, abundância, perigo e registros de animais. A rota calcula tempo por conexões conhecidas e fronteiras. As tabelas sorteiam observações, caminhos, rastros não identificados e recursos conforme região e atividade. Não há espécies identificadas, batalhas ou danos nesta entrega.
+
+O motor de dados da etapa 7 está em `scripts/partida/expedicoes.gd`, integrado ao relógio, persistência e validação do estado. É exercitado por testes internos, enquanto o novo painel aguarda aprovação visual. Há preparação, ida, exploração, retorno, cancelamento e conclusão. Um integrante não participa de outra tarefa enquanto viaja. Moradores vinculados conservam a vaga profissional e retomam seu vínculo ao retornar. A carga entra no estoque somente na volta, com excedente preservado e descarga posterior. O estado aleatório é salvo como texto para preservar os bits ao passar pelo JSON.
+
+Tempos e limites provisórios ficam em `assets/configuracoes/expedicoes.json`: preparação de três segundos, exploração de sessenta, atividade a cada doze, carga de doze unidades por pessoa, até dois integrantes e uma expedição simultânea por centro nível 1. Reconhecimento concede XP individual e conhecimento regional; coleta concede XP da habilidade praticada.
+
+`tests/test_etapas_6_7.gd` passou em 146 verificações headless, incluindo duas equipes de centros distintos, carga, XP, sorteios reproduzíveis, equivalência de passos de tempo, gravação e leitura em arquivos, retomada de RNG, cancelamento, excedente, pausa, velocidade e ausência do integrante na aldeia. Regressões da etapa 2 passaram em 60 verificações headless, etapa 4 em 40 e etapa 5 em 65 na execução gráfica.
+
+A prévia dos painéis Preparar e Acompanhar está em `scenes/inspecao/expedicoes_etapa_7.tscn`. Executar com F6. A seleção visual de tipo, destino e equipe permite avaliar o layout. Os botões de envio e retorno estão desativados para essa aprovação. As capturas de interface no Godot estão em `exports/revisao_etapa_7/`. Dados do painel Acompanhar são demonstrativos. Essa cena usa estado e diretório de inspeção separados dos slots reais.
+
+Pendente para concluir a etapa 7: aprovação visual do novo painel conforme o portão B do GDD e ligação dos comandos e da apresentação de expedições reais. A etapa 8 aguarda nova autorização.
+
+## Mapa regional ampliado — prévia visual no Godot
+
+O responsável aprovou o mapa ampliado no chat com "Aprovado oq é a etapa 7?". Portão B visual concluído. A integração funcional da etapa 6, com conhecimento persistente e tabelas de encontros, ainda precisa ser concluída. A pergunta sobre a etapa 7 é informativa.
+
+Direção A escolhida pelo responsável, com pedido de mapa maior, mais regiões, zoom e movimentação. A primeira divisão proposta tem 30 regiões, três conhecidas e 27 futuras descobertas. Fonte da arte raster em `assets/ui/mapa/regiao_ilustrada.png`, gerada por image_gen integrada, com prompt e origem registrados em `art/references/etapa_6/mapa_ampliado.json`. Geografia e nomes são ficcionais de gameplay.
+
+A cena `scenes/inspecao/mapa_regional.tscn` abre com F6. Roda ou botões +/- ajustam o zoom ancorado no cursor, arraste esquerdo ou central desloca, WASD move, R recentra. Visão geral enquadra o mapa. V exibe toda a arte somente para inspeção. O painel lateral usa informações ilustrativas e a barra superior reutiliza a interface aprovada.
+
+`tools/revisar_mapa_regional.gd` passou em 46 verificações na execução gráfica Forward+ (incluindo arraste e roda reais e três capturas) e a primeira execução headless passou em 40. Capturas em `exports/revisao_mapa_regional/`, com regiões iniciais, aproximação e arte completa. Testes cobrem limites de zoom/deslocamento, ponto sob cursor, seleção, ocultação de nomes e perda de foco.
+
+Aguardando aprovação B do mapa ampliado no chat. Integração com a partida, conhecimento persistente e tabelas de encontros da etapa 6 permanecem pendentes desse aceite. O reconhecimento jogável pertence à etapa 7.
+
+## Etapa 5 aprovada e etapa 6 solicitada
+
+O responsável escolheu A e pediu um mapa maior, mais regiões para descobrir, zoom e movimentação. O portão A está aprovado com essa ampliação. Está em produção uma prévia isolada no Godot com 30 regiões (quantidade inicial de implementação), sendo três próximas conhecidas. Roda e botões ajustam o zoom, arraste e WASD movem o mapa, R recentra. A cartografia é produzida por image_gen e a navegação visual em Control no Godot. A tecla V da inspeção exibe toda a arte para avaliação, sem desbloquear regiões em uma partida. A navegação da prévia permite avaliar o tamanho e a leitura antes da integração do estado persistente e das tabelas de encontros.
+
+O responsável aprovou a entrega funcional da interface com "Top aprovado. E agr vamos pra etapa 6". Aceite da etapa 5 registrado no chat.
+
+A etapa 6 está no portão A do mapa regional. Propostas em preparação para uma região local fictícia da Mata Atlântica, com aldeia, arredores e margem do rio conhecidos e áreas distantes encobertas. O mapa apresenta seleção, recursos, abundância, perigo conhecido, registros de animais e tempo de viagem. Os números da proposta são ilustrativos.
+
+Proposta A usa cartografia ilustrada vista de cima, com interface e regiões interativas no Godot. Proposta B usa relevo em miniatura, com recomendação de Blender para produzir o terreno editável e Godot para a apresentação, interface e seleção. Ambas conservam a barra superior unificada aprovada. Recomenda-se A pela leitura e pelo controle de áreas parcialmente desconhecidas. A definição visual depende da escolha do responsável no chat.
+
+Referência consultada para organização por regiões e indicação de recursos na interface de mapa de Manor Lords — https://wiki.hoodedhorse.com/Manor_Lords/Regions/en . A geografia do 1500 é uma proposta fictícia local. A mecânica de reconhecimento será integrada na etapa 7.
+
+Referência adicional para a distinção entre regiões visíveis e informações encobertas — https://wiki.hoodedhorse.com/Against_the_Storm/World_Map .
+
+## Etapa 5 — implementada para teste
+
+O responsável aprovou a proposta A revisada com uma única barra superior e autorizou a implementação. O acabamento será revisto no polimento do jogo. A referência aprovada está em `art/references/etapa_5/barra_superior_unificada.png`.
+
+- Barra superior contínua com oito recursos, tooltips, população/capacidade, dia, horário, pausa e velocidades 1x/2x/3x. Todos os valores usam o estado real. Os controles de tempo usam as mesmas funções que os atalhos.
+- Painel inferior recolhível com Construir e Comunidade, seleção contextual de ocas e coleta, fichas individuais e alocação entre setores. Esc recolhe o painel. H e o botão H ocultam a interface. H também restaura durante a pausa.
+- Feed discreto no canto superior direito para início/fim de obra, chegada de pessoas, salvamento manual e carregamento. Limite de três mensagens e duração de nove segundos reais. Mensagens são apresentação temporária.
+- Botão UI alterna a escala entre 85%, 100% e 115%. A escala é limitada pela largura disponível para conservar os recursos e o relógio na mesma linha. Escala mantida durante a sessão. Pictogramas simples desenhados no Godot e tooltips identificam os recursos.
+- Scripts principais em `scripts/partida/barra_superior.gd`, `icone_recurso.gd`, `painel_aldeia.gd` e `principal.gd`. Nenhuma mudança no formato do salvamento.
+- `tests/test_etapa_5.gd` passou em 65 verificações na execução gráfica Forward+ e 45 na primeira execução headless. A execução gráfica final cobre nove combinações de resolução e escala, cliques reais, pausa, restauração do HUD, bloqueio de câmera, transferência e capturas. Regressão headless da etapa 2 passou em 60 verificações e da etapa 4 em 40.
+- Capturas reais em `exports/revisao_etapa_5/`, incluindo os estados recolhido, expandido, ficha, setor e HUD oculto.
+
+Para testar, executar F5 e usar Construir ou Comunidade no painel inferior. Os recursos têm dicas ao passar o mouse. Clicar em uma construção abre seu painel. Testar H, Esc e UI, os botões de tempo e os atalhos existentes. Aguardando avaliação da entrega pelo responsável.
+
+## Etapa 4 aprovada e início da etapa 5
+
+O responsável escolheu a proposta A (painel inferior) e pediu unir relógio e estoque em uma única barra de ponta a ponta no topo. A revisão visual apresenta oito recursos, população, dia, horário, pausa e velocidades na mesma linha. Contagens com ícones permitem preservar o espaço da cena. O painel inferior continua recolhível e o feed ocupa o canto superior direito, abaixo da barra. A revisão será apresentada no chat para avaliar a composição antes da integração funcional.
+
+O responsável aprovou as capturas da entrega com "Aprovado, pode seguir com a etapa 5". Aceite da etapa 4 e da representação aberta do centro de coleta registrado no chat.
+
+A etapa 5 está no portão A do GDD. Pesquisa de referências nas páginas oficiais de Manor Lords, Foundation e Against the Storm, com consulta às capturas de interface. Duas propostas visuais de HUD serão apresentadas com os estados recolhido e expandido. A mantém o painel inferior escolhido anteriormente. B oferece painel lateral como alternativa para preservar a altura do cenário. Recursos e população no topo, controle de tempo e feed discreto no canto superior direito nas duas propostas.
+
+Recomendação técnica para o protótipo e a implementação é usar Control, Container e Theme do Godot, com escala de interface e bloqueio dos eventos do mouse sobre os painéis. A escolha do layout será solicitada no chat antes do protótipo funcional, conforme a parte A da etapa 5. Os números das propostas são ilustrativos. Mapa regional e expedições terão acessos incorporados quando existirem nas etapas 6 e 7. A interface definitiva da etapa 5 aguarda a escolha do responsável.
+
+Fontes consultadas
+- https://store.steampowered.com/app/1363080/Manor_Lords/
+- https://store.steampowered.com/app/690830/Foundation/
+- https://store.steampowered.com/app/1336490/Against_the_Storm/
+
+## Entrega jogável da etapa 4
+
+A dupla recebeu aceite no chat e o responsável pediu seis variações e integração no Godot. O Blender conserva as oito pessoas em `art/blender/familia_moradores.blend`, com corpos, cabelos e roupas editáveis. Os GLBs de `assets/models/habitantes/` incluem poses de caminhada e de trabalho. A galeria de inspeção usa os mesmos modelos da partida.
+
+A dependência da etapa 3 foi integrada à cena principal. Há prévia da obra, cancelamento, validação de terreno e estoque, fundação excepcional da primeira oca, ocupação das obras seguintes e chegada persistente de dois moradores por oca. `aldeia.gd` contém as regras de moradia, ficha individual, setor, lotação e experiência. O painel inferior e a seleção no mapa usam o mesmo estado. A navegação recalcula caminhos quando começa uma obra.
+
+Para revisão artística, o centro de coleta reutiliza bromélias da clareira como área aberta. As pessoas recebem apelidos em português. A aprovação visual do centro e o aceite final da etapa dependem do responsável.
+
+O teste gráfico da etapa 4 passou em 43 verificações incluindo três capturas do Godot. O teste headless passou em 40. A regressão gráfica da etapa 2 passou em 61 verificações e a gravação e leitura em processos separados passaram. Os testes usam slots exclusivos.
+
+## Situação em 24/11/2026
+
+- Documento mestre: `GDD_1500.md`, versão 1.4.
+- Arte da ETAPA 1 aprovada no chat pelo responsável: "Ficou top". Modelos, composição e paleta preservados.
+- Controles restantes da ETAPA 1 concluídos como dependência mínima da ETAPA 2: WASD, zoom, botão central e arraste, Q/E e recentralização. Aguardam o teste do responsável junto da entrega atual.
+- ETAPA 2 aprovada pelo responsável no chat: "Feito pode fazera ETAPA 3". Na ETAPA 3, portões A e B da primeira oca aprovados: triangular compacta 1. Integração funcional C pendente. ETAPA 4 solicitada; dependências e novos portões em andamento.
+- Perguntas, resultados visuais e aprovações são apresentados no chat; nenhum novo arquivo Markdown foi criado nesta etapa.
+
+## ETAPA 1 — referência e produção preservadas
+
+Referência aprovada em `art/references/referencia_visual_1500.png`: Mata Atlântica estilizada, contraste, cores vivas, terra quente, água azul-esverdeada e luz dourada. Fontes editáveis em `art/blender/clareira_1500.blend`; modelos exportados em `assets/models/clareira_1500.glb`. Geometria original produzida no Blender via MCP; materiais, água, fogo e atmosfera integrados no Godot. Sem novos modelos ou serviços externos nesta entrega.
+
+## ETAPA 2 — implementação
+
+- `scripts/partida/configuracao_partida.gd` e `assets/configuracoes/partida_inicial.tres`: dia de 600 segundos, hora inicial 16h, autosave a cada 60 segundos de tempo a 1x e estoque inicial provisório centralizado.
+- `scripts/partida/relogio.gd`: relógio único, independente da taxa de quadros; velocidades 1x, 2x, 3x e pausa.
+- `scripts/partida/estado_partida.gd`: identidade estável da partida, relógio, fogueira nível 1, zero habitantes, estoque e enquadramento; sem referências vivas da cena.
+- `scripts/partida/salvamento.gd`: JSON versão 1 em `user://partidas/`, slots manual e automático separados, temporário validado, substituição por rename e backup saudável anterior. Leitura inválida não altera a partida atual; falhas de escrita são informadas. Modo padrão operacional; Ironman somente como contrato reservado para a etapa 23, sem habilitar um modo incompleto.
+- `scripts/partida/principal.gd` e `scenes/main.tscn`: integração do estado, atalhos, pausa, iluminação e salvamento; autosave por intervalo, novo dia e fechamento normal. Nova execução começa uma nova partida; carregar é explícito até existir menu.
+- `scripts/ambientes/iluminacao_diurna.gd`: transições contínuas de luz solar, céu, ambiente e luar; fogueira mais evidente à noite. A condição das 16h conserva a luz aprovada.
+- `scripts/ambientes/clareira.gd`, shaders e `project.godot`: tempo visual compartilhado para congelar água, vento, chama, raios e oscilação da luz com a pausa; partículas também pausam.
+- `scripts/camera/controle_camera.gd`: movimentos e rotação suaves, limites e zoom ajustáveis, câmera elevada para não atravessar o cenário. UI bloqueia zoom e arraste; clique esquerdo reservado à seleção. A câmera continua disponível enquanto o mundo está pausado.
+- Nenhum HUD final, banco online, economia, construção adicional, morador ou sistema futuro foi adicionado. O responsável ofereceu PostgreSQL; não foi necessário.
+
+## Testes realmente executados
+
+- `tests/test_etapa_2.gd`: 60 verificações em headless, sem falhas. Mesmo teste em execução gráfica Forward+/Vulkan: 61 verificações, sem falhas ou mensagens em stderr na execução final. A verificação de sobreposição GUI só roda com janela gráfica, pois o driver headless não oferece um contexto de janela equivalente.
+- Cobertura: relógio a 30/144 FPS, velocidades, pausa/retomada, passagem de dia, nova partida independente, round-trip dos dados, arquivo ausente, JSON corrompido, versão incompatível, campos ausentes, valores inválidos, preservação do save e backup saudável, falha de escrita, atalhos, autosave por intervalo e dia, fechamento normal, iluminação e controles.
+- `tests/test_persistencia.gd`: gravar, encerrar o processo e ler em outro processo Godot; recuperou horário, pausa, velocidade, estoque, fogueira e câmera.
+- `tools/revisar_etapa_2.gd`: renderização da partida real de dia, fim de tarde e noite, fogueira de perto, zoom próximo, rotações e limites de câmera. Revisão visual das capturas; raios solares desaparecem à noite.
+- Resultados e capturas em `exports/revisao_etapa_2/`, ignorados pelo Git. Testes não tocaram nos slots reais do jogador.
+- O visual noturno e os controles aguardam a avaliação do responsável; não foram declarados aprovados automaticamente.
+
+## Como testar
+
+F5 executa. Com a janela do jogo focada: WASD, scroll, meio+arraste, Q/E e R controlam a câmera. Espaço pausa; 1/2/3 alteram a velocidade. F9 mostra o estado na Saída do Godot, somente em debug. Em 3x, partindo das 16h, escurece em aproximadamente 30 segundos.
+
+F6 salva manualmente. Para testar persistência, pause, salve com F6, encerre o teste com F8, execute F5 e carregue com F7: deve recuperar o mesmo horário, pausa, velocidade, estoque, fogueira e câmera. Shift+F7 carrega o autosave. Ctrl+N inicia nova partida sem herdar dados anteriores. Fechar normalmente pela janela também grava o autosave; F8 é interrupção do editor, então use F6 para preservar um ponto específico.
+
+Custos, quantidades iniciais e balanceamento continuam provisórios. Menu de continuar, HUD e Ironman completo ficam nas etapas previstas no GDD. A ETAPA 2 foi posteriormente aprovada pelo responsável no chat.
+
+## ETAPA 3 — portão A da primeira oca
+
+- Projeto existente e requisitos da ETAPA 3 inspecionados. O GDD exige escolha de referências da moradia antes da modelagem e aprovação do asset no Godot antes de integrar sua funcionalidade.
+- Pesquisa: gravura `Aldeia tupinambá fortificada`, Hans Staden, 1557, acervo Biblioteca Brasiliana Guita e José Mindlin, disponibilizada pela Brasiliana Iconográfica: https://www.brasilianaiconografica.art.br/obras/23564/aldeia-tupinamba-fortificada . Reprodução de estudo em `art/references/etapa_3/referencia_staden_1557.jpg`; não é um asset do jogo. Fonte colonial posterior a 1500, insuficiente para declarar reconstrução histórica ou validação cultural.
+- Recorte Tupinambá proposto, ainda aguardando aprovação. Não foram atribuídos nomes, costumes ou símbolos definitivos.
+- Dois conceitos artísticos, gerados com a ferramenta image_gen integrada: A compacta (recomendada para primeira moradia) e B alongada (proporção mais próxima da casa longa da gravura). Ambas propostas, não modelos nem capturas Godot. As duas vagas residenciais são uma abstração do GDD, não uma afirmação histórica.
+- Comparativo em `art/references/etapa_3/conceitos_oca_nivel_1.png`; prompt completo, fontes, limitações e status em `conceitos_oca_nivel_1.json` na mesma pasta.
+- Ferramenta recomendada: Blender via MCP para cobertura de palha em camadas, estrutura curva, amarrações, UVs e normais; exportar GLB e validar na iluminação real do Godot. A recomendação será confirmada após a escolha, antes de modelar.
+- Aprovação A pendente; nenhum modelo da oca ou alteração funcional da ETAPA 3 foi implementado. Menu, posicionamento, custos, obra e primeiros moradores aguardam seus portões pertinentes. A ETAPA 4 não foi iniciada.
+
+### Revisão das referências — três propostas triangulares
+
+- O responsável preferiu a oca compacta e pediu três variações mais triangulares, com vegetação semelhante à do jogo.
+- Geradas três imagens independentes pela ferramenta image_gen integrada, usando o cenário real aprovado como referência de cores, formas, vegetação e iluminação: 1 triangular compacta; 2 baixa e larga; 3 orgânica com cobertura em faces inclinadas.
+- Arquivos `art/references/etapa_3/oca_triangular_01.png`, `oca_triangular_02.png` e `oca_triangular_03.png`; prompts integrais em `ocas_triangulares.json`, na mesma pasta. Os conceitos anteriores foram preservados.
+- São explorações artísticas, sem reivindicação de reconstrução histórica. Aguardando escolha no chat. Recomendação técnica mantida: Blender via MCP para o futuro modelo, depois avaliação no Godot. Nenhuma funcionalidade ou novo modelo 3D foi implementado nesta revisão.
+
+### Primeira oca — portões A e B aprovados
+
+- Escolha explícita do responsável: "Gostei da imagem 1. Pode fazer o 3d dela e seguir com a ETAPA 3 (caso n tenha mais nada pra aprovar)". Referência selecionada: `art/references/etapa_3/oca_triangular_01.png`. As pendências descritas acima registram momentos anteriores; a escolha visual está resolvida. O recorte cultural e a fidelidade histórica não foram aprovados por essa escolha artística.
+- Ferramenta confirmada: Blender via MCP, com integração verificada antes da produção. Geometria e materiais originais: estrutura triangular de madeira facetada, amarrações de fibras, cobertura de folhas verdes/oliva em camadas, folhas secas pontuais e entrada aberta. UVs e normais exportadas; dimensões em metros. 12 malhas, 54.469 vértices e 13.551 faces no fonte, incluindo as amarrações.
+- Fonte independente preservado em `art/blender/oca_nivel_1.blend`; GLB em `assets/models/oca_nivel_1.glb`; cena reutilizável `scenes/construcoes/oca_nivel_1.tscn`. O GLB contém somente a oca, sem câmera, luzes ou cenário. O arquivo-fonte da clareira não foi sobrescrito.
+- `scenes/inspecao/oca_nivel_1.tscn` apresenta o asset na clareira real. Execute essa cena com F6: 1 geral, 2 frente, 3 lateral, 4 costas e N tarde/noite. A câmera geral reutiliza os controles aprovados. A inspeção não instancia a partida nem grava saves; F5 mantém o início sem moradias.
+- Validação: importação no editor headless, verificação de sintaxe e execução headless da cena sem erros. Cinco capturas reais em Forward+/Vulkan, 1280 × 720, com suavização temporal: frente, lateral, costas, câmera normal e noite. Execução final sem mensagens em stderr. Resultados em `exports/revisao_oca_nivel_1/`.
+- Amostras gráficas finais: 38,2–43,8 FPS, 90 frames de aquecimento e 90 de medição por vista, com outras aplicações gráficas abertas. São amostras dessa sessão, não um comparativo controlado nem uma promessa para o jogo completo.
+- **Aprovação B pendente no chat.** Conforme GDD, seção "Portão B", a funcionalidade correspondente só começa após o aceite explícito do asset no Godot. Custos, posicionamento, obra, vagas e chegada de moradores ainda não foram implementados. O menu mínimo e os primeiros moradores também precisam das respectivas aprovações visuais antes de sua integração. ETAPA 4 não iniciada.
+
+### Aceite visual da oca e solicitação da ETAPA 4
+
+- Responsável aprovou o modelo no Godot: "Perfeito, podemos manter assim por enquanto. Pode fazer a ETAPA 4". Portão B da oca concluído. O registro anterior de pendência B foi superado por este aceite; o aceite não declara pronta a funcionalidade C.
+- Dependência constatada na inspeção do código: a ETAPA 3 ainda não oferece inventário transacional, posicionamento, custo, obra e chegada persistente de moradores. A ETAPA 4 exige essa base. Foi informado no chat que a integração funcional necessária deve ser concluída antes de declarar a ETAPA 4 jogável.
+- Recorte de pesquisa escolhido explicitamente: "Sim, Tupinambá do litoral da Bahia". Isso orienta a pesquisa; não representa consulta especializada ou certificação de fidelidade histórica.
+- Propostas A/B dos moradores e do menu contextual mínimo apresentadas no chat por image_gen integrada; imagens e prompts em `art/references/etapa_4/`. Referência principal de estilo: captura real da câmera do jogo aprovada. As peças são propostas, não capturas de funcionalidades existentes. Roupas dos personagens são uma convenção artística identificada, não uma alegação de traje histórico.
+- Fontes consultadas: artigo de Daniela Fernandes Alarcon e Glicéria Tupinambá, Universidade da Pensilvânia, https://dia.upenn.edu/pt/content/Fernandes-AlarconD001/ ; acervo do Museu Nacional/UFRJ sobre o manto, https://www.museunacional.ufrj.br/see/objetos_manto_tupinamba.html . O caráter ritual dos mantos não será usado como uniforme cotidiano dos moradores.
+- Recomendação para os moradores: Blender via MCP, para controlar geometria, proporções, rig, deformações e animações; depois avaliar no Godot. Novos modelos de centros e animações também seguirão os portões visuais quando produzidos. O HUD definitivo da ETAPA 5 não foi iniciado.
+### Moradores — revisão visual no Blender
+
+O responsável escolheu a proporção A e o painel inferior B. Rejeitou a primeira modelagem dos moradores e pediu revisão no Blender antes da próxima importação. O recorte escolhido está em `art/references/etapa_4/moradores_recorte_aprovado.png`. A nova dupla editável está em `art/blender/moradores_1500_astra.blend`. A anatomia deriva das Human Base Meshes do Blender Studio (CC0), com cabelo, tecidos, amarrações e proporções adaptados. Renders de corpo inteiro, rosto e costas em `exports/revisao_moradores_astra/`. Aguardando avaliação da forma no Blender. Rig, animações e integração desta revisão ficam para depois do aceite.

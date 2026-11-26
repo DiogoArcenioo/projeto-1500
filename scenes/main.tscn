@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://ck382tnq2w5ie"]
+
+[ext_resource type="PackedScene" path="res://scenes/ambientes/clareira.tscn" id="1_clareira"]
+[ext_resource type="Script" uid="uid://dr3x24vu8mmwi" path="res://scripts/partida/principal.gd" id="2_partida"]
+[ext_resource type="Script" uid="uid://p4s8737yp6pe" path="res://scripts/camera/controle_camera.gd" id="3_camera"]
+
+[node name="Principal" type="Node3D" unique_id=207650524]
+script = ExtResource("2_partida")
+
+[node name="Clareira1500" parent="." unique_id=1239319075 instance=ExtResource("1_clareira")]
+process_mode = 1
+
+[node name="ControleDaCamera" type="Node" parent="." unique_id=625451729]
+script = ExtResource("3_camera")

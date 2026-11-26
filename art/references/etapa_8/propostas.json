@@ -1,0 +1,75 @@
+{
+  "etapa": 8,
+  "estado": "Roça A1, pesca P1 e parâmetros alimentares aprovados; modelos em avaliação no Godot",
+  "imagem": "art/references/etapa_8/propostas_agricultura_pesca.png",
+  "ferramenta_conceito": "image_gen integrada",
+  "prompt": "Create a polished game asset concept approval sheet for Brazilian village management game \"1500\". Use attached actual Godot screenshot as the ONLY target art style reference: simple faceted low-poly meshes with matte saturated green leaf roofs, warm terracotta earth, Brazilian Atlantic forest, beautiful warm golden sunlight, same quality and chunky geometry as reference. Output FOUR equally sized large landscape panels in a 2x2 grid with simple dark green separators. No huge title banner and no ornamental margins. Each panel short readable Portuguese heading. Row one two agriculture variants, row two two fishing center variants. These are CONCEPT PROPOSALS for future Blender models, not actual screenshots or claims of historical reconstruction. Small footer \"Conceitos artísticos para aprovação\".\nTop left heading \"Roça A1 · Clareira aberta\": level-1 agricultural work area outdoors, organically bounded small earth patch roughly 5x6 meters. A dozen stylized broad palmate cassava plants with 5-7 long thin pointed lobes, small maize cluster with long strap leaves and a few yellow ears, no bananas or European crops. Gentle varied soil, small stick planting tools and one modest woven basket on bare ground, a minimal four-pole low lean-to with GREEN LEAF roof at rear for shade and bundles of cut cassava stems. No farm machinery, barn, fenced neat modern garden or metal tools. Plants clearly legible from isometric gameplay camera.\nTop right heading \"Roça A2 · Abrigo triangular\": same small cassava and maize roça and level1 function, but a compact triangular GREEN LEAF roof work shelter, open front with timber wood props similar to accepted oca, one basket inside. Distinct arrangement planted around organic patches with reddish soil pathways rather than modern exact parallel trenches. Scale modest village asset, no huge farming estate.\nBottom left heading \"Pesca P1 · Abrigo de margem\": small level1 fishing departure work site on natural turquoise riverbank. Open airy four-wooden-post lean-to with inclined GREEN LEAF roof. Simple fiber net draped on a timber frame with wood/fiber fastening, one modest interlaced cylindrical basket trap lying on ground, two gathering baskets, small flat stone work surface. Earth and local wood, no dock construction, no boat. River background with rocks, lush faceted tropical vegetation. Work area reads clearly apart from housing.\nBottom right heading \"Pesca P2 · Cobertura triangular\": same level1 riverbank fishing work site, but compact triangular green frond-roof shade structure echoing the accepted triangular oca, open sides, low wood horizontal support to dry fishing net, fiber basket trap and baskets near water. No full house walls, no European barrels, no bamboo oriental hut, no huge pier, no modern rod, hooks or metal, no plastic, no modern rope hardware. Foundation rests on bare natural bank, no masonry. Distinct silhouette compared to P1 yet equally simple.\nFor all 4: no people or characters, no animals except tiny implied fish in distance (prefer no fish). No cultural/religious symbols, no feathers, no ritual objects, no written signage in scenes, no HUD. Keep assets readable in realistic Godot gameplay proportions with same renderer look as provided screenshot and green leafy roofing. Slightly elevated three-quarter camera to show shapes. Four panels have consistent lighting and scale. Brazilian warmth, green/ochre/coral/turquoise contrast. Basic geometric stylized game meshes, not photoreal detailed concept illustration. Show real viable low-poly shapes that can be modeled in Blender. Each title appears outside panel art in its own top strip.",
+  "ferramenta_modelos": "Blender para abrigos, plantas, cestos e redes; integração e crescimento no Godot",
+  "recomendacao": {
+    "roca": "A1",
+    "pesca": "P1"
+  },
+  "fontes": [
+    "https://repositorio.unb.br/handle/10482/41410",
+    "https://www.ba.gov.br/seplan/sites/site-seplan/files/migracao_2024/arquivos/wp-content/uploads/PLANEHAB-Vol-III_Tomo_VI_Comunidades_Tradicionais_R01.pdf"
+  ],
+  "interpretacao_manual": "Planejamento, alocação, revezamento e envio de expedições pelo jogador. Cultivo e colheita automáticos conforme aprovação anterior.",
+  "numeros_propostos": {
+    "dia_segundos": 600,
+    "consumo_alimento_por_adulto_dia": 2,
+    "vegetais_iniciais": 8,
+    "milho": {
+      "segundos": 1080,
+      "rendimento_por_talhao": 6,
+      "trabalhadores_por_talhao": 1
+    },
+    "mandioca": {
+      "segundos": 1680,
+      "rendimento_por_talhao": 11,
+      "trabalhadores_por_talhao": 1
+    },
+    "pesca": {
+      "duracao_total_segundos": 480,
+      "equipe_referencia": 1,
+      "rendimento_minimo": 1,
+      "rendimento_maximo": 2,
+      "media_teorica": 1.25
+    },
+    "habilidade_agricultura": {
+      "bonus_por_patamar": 0.1,
+      "teto_individual": 0.3
+    },
+    "conservacao_dias": {
+      "vegetais": 4,
+      "peixe": 2
+    },
+    "capacidade_alimentos_total": 24
+  },
+  "estimativa": {
+    "consumo_dois_adultos_dia": 4,
+    "milho_um_talhao_dia": 3.333333,
+    "pesca_media_dia": 1.5625,
+    "saldo_medio_dia": 0.895833,
+    "nota": "Médias teóricas contínuas, sem pausas entre envios. Integração funcional testada; equilíbrio de longo prazo continua sujeito a testes do jogador."
+  },
+  "ajustes_necessarios": [
+    "Rebalancear coleta passiva que atualmente entrega um vegetal por trabalhador a cada 12 segundos",
+    "Rebalancear expedições de coleta para preservar escassez",
+    "Consumo inicial proporcional ao tempo de presença dos moradores",
+    "Melhorias de construções e automação de equipes seguem etapas 16 e 18"
+  ],
+  "aprovacoes_pendentes": [],
+  "aprovacao_modelos_godot": "Aprovado",
+  "status": "Modelos e parâmetros aprovados; integração funcional da etapa 8 concluída para avaliação do jogador.",
+  "escolha": {
+    "roca": "A1",
+    "pesca": "P1"
+  },
+  "aprovacao": "Gostei do A1 e do P1 e o sistema de alimento ta aprovado tbm. Durante os testes a gente verifica melhor como ficou",
+  "fontes_blender": [
+    "art/blender/centro_agricola_nivel_1.blend",
+    "art/blender/centro_pesca_nivel_1.blend",
+    "art/blender/cultivos_etapa_8.blend"
+  ],
+  "cena_inspecao": "scenes/inspecao/agricultura_pesca_etapa_8.tscn"
+}

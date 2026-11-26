@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/models/oca_nivel_1.glb" id="1_modelo"]
+
+[node name="OcaNivel1" type="Node3D"]
+metadata/referencia = "res://art/references/etapa_3/oca_triangular_01.png"
+metadata/estado_visual = "Modelo para aprovação — portão B"
+
+[node name="Modelo" parent="." instance=ExtResource("1_modelo")]
+
+[node name="Entrada" type="Marker3D" parent="."]
+position = Vector3(0, 0, 3.4)

@@ -1,0 +1,23 @@
+{
+  "modelo": "centro_caca_nivel_1",
+  "bounds_blender": [
+    [
+      -2.052502393722534,
+      2.0793535709381104
+    ],
+    [
+      -1.7590317726135254,
+      1.534000039100647
+    ],
+    [
+      -0.0029979110695421696,
+      3.0522210597991943
+    ]
+  ],
+  "malhas": 14,
+  "faces": 23355,
+  "triangulos": 47244,
+  "frente": "-Y Blender / +Z Godot",
+  "referencia": "A1",
+  "estado": "Aprovado A e B no chat; integração funcional pendente das regras de combate"
+}

@@ -1,0 +1,8 @@
+{
+  "preparacao_segundos": 3,
+  "exploracao_segundos": 60,
+  "intervalo_atividade": 12,
+  "carga_por_pessoa": 12,
+  "integrantes_nivel_1": 2,
+  "simultaneas_nivel_1": 1
+}

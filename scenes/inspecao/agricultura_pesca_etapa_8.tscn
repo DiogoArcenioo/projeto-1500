@@ -1,0 +1,24 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ambientes/clareira.tscn" id="cenario"]
+[ext_resource type="PackedScene" path="res://scenes/construcoes/centro_agricola_nivel_1.tscn" id="roca"]
+[ext_resource type="PackedScene" path="res://scenes/construcoes/centro_pesca_nivel_1.tscn" id="pesca"]
+[ext_resource type="Script" path="res://scripts/inspecao/inspecao_agricultura_pesca.gd" id="inspecao"]
+[ext_resource type="Script" path="res://scripts/camera/controle_camera.gd" id="controle"]
+
+[node name="InspecaoAgriculturaPesca" type="Node3D"]
+script = ExtResource("inspecao")
+
+[node name="Clareira1500" parent="." instance=ExtResource("cenario")]
+
+[node name="CentroAgricola" parent="." instance=ExtResource("roca")]
+
+[node name="CentroPesca" parent="." instance=ExtResource("pesca")]
+
+[node name="CameraAvaliacao" type="Camera3D" parent="."]
+fov = 39.0
+near = 0.1
+far = 160.0
+
+[node name="ControleDaCamera" type="Node" parent="."]
+script = ExtResource("controle")

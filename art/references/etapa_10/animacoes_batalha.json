@@ -1,0 +1,95 @@
+{
+  "etapa": 10,
+  "estado": "Portão B autorizado com Termina então; portão C integrado para teste do responsável",
+  "solicitacao": "Pode fazer, inclusive tem q haver animação de batalha quando acer, quando erra quando é atacado por parte dos indigenas e dos bichos",
+  "cena_aprovada": "Composição e câmera aceitas por Pode fazer; orientação do focinho à equipe preservada.",
+  "producao": "Blender 5.2.2 LTS via MCP, rig e clipes originais sobre cópias dos modelos aprovados; sem serviço pago.",
+  "atores": {
+    "humanos": [
+      "homem_01",
+      "homem_02",
+      "homem_03",
+      "homem_04",
+      "mulher_01",
+      "mulher_02",
+      "mulher_03",
+      "mulher_04"
+    ],
+    "rig_humano": 17,
+    "clipes_humanos": [
+      "pronto",
+      "andar",
+      "atacar_lanca",
+      "errar_lanca",
+      "atacar_arco",
+      "errar_arco",
+      "receber_golpe",
+      "esquivar",
+      "defender"
+    ],
+    "clipes_novos_capivara": [
+      "investida",
+      "errar_ataque",
+      "receber_golpe",
+      "esquivar"
+    ]
+  },
+  "fontes": [
+    "art/blender/moradores_batalha.blend",
+    "art/blender/capivara_batalha.blend"
+  ],
+  "exports": [
+    "assets/models/habitantes/batalha/homem_01.glb",
+    "assets/models/habitantes/batalha/homem_02.glb",
+    "assets/models/habitantes/batalha/homem_03.glb",
+    "assets/models/habitantes/batalha/homem_04.glb",
+    "assets/models/habitantes/batalha/mulher_01.glb",
+    "assets/models/habitantes/batalha/mulher_02.glb",
+    "assets/models/habitantes/batalha/mulher_03.glb",
+    "assets/models/habitantes/batalha/mulher_04.glb",
+    "assets/models/animais/batalha/capivara.glb"
+  ],
+  "cena": "scenes/inspecao/batalha_animacoes_etapa_10.tscn",
+  "scripts_producao": [
+    "tools/animar_moradores_batalha.py",
+    "tools/animar_capivara_batalha.py"
+  ],
+  "video": {
+    "arquivo": "exports/revisao_animacoes_batalha/movimentos_batalha.mp4",
+    "origem": "180 frames reais do Godot, sem geração de imagem",
+    "resolucao": [
+      1280,
+      720
+    ],
+    "fps": 12,
+    "duracao_segundos": 15,
+    "codificacao": "H.264 pelo sequenciador nativo do Blender"
+  },
+  "captura_interface": "exports/revisao_animacoes_batalha/07_interface_tatica.png",
+  "validacao": {
+    "headless": 46,
+    "grafica": 54,
+    "falhas": 0,
+    "cliques_reais": true
+  },
+  "limites": [
+    "Cena visual controlada, sem motor de combate ou salvamentos.",
+    "Dano 4, vida e PA são exemplos; não alteram ou aprovam balanceamento.",
+    "Flecha e corda são demonstrações visuais; novos clipes ainda não ligados às rolagens reais.",
+    "Os dois primeiros moradores validam o movimento; outras seis aparências serão estendidas após o aceite.",
+    "Somente a capivara tem apresentação animada neste incremento; demais animais aguardam seus assets.",
+    "A capivara conserva a IA de fuga existente, sem alterações de comportamento no motor.",
+    "Combate manual, pausa/retomada da aldeia e persistência continuam pendentes; não declarar etapa concluída."
+  ],
+  "integracao": {
+    "autorizacao": "Termina então",
+    "cena": "scenes/encontros/combate_manual.tscn",
+    "teste_rapido": "scenes/inspecao/combate_manual_etapa_10.tscn",
+    "headless": 159,
+    "grafica": 163,
+    "falhas": 0,
+    "escopo": "Caça manual de capivara, regiões 14/21. Estado real de expedição, turnos, RNG e consequências persistidas.",
+    "aceite_funcional": "Pendente do teste do responsável",
+    "etapa_11": "Não iniciada"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "etapa": 10,
+  "estado": "Capivara, cena e movimentos autorizados; etapa 10 integrada para teste do responsável.",
+  "data": "2026-11-25",
+  "escopo": "Primeiro animal capivara e referência visual da clareira do encontro; sem modelagem ou mecânica nova.",
+  "gerador": "image_gen integrada, sem serviço externo de modelos 3D",
+  "conceitos": [
+    {
+      "arquivo": "capivara_opcoes.png",
+      "opcoes": {
+        "A": "Facetas mais marcadas e silhueta natural, recomendada",
+        "B": "Volumes e transições mais arredondados, mantendo proporções adultas"
+      },
+      "prompt": "Use case: stylized-concept.\nAsset type: TWO-OPTION GAME ANIMAL DESIGN COMPARISON for the existing Brazilian game 1500. This is concept art for approval, NOT a completed 3D model or engine screenshot.\nInput image 1 is a style reference ONLY: the existing Godot river scene and its warm ochre ground, teal water, polygonal foliage. Input image 2 is a style reference ONLY: approved game villagers with carefully sculpted faceted anatomy, balanced proportions and clean colors. Do not reproduce villagers in this board.\nCreate a beautifully composed landscape design board divided into TWO equal columns labeled exactly \"A\" and \"B\". Each column shows an adult capybara as a large full-body three-quarter view, and a smaller complete side profile below. The two views within a column show the SAME design.\nA: recommended balanced low-poly sculpt: believable barrel-shaped torso, heavy elongated blunt rectangular head, short neck, short sturdy legs, very small rounded ears high on the head, small dark lateral eyes, subtle nostrils high on broad muzzle. Coherent generous sculpted planes, nuanced warm chestnut and honey brown color variation, slightly darker muzzle, softer cream brown undersides, dark brown toe nails. Refined medium-low-poly game asset, neither a crude primitive nor photoreal fur. Adult capybara anatomy, no visible long tail, no pig snout, no beaver teeth sticking out. Four anatomically legible grounded feet. Natural neutral alert expression. Clearly visible stance and silhouette, not a mascot. Proportions around 1.2m long and .6m at shoulder.\nB: same recognizable adult animal anatomy, but softer rounder silhouette and broader simpler planes, a slightly fuller torso, gentler transitions, still small natural eyes and short ears, clean warm caramel brown palette. No baby proportions. Both designs plausible companions to the reference game's art, not wildly different art styles.\nBackdrop: warm light desaturated olive studio background with subtle grounded shadow; isolated animals only. Soft studio light from front left and a restrained golden rim, no effects hiding anatomy. No plants, people, tools, collars, accessories, feathers, painted markings, clothing or weapons. No gore, attack, teeth baring or exaggerated aggression. No fake wireframe, no polygon budget claims.\nText only: \"1500 | CAPIVARA\" at top, \"A\" over left column and \"B\" over right column, and small \"CONCEITO VISUAL\" at bottom. Large readable animals; restrained professional concept presentation."
+    },
+    {
+      "arquivo": "encontro_cinematografico.png",
+      "proposta": "Storyboard do mesmo encontro: revelação atrás da equipe, abertura para câmera tática elevada à margem do rio.",
+      "prompt": "Use case: stylized-concept.\nAsset type: a two-frame CAMERA STORYBOARD for manual hunting encounters in the existing Brazilian indie game \"1500\". CONCEPT ART FOR APPROVAL, not a Godot screenshot or a built model.\nInput references: 1 the project's actual low-poly Atlantic rainforest river scene, preserve its exact visual vocabulary of ochre ground, large faceted leaves, polygon trunks, teal water, restrained coral red flowers, lush layered greens and golden sunlight. 2 the actual approved game villager lineup; preserve balanced low-poly human proportions, ochre skin, black hair, rust/olive fabric garments and bare feet. They are fictional game adaptations, do not add historical claims or invented ceremonial motifs. 3 capybara design comparison; use the natural faceted adult capybara A, at real-world scale about .6m shoulder tall compared to ~1.7m human.\nCreate a polished landscape storyboard in TWO equal wide frames stacked vertically with a slim dark olive separator. Small headings only, exactly \"1 | REVELAÇÃO\" and \"2 | VISÃO TÁTICA\", and discreet \"CONCEITO VISUAL\" on the bottom.\nBoth frames must depict the SAME small forest clearing beside a shallow teal river in a tropical Atlantic rainforest, same trees, same golden afternoon light, same two adult villagers, same ONE adult capybara. No other animals, no village buildings, no archaeology. A flat playable clearing with fine earthen surface and low grass, few low grey rocks and a fallen branch at the edge, broad ferns and large leaves framing, a visible natural route for the animal to escape toward the water. Dense vegetation outside the playable space, sparse vegetation inside. Strong Brazilian artistic color character through warm orange earth and caramel capybara against cool teal/emerald forest, tiny coral flowers, restrained light shafts and layered atmospheric haze. Natural grounded polished low-poly 3D game quality, sculpted clean facets like the references. No photorealism or painterly fuzz.\nTOP FRAME: cinematic camera behind and slightly above shoulders of two approved villagers in lower foreground, ONE woman with long dark hair and olive wrapped top/rust skirt, ONE man with black hair and rust/olive wrap skirt. Their backs are clearly shown, not faces facing camera. A simple wooden bow held lowered by one, a stone-tipped wooden spear held lowered by the other. Calm alert natural poses, no drawn attack or gore. The ONE capybara several metres ahead near water in readable side three-quarter profile, naturally wary, not baring teeth. Head and whole body visible between foliage. Controlled depth, golden rim light, world stays clear. NO GRID IN TOP FRAME.\nBOTTOM FRAME: elevated oblique camera opened up above the very same clearing, a readable complete 8 by 8 square tactical area fitting in the landscape. Subtle thin pale gold tile lines, with a few soft translucent moss-green reachable tiles near the villagers and one pale gold selection outline; unobtrusive game ground overlay, not sci-fi hologram. Both villagers occupy distinct tiles at the near edge; capybara occupies one tile several tiles away near the river. Clearly countable eight rows and eight columns. River lies along the far/right edge OUTSIDE most tiles; no square board floating above terrain, no huge stone chessboard. No gigantic capybara. Vegetation and rocks do not obscure the active tiles. The forest extends naturally beyond the playable space. Emphasize tactical legibility and preservation of the scene's atmosphere.\nAvoid floating interface cards, combat UI buttons, letters/numbers on tiles, HUD, damage text, logos, Pokémon imagery, enormous animal eyes, feathered headdresses, modern objects, armor, weapon embellishments, blood or injuries."
+    }
+  ],
+  "referencias_estilo": [
+    "exports/revisao_etapa_1/rio_alto.png",
+    "exports/revisao_variacoes/familia_godot.png"
+  ],
+  "fontes": [
+    {
+      "url": "https://curtabiodiversidade.fiocruz.br/megabio_posts/capivara/",
+      "uso": "Identidade, distribuição brasileira e associação a rios/lagoas; não é evidência de costume histórico."
+    },
+    {
+      "url": "https://zoo.sandiegozoo.org/animals/capybara",
+      "uso": "Referência anatômica e habitat semiaquático."
+    },
+    {
+      "url": "https://ibram.df.gov.br/caracteristicas-gerais-das-capivaras",
+      "uso": "Dimensões aproximadas e características gerais do adulto."
+    },
+    {
+      "url": "https://www.gov.br/icmbio/pt-br/assuntos/biodiversidade/unidade-de-conservacao/unidades-de-biomas/marinho/lista-de-ucs/parna-da-restinga-de-jurubatiba/arquivos/7.png/view",
+      "uso": "Fotografia de referência da espécie."
+    }
+  ],
+  "producao_recomendada": {
+    "modelo": "Blender via MCP, anatomia esculpida low-poly, rig e animações; não primitivas descartáveis.",
+    "fonte": "art/blender/capivara.blend (futuro, após escolha A)",
+    "exportacao": "assets/models/animais/capivara.glb (futuro)",
+    "integracao": "Godot para importar, iluminação real, escala, câmera e inspeção após escolha.",
+    "escala_alvo": "Adulto com cerca de 1,2 m de comprimento e 0,6 m de altura no ombro, ajuste pela anatomia de referência.",
+    "metodo": "Reusar moradores, vegetação e paleta aprovados; animal novo modelado originalmente, sem geração paga Meshy."
+  },
+  "limites": [
+    "São imagens de conceito, não screenshots do Godot nem modelos prontos.",
+    "Grade e personagens no storyboard são indicativos de composição; o tabuleiro funcional continuará 8 × 8 com escala e alcance definidos pelo motor.",
+    "Roupas existentes são adaptações artísticas já aprovadas; nenhuma nova alegação de fidelidade histórica ou símbolo ritual.",
+    "Regras da etapa 9 preservadas, incluindo tendência de fuga da capivara; não foi aumentado seu risco para criar combate artificial.",
+    "Não produzir todos os animais de uma vez. Capivara começa como primeiro conjunto coerente.",
+    "Etapa 11 e intervenção no feed permanecem fora deste incremento."
+  ],
+  "aprovacao_A": {
+    "capivara": "A — escolha explícita do responsável no chat",
+    "cena": "Aprovo, so garante q o focinho do animal sempre estará virado para as pessoas no inicio da luta"
+  },
+  "aprovacao_B": {
+    "capivara": "Aprovado — aceite explícito após capturas do modelo no Godot e instruções de inspeção",
+    "cena": "Pode fazer — aceite após apresentação da cena no Godot; solicitado incluir animações de batalha. Novas animações e interface seguem em inspeção própria."
+  },
+  "entrega_c": "Combate manual real integrado em scenes/encontros/combate_manual.tscn; aprovação funcional pendente. Ver docs/PROGRESSO.md."
+}

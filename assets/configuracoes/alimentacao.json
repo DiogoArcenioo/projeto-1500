@@ -1,0 +1,44 @@
+{
+  "consumo_por_adulto_dia": 2,
+  "capacidade": 24,
+  "validade_dias": {
+    "vegetais": 4,
+    "peixe": 2,
+    "carne": 2
+  },
+  "cultivos": {
+    "milho": {
+      "duracao": 1080,
+      "rendimento": 6
+    },
+    "mandioca": {
+      "duracao": 1680,
+      "rendimento": 11
+    }
+  },
+  "agricultura": {
+    "xp_colheita": 6,
+    "patamares_xp": [
+      12,
+      40,
+      100
+    ],
+    "bonus_patamar": 0.1
+  },
+  "coleta_local": {
+    "intervalo": 60,
+    "vegetal_cada_ciclos": 20
+  },
+  "pesca": {
+    "duracao_total": 480,
+    "intervalo": 90,
+    "rendimento_base": 1,
+    "chance_segunda_unidade": 0.25
+  },
+  "dieta": {
+    "janela_dias": 3,
+    "carencia_leve_dias": 3,
+    "carencia_media_dias": 5,
+    "carencia_grave_dias": 8
+  }
+}

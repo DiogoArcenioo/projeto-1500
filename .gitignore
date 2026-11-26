@@ -1,0 +1,17 @@
+# Godot: cache local; arquivos .uid devem ser versionados.
+.godot/
+*.tmp
+export_credentials.cfg
+
+# Blender: backups automaticos; arquivos .blend devem ser versionados.
+*.blend[0-9]*
+*.blend@
+
+# Builds, ferramentas e sistema.
+/exports/*
+!/exports/.gitkeep
+!/exports/.gdignore
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc

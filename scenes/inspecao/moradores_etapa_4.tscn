@@ -1,0 +1,61 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ambientes/clareira.tscn" id="1_cenario"]
+[ext_resource type="PackedScene" path="res://scenes/construcoes/oca_nivel_1.tscn" id="2_oca"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/homem_01.glb" id="homem_01"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/mulher_01.glb" id="mulher_01"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/homem_02.glb" id="homem_02"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/mulher_02.glb" id="mulher_02"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/homem_03.glb" id="homem_03"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/mulher_03.glb" id="mulher_03"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/homem_04.glb" id="homem_04"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/mulher_04.glb" id="mulher_04"]
+[ext_resource type="Script" path="res://scripts/inspecao/inspecao_moradores.gd" id="5_inspecao"]
+[ext_resource type="Script" path="res://scripts/camera/controle_camera.gd" id="6_camera"]
+[ext_resource type="Script" path="res://scripts/inspecao/menu_contextual_visual.gd" id="7_menu"]
+
+[node name="InspecaoMoradoresEtapa4" type="Node3D"]
+script = ExtResource("5_inspecao")
+
+[node name="Clareira1500" parent="." instance=ExtResource("1_cenario")]
+
+[node name="OcaNivel1" parent="." instance=ExtResource("2_oca")]
+position = Vector3(-4.7, 0.08, -3.5)
+
+[node name="Moradores" type="Node3D" parent="."]
+
+[node name="homem_01" parent="Moradores" instance=ExtResource("homem_01")]
+position = Vector3(-7.48, 0.08, 1.9)
+
+[node name="mulher_01" parent="Moradores" instance=ExtResource("mulher_01")]
+position = Vector3(-6.60, 0.08, 1.9)
+
+[node name="homem_02" parent="Moradores" instance=ExtResource("homem_02")]
+position = Vector3(-5.72, 0.08, 1.9)
+
+[node name="mulher_02" parent="Moradores" instance=ExtResource("mulher_02")]
+position = Vector3(-4.84, 0.08, 1.9)
+
+[node name="homem_03" parent="Moradores" instance=ExtResource("homem_03")]
+position = Vector3(-3.96, 0.08, 1.9)
+
+[node name="mulher_03" parent="Moradores" instance=ExtResource("mulher_03")]
+position = Vector3(-3.08, 0.08, 1.9)
+
+[node name="homem_04" parent="Moradores" instance=ExtResource("homem_04")]
+position = Vector3(-2.20, 0.08, 1.9)
+
+[node name="mulher_04" parent="Moradores" instance=ExtResource("mulher_04")]
+position = Vector3(-1.32, 0.08, 1.9)
+
+[node name="CameraAvaliacao" type="Camera3D" parent="."]
+current = true
+fov = 36.0
+near = 0.1
+far = 160.0
+
+[node name="ControleDaCamera" type="Node" parent="."]
+script = ExtResource("6_camera")
+
+[node name="MenuVisual" type="CanvasLayer" parent="."]
+script = ExtResource("7_menu")

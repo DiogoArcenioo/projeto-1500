@@ -1,0 +1,246 @@
+{
+  "status": "etapa_9_integrada_para_testes; aceite_funcional_pendente",
+  "etapa": 9,
+  "data": "2026-11-25",
+  "referencia_visual": {
+    "arquivo": "art/references/etapa_9/centro_caca_opcoes.png",
+    "opcoes": {
+      "A": "Abrigo aberto",
+      "B": "Abrigo triangular"
+    },
+    "recomendacao": "A",
+    "natureza": "Conceito gerado; não é modelo 3D ou captura do jogo; adaptação artística, não reconstrução histórica.",
+    "ferramenta": "image_gen integrada",
+    "prompt": "Use case: stylized-concept. Create ONE polished landscape comparison sheet with TWO equally large side-by-side panels for the Brazilian PC game 1500. Large clearly legible labels at top: 'A — Abrigo aberto' and 'B — Abrigo triangular'. Small subtitle 'PROPOSTAS VISUAIS — CENTRO DE CAÇA'. Each panel is a single hunting work shelter seen from three-quarter elevated gameplay angle, same scale and natural golden sunlight, warm ochre dirt clearing bordered by stylized Atlantic rainforest: low-poly broadleaf trees, broad jade green leaves, palm fronds, terracotta and honey wood, lush Brazilian colorful contrast and green layered leaf roofing. Match an existing low-poly game with small triangular dark jade leaf-covered huts, slender faceted tree trunks, gold light, no European medieval elements. Panel A: compact open rectangular wooden four-post shelter 3.5m wide, sloping thick overlapping broad green leaves roof, open sides, fiber lashings, neat rack holding two plain wooden hunting bows with plant-fiber strings and simple arrows, wooden spears, woven baskets and modest raised storage bench. Panel B: compact triangular A-frame hunting work shelter approximately same size, strongly sloping broad green leaf roof with open triangular front, one open side for access, same tidy practical bow/spear rack and baskets. Clear different silhouettes, readable prop details, beautiful coherent attainable Blender game assets, sharp faceted stylized meshes, moderate detail, warm shadows and sun shafts through surrounding vegetation. No human figures, no animals, no carcasses, no feathers, skull decorations, ritual artifacts, patterned symbols, metal, stone walls, nails, medieval fantasy, European architecture or imported props. These are artistic game adaptations, not a historical reconstruction. Keep props modest and legible at gameplay scale. Nothing touches image edges. This is a NEW concept plate, not a screenshot or implemented model; do not draw a HUD or claim implemented gameplay.",
+    "producao_recomendada": "Blender via MCP, reutilizando materiais, folhas, amarrações e escala aprovados. Exportar GLB e avaliar no Godot antes da integração funcional.",
+    "escolha": "A1 — abrigo aberto",
+    "aprovacao_A": "A1",
+    "modelo": "assets/models/centro_caca_nivel_1.glb",
+    "fonte_blender": "art/blender/centro_caca_nivel_1.blend",
+    "cena_inspecao": "scenes/inspecao/centro_caca_etapa_9.tscn",
+    "aprovacao_B": "3d aprovado pode me mandar dnv as regras?"
+  },
+  "centro": {
+    "custo": {
+      "madeira": 25,
+      "fibras_vegetais": 12
+    },
+    "construcao_segundos": 60,
+    "vagas": 2,
+    "expedicoes_simultaneas": 1,
+    "modo_inicial": "simulado",
+    "equipamentos": "Kit básico de lança ou arco reservado à equipe; definição por dados. Sem fabricação, venda ou duplicação de equipamentos nesta etapa.",
+    "viagem_mais_busca_total_referencia_segundos": 720,
+    "encontros_maximos_por_viagem": 1
+  },
+  "regras": {
+    "tabuleiro": {
+      "largura": 8,
+      "altura": 8,
+      "movimento": "ortogonal",
+      "obstaculo_alto": "impede movimento e linha de tiro",
+      "cobertura_baixa_bonus_defesa_distancia": 2
+    },
+    "turno": {
+      "pontos_acao": 2,
+      "ataques_maximos": 1,
+      "mover": {
+        "custo": 1,
+        "casas": 3
+      },
+      "atacar": {
+        "custo": 1
+      },
+      "mirar": {
+        "custo": 1,
+        "bonus_proximo_ataque": 2,
+        "validade": "fim do turno"
+      },
+      "defender": {
+        "custo": 1,
+        "bonus_defesa": 2,
+        "validade": "inicio do próximo turno"
+      },
+      "proteger": {
+        "custo": 1,
+        "alcance_aliado": 1,
+        "efeito": "Intercepta um ataque ao aliado adjacente antes do próximo turno, usando armadura do protetor uma vez. Não encadeia interceptações."
+      },
+      "retirada_equipe": {
+        "custo": 2,
+        "dificuldade_base": 12,
+        "modificador": "bônus de agilidade e treinamento do líder ativo",
+        "acrescimo_por_perigo": {
+          "baixo": 0,
+          "medio": 2,
+          "alto": 3,
+          "extremo": 4
+        },
+        "sucesso": "Equipe sobrevivente, inclusive incapacitados, retira-se; sem carne ou couro do encontro.",
+        "falha": "Encerra turno do líder, sem ataque extra fora das regras."
+      }
+    },
+    "atributos": {
+      "bonus": "floor((atributo - 5) / 2)",
+      "vida_humano": "30 + 2 * resistencia efetiva, arredondada para baixo",
+      "vida_entrada": "HP máximo proporcional à saúde atual, sem cura por entrar na arena.",
+      "treinamento": "min(4, floor(max(habilidade_caca, habilidade_combate) / 20))",
+      "especializacao": {
+        "cacador": 2,
+        "outro_morador": -2
+      },
+      "iniciativa": "D20 + bônus de agilidade; desempate por agilidade e ID estável"
+    },
+    "ataque": {
+      "teste": "D20 + bônus do atributo + treinamento + especialização + precisão do equipamento + efeitos temporários >= defesa",
+      "atributo_lanca": "forca",
+      "atributo_arco": "percepcao",
+      "falha_natural": 1,
+      "critico_natural": 20,
+      "critico": "Acerto automático; dobra somente dados da arma. Bônus não duplicam, armadura subtrai uma vez.",
+      "armadura": "Reduz dano após acerto; mínimo zero. Agilidade só altera defesa."
+    },
+    "equipamentos": {
+      "lanca": {
+        "dano": "1d6+1",
+        "alcance": 1,
+        "precisao": 0
+      },
+      "arco": {
+        "dano": "1d6+1",
+        "alcance": 5,
+        "precisao": 0
+      }
+    },
+    "humanos_defesa": "10 + bônus de agilidade + efeitos de defesa/cobertura, sem contar armadura como esquiva",
+    "animais": [
+      {
+        "id": "capivara",
+        "vida": 16,
+        "defesa": 12,
+        "armadura": 0,
+        "ataque": 1,
+        "dano": "1d4",
+        "movimento": 3,
+        "perigo": "baixo",
+        "comportamento": "Prioriza fugir da aproximação e da ameaça. Só reage se encurralada.",
+        "recursos": {
+          "carne": 4,
+          "couro": 1
+        }
+      },
+      {
+        "id": "queixada",
+        "vida": 28,
+        "defesa": 12,
+        "armadura": 1,
+        "ataque": 4,
+        "dano": "1d6+2",
+        "movimento": 3,
+        "perigo": "medio",
+        "comportamento": "Defesa e avanço agressivo quando ameaçado; encontro inicial isolado, sem simular bando inteiro.",
+        "recursos": {
+          "carne": 7,
+          "couro": 2
+        }
+      },
+      {
+        "id": "anta",
+        "vida": 44,
+        "defesa": 11,
+        "armadura": 1,
+        "ataque": 4,
+        "dano": "1d8+2",
+        "movimento": 3,
+        "perigo": "alto",
+        "comportamento": "Tenta afastar-se; pode investir se caminho de retirada for bloqueado.",
+        "recursos": {
+          "carne": 10,
+          "couro": 3
+        }
+      },
+      {
+        "id": "jacare_papo_amarelo",
+        "vida": 36,
+        "defesa": 10,
+        "armadura": 3,
+        "ataque": 5,
+        "dano": "1d8+3",
+        "movimento": 2,
+        "perigo": "alto",
+        "comportamento": "Concentra ameaça junto à água; resistência pelo couro, não esquiva elevada.",
+        "recursos": {
+          "carne": 6,
+          "couro": 3
+        }
+      },
+      {
+        "id": "onca_pintada",
+        "vida": 60,
+        "defesa": 16,
+        "armadura": 1,
+        "ataque": 8,
+        "dano": "2d6+2",
+        "movimento": 4,
+        "perigo": "extremo",
+        "comportamento": "Predador que pressiona alvo exposto. Aparece como ameaça defensiva; nunca como primeira caça/tutorial.",
+        "recursos": {
+          "carne": 0,
+          "couro": 1
+        }
+      }
+    ],
+    "fuga_animal": "Usa as mesmas ações e o mesmo RNG. Ao alcançar borda de saída e gastar 2 PA, testa D20 + (defesa base - 10) contra 12 + maior bônus de percepção dos caçadores. Falha encerra o turno; sucesso encerra encontro sem recompensa.",
+    "derrota": {
+      "zero_hp": "Incapacitado; não age. Não significa morte instantânea.",
+      "vitoria_ou_fuga": "Incapacitados sobreviventes retornam feridos, sem HP restaurado por reiniciar encontro.",
+      "equipe_totalmente_incapacitada": "Um teste de sobrevivência por morador: D20 + bônus de resistência contra 10 (ameaças comuns) ou 16 (onça). Falha causa morte, sucesso retorno gravemente ferido. Rolagem única persistida; não rerrolar ao carregar.",
+      "saude_retorno_sobrevivente_derrota": 20
+    },
+    "experiencia": {
+      "por_acao_valida": {
+        "atacar": 1,
+        "proteger_ataque": 1
+      },
+      "por_encontro_vencido_caca": 3,
+      "limite_xp_encontro": 8,
+      "regra": "Só ações úteis: sem XP por mover/defender repetidamente. Recompensa final aplicada uma vez."
+    },
+    "automatico": "Mesmo motor do manual. Busca tiro válido, evita água/obstáculos, protege aliado ameaçado e tenta retirada com HP da equipe abaixo de 30%. Cada ação respeita PA e alcance.",
+    "termino_seguranca": {
+      "rodadas_maximas": 40,
+      "rodadas_sem_dano_maximas": 8,
+      "resultado": "Retirada sem recompensa, preservando feridos e mortes existentes; não sorteia vitória."
+    },
+    "simulacao": "Regras aprovadas para primeira implementação. Cem confrontos controlados simulados para diagnóstico; balanceamento definitivo depende dos testes com pessoas."
+  },
+  "fontes": [
+    {
+      "url": "https://www.gov.br/icmbio/pt-br/assuntos/biodiversidade/unidade-de-conservacao/unidades-de-biomas/mata-atlantica/lista-de-ucs/parna-do-descobrimento/arquivos/parna_descobrimento_pm_v1.pdf",
+      "uso": "Ocorrência regional de queixada e anta no extremo sul da Bahia; não comprova populações em 1500."
+    },
+    {
+      "url": "https://procarnivoros.org.br/projeto/a-onca-pintada-e-a-comunidade-de-mamiferos-do-extremo-sul-da-bahia/",
+      "uso": "Pesquisa de mamíferos e onça-pintada na Mata Atlântica do extremo sul da Bahia."
+    },
+    {
+      "url": "https://ava.icmbio.gov.br/mod/data/view.php?d=17&mode=single&page=571",
+      "uso": "Distribuição do jacaré-de-papo-amarelo, incluindo Mata Atlântica; distribuição contemporânea não certifica reconstrução histórica."
+    },
+    {
+      "url": "https://www.gov.br/icmbio/pt-br/assuntos/biodiversidade/unidade-de-conservacao/unidades-de-biomas/mata-atlantica/lista-de-ucs/rebio-da-mata-escura/arquivos/planodemanejo_rbme_final.pdf",
+      "uso": "Capivara como referência regional mais ampla da Mata Atlântica. Não prova abundância no litoral baiano em 1500."
+    }
+  ],
+  "pendencias": [
+    "Avaliação funcional da etapa 9 pelo responsável",
+    "Balanceamento por testes com pessoas"
+  ],
+  "fora_do_escopo": [
+    "Apresentação cinematográfica da etapa 10",
+    "Ataques aleatórios a coletores e pescadores da etapa 11",
+    "Artesanato completo",
+    "Modelos de animais em batalha antes de suas próprias aprovações"
+  ],
+  "aprovacao_regras": "Aprovado, vamos balancear melhor a partir dos testes com pessoas"
+}

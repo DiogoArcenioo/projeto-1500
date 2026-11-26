@@ -1,0 +1,29 @@
+{
+  "bounds_blender": [
+    [
+      -0.24061383306980133,
+      0.24052201211452484
+    ],
+    [
+      -0.6542400121688843,
+      0.4899371266365051
+    ],
+    [
+      0.0026024160906672478,
+      0.7590000033378601
+    ]
+  ],
+  "triangulos": 4252,
+  "vertices": 2204,
+  "malhas": 1,
+  "materiais": 2,
+  "ossos": 16,
+  "animacoes": [
+    "parada",
+    "andar",
+    "correr"
+  ],
+  "frente": "Blender -Y / Godot +Z",
+  "estado": "Referência A e modelo B aprovados explicitamente no chat",
+  "aceite_modelo": "Aprovado — resposta do responsável à apresentação das capturas e da inspeção Godot"
+}

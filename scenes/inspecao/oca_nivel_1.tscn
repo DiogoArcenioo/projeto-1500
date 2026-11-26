@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ambientes/clareira.tscn" id="1_cenario"]
+[ext_resource type="PackedScene" path="res://scenes/construcoes/oca_nivel_1.tscn" id="2_oca"]
+[ext_resource type="Script" path="res://scripts/inspecao/inspecao_oca.gd" id="3_inspecao"]
+[ext_resource type="Script" path="res://scripts/camera/controle_camera.gd" id="4_camera"]
+
+[node name="InspecaoOcaNivel1" type="Node3D"]
+script = ExtResource("3_inspecao")
+
+[node name="Clareira1500" parent="." instance=ExtResource("1_cenario")]
+
+[node name="OcaNivel1" parent="." instance=ExtResource("2_oca")]
+position = Vector3(-4.7, 0.08, -3.5)
+
+[node name="CameraAvaliacao" type="Camera3D" parent="."]
+position = Vector3(-11.1, 4.88, 4.5)
+current = true
+fov = 40.0
+near = 0.1
+far = 160.0
+
+[node name="ControleDaCamera" type="Node" parent="."]
+script = ExtResource("4_camera")

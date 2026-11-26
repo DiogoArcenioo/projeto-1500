@@ -1,0 +1,5 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://scenes/inspecao/encontro_capivara_etapa_10.tscn" id="base"]
+[ext_resource type="Script" path="res://scripts/encontros/combate_manual.gd" id="codigo"]
+[node name="CombateManual" instance=ExtResource("base")]
+script = ExtResource("codigo")

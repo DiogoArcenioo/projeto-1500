@@ -1,0 +1,181 @@
+{
+  "tabuleiro": {
+    "largura": 8,
+    "altura": 8,
+    "movimento": "ortogonal",
+    "obstaculo_alto": "impede movimento e linha de tiro",
+    "cobertura_baixa_bonus_defesa_distancia": 2
+  },
+  "turno": {
+    "pontos_acao": 2,
+    "ataques_maximos": 1,
+    "mover": {
+      "custo": 1,
+      "casas": 3
+    },
+    "atacar": {
+      "custo": 1
+    },
+    "mirar": {
+      "custo": 1,
+      "bonus_proximo_ataque": 2,
+      "validade": "fim do turno"
+    },
+    "defender": {
+      "custo": 1,
+      "bonus_defesa": 2,
+      "validade": "inicio do próximo turno"
+    },
+    "proteger": {
+      "custo": 1,
+      "alcance_aliado": 1,
+      "efeito": "Intercepta um ataque ao aliado adjacente antes do próximo turno, usando armadura do protetor uma vez. Não encadeia interceptações."
+    },
+    "retirada_equipe": {
+      "custo": 2,
+      "dificuldade_base": 12,
+      "modificador": "bônus de agilidade e treinamento do líder ativo",
+      "acrescimo_por_perigo": {
+        "baixo": 0,
+        "medio": 2,
+        "alto": 3,
+        "extremo": 4
+      },
+      "sucesso": "Equipe sobrevivente, inclusive incapacitados, retira-se; sem carne ou couro do encontro.",
+      "falha": "Encerra turno do líder, sem ataque extra fora das regras."
+    }
+  },
+  "atributos": {
+    "bonus": "floor((atributo - 5) / 2)",
+    "vida_humano": "30 + 2 * resistencia efetiva, arredondada para baixo",
+    "vida_entrada": "HP máximo proporcional à saúde atual, sem cura por entrar na arena.",
+    "treinamento": "min(4, floor(max(habilidade_caca, habilidade_combate) / 20))",
+    "especializacao": {
+      "cacador": 2,
+      "outro_morador": -2
+    },
+    "iniciativa": "D20 + bônus de agilidade; desempate por agilidade e ID estável"
+  },
+  "ataque": {
+    "teste": "D20 + bônus do atributo + treinamento + especialização + precisão do equipamento + efeitos temporários >= defesa",
+    "atributo_lanca": "forca",
+    "atributo_arco": "percepcao",
+    "falha_natural": 1,
+    "critico_natural": 20,
+    "critico": "Acerto automático; dobra somente dados da arma. Bônus não duplicam, armadura subtrai uma vez.",
+    "armadura": "Reduz dano após acerto; mínimo zero. Agilidade só altera defesa."
+  },
+  "equipamentos": {
+    "lanca": {
+      "dano": "1d6+1",
+      "alcance": 1,
+      "precisao": 0
+    },
+    "arco": {
+      "dano": "1d6+1",
+      "alcance": 5,
+      "precisao": 0
+    }
+  },
+  "humanos_defesa": "10 + bônus de agilidade + efeitos de defesa/cobertura, sem contar armadura como esquiva",
+  "animais": [
+    {
+      "id": "capivara",
+      "vida": 16,
+      "defesa": 12,
+      "armadura": 0,
+      "ataque": 1,
+      "dano": "1d4",
+      "movimento": 3,
+      "perigo": "baixo",
+      "comportamento": "Prioriza fugir da aproximação e da ameaça. Só reage se encurralada.",
+      "recursos": {
+        "carne": 4,
+        "couro": 1
+      }
+    },
+    {
+      "id": "queixada",
+      "vida": 28,
+      "defesa": 12,
+      "armadura": 1,
+      "ataque": 4,
+      "dano": "1d6+2",
+      "movimento": 3,
+      "perigo": "medio",
+      "comportamento": "Defesa e avanço agressivo quando ameaçado; encontro inicial isolado, sem simular bando inteiro.",
+      "recursos": {
+        "carne": 7,
+        "couro": 2
+      }
+    },
+    {
+      "id": "anta",
+      "vida": 44,
+      "defesa": 11,
+      "armadura": 1,
+      "ataque": 4,
+      "dano": "1d8+2",
+      "movimento": 3,
+      "perigo": "alto",
+      "comportamento": "Tenta afastar-se; pode investir se caminho de retirada for bloqueado.",
+      "recursos": {
+        "carne": 10,
+        "couro": 3
+      }
+    },
+    {
+      "id": "jacare_papo_amarelo",
+      "vida": 36,
+      "defesa": 10,
+      "armadura": 3,
+      "ataque": 5,
+      "dano": "1d8+3",
+      "movimento": 2,
+      "perigo": "alto",
+      "comportamento": "Concentra ameaça junto à água; resistência pelo couro, não esquiva elevada.",
+      "recursos": {
+        "carne": 6,
+        "couro": 3
+      }
+    },
+    {
+      "id": "onca_pintada",
+      "vida": 60,
+      "defesa": 16,
+      "armadura": 1,
+      "ataque": 8,
+      "dano": "2d6+2",
+      "movimento": 4,
+      "perigo": "extremo",
+      "comportamento": "Predador que pressiona alvo exposto. Aparece como ameaça defensiva; nunca como primeira caça/tutorial.",
+      "recursos": {
+        "carne": 0,
+        "couro": 1
+      }
+    }
+  ],
+  "fuga_animal": "Usa as mesmas ações e o mesmo RNG. Ao alcançar borda de saída e gastar 2 PA, testa D20 + (defesa base - 10) contra 12 + maior bônus de percepção dos caçadores. Falha encerra o turno; sucesso encerra encontro sem recompensa.",
+  "derrota": {
+    "zero_hp": "Incapacitado; não age. Não significa morte instantânea.",
+    "vitoria_ou_fuga": "Incapacitados sobreviventes retornam feridos, sem HP restaurado por reiniciar encontro.",
+    "equipe_totalmente_incapacitada": "Um teste de sobrevivência por morador: D20 + bônus de resistência contra 10 (ameaças comuns) ou 16 (onça). Falha causa morte, sucesso retorno gravemente ferido. Rolagem única persistida; não rerrolar ao carregar.",
+    "saude_retorno_sobrevivente_derrota": 20
+  },
+  "experiencia": {
+    "por_acao_valida": {
+      "atacar": 1,
+      "proteger_ataque": 1
+    },
+    "por_encontro_vencido_caca": 3,
+    "limite_xp_encontro": 8,
+    "regra": "Só ações úteis: sem XP por mover/defender repetidamente. Recompensa final aplicada uma vez."
+  },
+  "automatico": "Mesmo motor do manual. Busca tiro válido, evita água/obstáculos, protege aliado ameaçado e tenta retirada com HP da equipe abaixo de 30%. Cada ação respeita PA e alcance.",
+  "termino_seguranca": {
+    "rodadas_maximas": 40,
+    "rodadas_sem_dano_maximas": 8,
+    "resultado": "Retirada sem recompensa, preservando feridos e mortes existentes; não sorteia vitória."
+  },
+  "simulacao": "Regras aprovadas para primeira implementação. Cem confrontos controlados simulados para diagnóstico; balanceamento definitivo depende dos testes com pessoas."
+}

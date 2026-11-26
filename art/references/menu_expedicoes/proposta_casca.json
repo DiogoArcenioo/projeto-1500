@@ -1,0 +1,34 @@
+{
+  "elemento": "Menu de expedições em casca interna de árvore",
+  "data": "2026-11-25",
+  "origem_direcao": "Pedido explícito no chat: menu contextual pequeno, equipe com retratos/nomes/experiência/atributos, equipamentos, confirmação; superfície interna de casca de árvore.",
+  "aprovacao_A": "Direção visual fornecida pelo responsável no chat",
+  "aprovacao_B": "Aprovado explicitamente no chat após revisão de margens e fonte: Perfeito agr qual p proximo?",
+  "integracao_C": "Autorizada por Faz isso então; integrada à partida em scripts/partida/painel_expedicoes.gd, entrega aguardando teste do responsável. Inspeção continua isolada.",
+  "ferramentas": {
+    "textura": "image_gen integrada; fundo RGBA transparente, sem textos",
+    "interface": "Godot: Controls, StyleBoxTexture, componentes nativos e ícones vetoriais de arco/lança",
+    "retratos": "Renderização Godot dos oito GLBs aprovados, via tools/gerar_retratos_moradores.gd"
+  },
+  "textura": "assets/ui/expedicoes/casca_interna_painel.png",
+  "prompt": "Use case: stylized-concept. Asset type: ONE reusable 2D UI frame background texture for the existing low-poly Brazilian Atlantic rainforest game '1500'. Create a wide rectangular piece of peeled TREE BARK, viewed perfectly straight on orthographic, lying flat. Its big inner writing surface (central 85 percent) is the smooth fibrous INNER SIDE OF BARK, light honey tan warm camel (#c7a478), gently textured, matte, low contrast, with subtle long vertical cambium fibers and slightly darker edges. It must NOT look like parchment, paper, leather, a sawn wooden plank, floorboards, a wooden sign, or a stone tablet. Around all four sides, a narrow tactile edge of rough dark brown OUTER BARK curls outward in small irregular chips, with layered bark relief. Border thickness around 4 percent of image width, corners organically rounded, compact frame, no ropes, no nails, no metal, no leaves, no symbols. Frame fits entirely within the image with about 3 percent transparent padding outside. Center is solid opaque inner bark, not a hole. Outer background genuinely transparent. Broad landscape aspect ratio around 3:2. Hand painted stylized 3D game UI, restrained warm highlights on the bark edges, clean high quality readable texture that supports dark brown native UI text on the center. Subtle grain, no huge knots or central marks, preserve flat even brightness for legibility. This is a blank BACKGROUND FRAME ASSET only: absolutely no text, icons, buttons, portraits, panels, watermarks, character art or scene. No interface mockup. One single bark sheet, no collage, no duplicates.",
+  "fonte_gerada": "C:/Users/PC/.codex/generated_images/01a20e96-df50-7991-a99d-20eeeb3dd129/exec-594ef1ef-41bf-4518-a302-426d12cf799f.png",
+  "cena": "scenes/inspecao/menu_expedicoes_casca.tscn",
+  "capturas": "exports/revisao_menu_casca/",
+  "revisao_margens_tipografia": {
+    "pedido": "Responsável elogiou a direção e pediu correção de textos/botões sobre a borda, além de fonte coerente com o jogo.",
+    "correcao": "Escala integral da textura, eliminando o recorte que esticava bordas irregulares para dentro. Conteúdo com respiro lateral e vertical, botões do rodapé alinhados na superfície clara.",
+    "titulos_botoes_nomes": "assets/ui/fonts/alegreya_sc/AlegreyaSC-Bold.ttf",
+    "informacoes_atributos": "assets/ui/fonts/alegreya_sans/AlegreyaSans-Medium.ttf",
+    "origem_titulos": "https://github.com/google/fonts/tree/main/ofl/alegreyasc",
+    "origem_textos": "https://github.com/google/fonts/tree/main/ofl/alegreyasans",
+    "licencas": "SIL Open Font License 1.1, cópias integrais OFL.txt junto a cada fonte; autores preservados. Arquivos sem alterações.",
+    "justificativa": "Alegreya SC dá ritmo e traços de caligrafia aos títulos e ações. Alegreya Sans mantém parentesco visual e permite ler XP/atributos sem enfeites excessivos. É uma escolha artística, não uma alegação de escrita histórica indígena."
+  },
+  "limites": [
+    "Os nomes e atributos pertencem a uma partida de demonstração; XP ilustrativo.",
+    "As limitações de dados demonstrativos e envio desativado aplicam-se somente à cena de inspeção. A partida foi integrada após a aprovação visual, usando as regras e salvamentos existentes.",
+    "Pesca/coleta usam o equipamento básico do centro; apenas caça possui seleção arco/lança nas regras atuais.",
+    "A textura e a composição são adaptações artísticas, sem alegação de fidelidade histórica."
+  ]
+}

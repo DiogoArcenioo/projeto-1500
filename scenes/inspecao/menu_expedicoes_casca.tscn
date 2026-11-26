@@ -1,0 +1,23 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ambientes/clareira.tscn" id="cenario"]
+[ext_resource type="PackedScene" path="res://scenes/construcoes/centro_caca_nivel_1.tscn" id="centro"]
+[ext_resource type="PackedScene" path="res://scenes/construcoes/oca_nivel_1.tscn" id="oca"]
+[ext_resource type="Script" path="res://scripts/inspecao/inspecao_menu_expedicoes.gd" id="cena"]
+[ext_resource type="Script" path="res://scripts/inspecao/menu_expedicao_casca.gd" id="menu"]
+[ext_resource type="Script" path="res://scripts/camera/controle_camera.gd" id="camera"]
+
+[node name="InspecaoMenuExpedicoesCasca" type="Node3D"]
+script = ExtResource("cena")
+
+[node name="Clareira1500" parent="." instance=ExtResource("cenario")]
+
+[node name="CentroCaca" parent="." instance=ExtResource("centro")]
+
+[node name="Oca" parent="." instance=ExtResource("oca")]
+
+[node name="MenuCasca" type="CanvasLayer" parent="."]
+script = ExtResource("menu")
+
+[node name="ControleDaCamera" type="Node" parent="."]
+script = ExtResource("camera")

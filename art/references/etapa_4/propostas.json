@@ -1,0 +1,47 @@
+{
+  "etapa": 4,
+  "tipo": "Propostas visuais para aprovação; não são capturas Godot",
+  "ferramenta": "image_gen integrada",
+  "recorte": {
+    "povo": "Tupinambá",
+    "regiao": "litoral da atual Bahia",
+    "aprovado": true,
+    "aprovacao": "Sim, Tupinambá do litoral da Bahia",
+    "limite": "Escolha de recorte para pesquisa; não equivale a validação cultural especializada ou reconstrução histórica."
+  },
+  "fontes": [
+    {
+      "url": "https://dia.upenn.edu/pt/content/Fernandes-AlarconD001/",
+      "autoria": "Daniela Fernandes Alarcon e Glicéria Tupinambá",
+      "uso": "Fonte com coautoria indígena: contexto dos mantos, que não serão usados como roupa cotidiana dos moradores."
+    },
+    {
+      "url": "https://www.museunacional.ufrj.br/see/objetos_manto_tupinamba.html",
+      "uso": "Acervo de indumentária ritual; resumo indexado consultado. Não fundamenta roupa cotidiana em 1500."
+    }
+  ],
+  "propostas": [
+    {
+      "arquivo": "propostas_moradores.png",
+      "prompt": "Use case: stylized-concept. Create one polished original character-design comparison sheet for the Godot PC village game 1500, before colonization, with the user-selected cultural research scope Tupinamba of coastal Bahia, Brazil. This sheet is a GAME ART PROPOSAL for human review, not an authenticated historical reconstruction and not a runtime screenshot. Input image is the ACTUAL approved game and is used ONLY for the achievable faceted low-poly rendering style, jade-green vegetation, warm terracotta earth, rich but restrained color contrast and golden lighting. Do not reproduce the hut or the landscape.\nWide clean sheet with TWO clearly separated equal panels. Panel A heading exactly \"A • LOW-POLY EQUILIBRADO\". Panel B heading exactly \"B • MAIS ESTILIZADO\". Each panel shows the same two ordinary ADULT community members, one male-presenting and one female-presenting, ages approximately 25-40, standing comfortably, entire bodies including feet visible, three-quarter front view, neutral expression with warmth and individuality, unarmed, hands relaxed away from torso for future rigging. Neutral warm pale studio backdrop, soft ground shadow, no forest. Also one very small elevated isometric thumbnail pair per panel to demonstrate readability from a management-game camera.\nA: tasteful restrained faceted polygonal humans, mature adult anatomy, approximately 6 heads tall, readable solid hair and face masses, simple natural practical silhouettes. B: same adults and clothing design but stronger stylization, approximately 4.7 heads tall, slightly larger heads/hands/feet and softer rounded faceted silhouette to read farther away; clearly adult faces and build, never children, no bobblehead caricature or oversexualization.\nBoth panels: warm medium-to-deep brown skin with two slightly different skin tones, black straight natural hair, one short-to-shoulder hair silhouette and one longer hair silhouette, no copied portrait of an actual living person. No stereotyped caricature. Natural fiber wrap at waist in subdued earthy colors for modesty, female chest modestly covered by a simple plain nonmodern plant-fiber wrap. These garments are a disclosed artistic convention for this game proposal, NOT a claim about actual historical daily dress. One muted terracotta/rust accent and one subdued leaf-green accent, rope plant-fiber ties, no decorative tribal pattern, no invented sacred iconography. Bare feet, no metal, no European clothes, no seams/buttons/buckles, no cowboy/leather fringe, no North American Plains regalia. No feather headdresses, no ceremonial feather cloaks, no face paint or tattoos requiring cultural validation, no weapons, no tools, no baskets or equipment, no jewelry. Geometry deliberately economical suitable for Blender-authored low-poly 3D models, no photorealistic cloth fibers or hair strands, no elaborate high-poly detail. Focus on appealing silhouettes and mature faces that belong in the actual reference game. Footer exactly \"PROPOSTA ARTÍSTICA • NÃO É RECONSTRUÇÃO HISTÓRICA\". High-resolution clean well-lit legible comparative concept board.",
+      "aprovacao_A": true,
+      "observacao": "Roupas e proporções são propostas artísticas, não representação autenticada do cotidiano Tupinambá. Blender recomendado para geometria, rig e animações.",
+      "opcao_escolhida": "A — low-poly equilibrado",
+      "arquivos_3d": [
+        "assets/models/morador_01.glb",
+        "assets/models/moradora_01.glb"
+      ],
+      "fonte": "art/blender/moradores_1500.blend",
+      "aprovacao_B": false
+    },
+    {
+      "arquivo": "propostas_menu_contextual.png",
+      "prompt": "Use case: ui-mockup. Produce ONE polished comparison board of two alternative minimal contextual UI directions for the PC Godot game \"1500\". This is an artistic proposal for approval, NOT a screenshot of an implemented interface. Reference image: actual approved game scene, use it as the main visual world and color reference; keep its faceted Brazilian tropical green forest, ochre earth, turquoise water, golden sunlight and leafy triangular starter hut. The scene should remain recognizable, avoid adding structures or people. UI typography in readable Brazilian Portuguese, beautifully restrained, high contrast, clean flat surfaces, deep forest-green background, warm ivory text, small coral and gold accents, no pseudo-indigenous ornamental patterns, no stereotyped feather icons, no generic medieval fantasy decorations.\nThe board is a large landscape 2 by 2 grid, two columns are alternatives, two rows are states. Top heading exactly \"1500 • PROPOSTAS DE MENU CONTEXTUAL\". Left column heading \"A • PAINEL LATERAL\"; right \"B • PAINEL INFERIOR\". Top row is compact state, bottom row is expanded state.\nA compact: game scene with a small right-side card headed \"Fogueira\", one primary button \"Construir oca\", concise \"2 vagas • 30 madeira • 20 fibras\". A expanded: same scene with a moderate right-side panel headed \"Comunidade\", two compact rows \"Morador 01 • Livre\" and \"Morador 02 • Livre\", heading \"Centro de coleta • 0/2\", action \"Atribuir\", a discrete \"Fechar\". Leave most of scene visible.\nB compact: same game scene with one small bottom-center horizontal contextual bar headed \"Fogueira\", button \"Construir oca\" and the same compact cost. B expanded: same game scene with a bottom drawer, heading \"Comunidade\", same two individual resident rows and \"Centro de coleta • 0/2\", same \"Atribuir\" action and \"Fechar\"; compare more horizontal space against less vertical world visibility.\nThe sample residents are text only, no portrait or 3D humans because those assets have not been approved. Show no minimap, no feed, no top resource HUD, no disabled future buttons, no full-screen menus. Do not add HUD systems of later game stages. All four panels equally sharp, readable, uncluttered, clear visual hierarchy. Tiny footer \"PROPOSTA VISUAL • DADOS ILUSTRATIVOS\". Costs illustrative only. Output high-resolution wide comparison sheet.",
+      "aprovacao_A": true,
+      "observacao": "Somente menu contextual de construção/alocação; não é HUD definitivo da etapa 5. Custos ilustrativos.",
+      "opcao_escolhida": "B — painel inferior",
+      "prototipo": "scripts/inspecao/menu_contextual_visual.gd",
+      "aprovacao_B": false
+    }
+  ]
+}

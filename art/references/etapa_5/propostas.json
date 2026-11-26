@@ -1,0 +1,43 @@
+{
+  "etapa": 5,
+  "estado": "A revisada aprovada, interface implementada para teste no Godot",
+  "ferramenta": "image_gen integrada",
+  "imagem": "art/references/etapa_5/comparativo_interface.png",
+  "prompt": "Create a high quality UI design proposal comparison sheet for PC game 1500. Use attached screenshot as background/reference for the exact same existing Brazilian tropical low-poly Godot village of triangular green leaf-roof dwellings, orange earth, vivid Atlantic forest, blue green river. UI mockup concept, no changes to architecture, vegetation or art quality. Remove the existing bottom panel from reference for these mockups. Composition a tall 1536x2304 design sheet with FOUR wide game viewports in a 2 by 2 grid, each viewport 16:9-ish, enough padding and LARGE very legible Portuguese labels. Row 1 is proposal A with label \"A · Painel inferior\"; left shows \"Recolhido\" and right shows \"Expandido\". Row 2 is proposal B with label \"B · Painel lateral\"; left shows \"Recolhido\" and right \"Expandido\". A short footnote \"Propostas visuais · valores ilustrativos\". Art direction highly polished strategy game UI, forest deep green translucent surfaces with cream text, fine warm golden borders, terracotta primary buttons, minimal tasteful leaf details without ethnic patterns, typography comparable to Barlow or Nunito, strong contrast, not decorative mock medieval parchment. Both layouts have resource strip top left \"Madeira 90 · Fibras 60 · Alimentos 64\", a population count \"8 / 8\", time controller top center \"Dia 1 · 16:00  Ⅱ  1× 2× 3×\", tiny hide-HUD eye top right. Below top-right unobtrusive small event feed cards \"Oca concluída\" and \"Dois moradores chegaram\", no combat alerts.\nFor A recolhido tiny centered bottom action dock \"Construir · Comunidade\" and terrain dominates 85 percent. A expanded BOTTOM horizontal management drawer spans most width and 27 percent height, includes selected building \"Centro de coleta · Nível 1 · 1/2\", buttons \"Construção\" and \"Comunidade\", one portrait plus person rows \"Arara · Trabalhando · Liberar\", \"Pitanga · Livre · Atribuir\", stock summarized. selected building faint golden outline. For B recolhido compact left-edge action dock \"Construir\" \"Comunidade\" with most scene visible. For B expanded LEFT vertical panel 27 percent width and 65 percent height, title \"Comunidade\", rows and portraits with \"Arara\" \"Pitanga\" and explicit controls \"Liberar\" \"Atribuir\", occupancy, center village remains open.\nFuture regional map and expeditions should NOT have active buttons or graphic widgets in any viewport. Do not invent minimap, combat, enemies, technologies, dashboard metrics or skill trees. One clear concise note beneath sheet \"Mapa e expedições entram nas próximas etapas.\" This is a layout concept sheet, not a finished functioning HUD. Maintain scenic beauty and clean spacing.",
+  "referencia": "exports/revisao_variacoes/aldeia_godot.png",
+  "opcoes": {
+    "A": "Painel inferior com barra recolhida e gaveta horizontal expandida",
+    "B": "Painel lateral com navegação compacta e lista vertical expandida"
+  },
+  "recomendacao": "A",
+  "futuro": {
+    "mapa": "acesso junto da navegação ao integrar etapa 6",
+    "expedicoes": "aba junto da comunidade ao integrar etapa 7"
+  },
+  "escolha": "A",
+  "imagem_revisada": "art/references/etapa_5/barra_superior_unificada.png",
+  "prompt_revisao": "Edit the interface proposal based on attached design sheet. User chose option A bottom panel and specifically requests a SINGLE uninterrupted full-width top HUD bar integrating stock AND TIME CONTROLS together side by side, edge to edge. Produce a NEW focused approval sheet showing only selected option A, TWO LARGE landscape gameplay viewports stacked vertically with labels \"Recolhido\" and \"Expandido\". Remove option B and extraneous decorative headings, keep only heading \"1500 · Barra superior unificada\". Same Brazilian tropical low-poly village, green triangular leaf-roof houses, river, warm bright light. Premium dark forest green UI, warm fine gold outline, cream text and terracotta buttons. CRITICAL: each viewport has exactly ONE HORIZONTAL ROW at top, a SINGLE CONTIGUOUS full-width RECTANGLE, not separated pills or detached islands. All content aligned within this one bar in order: wood icon \"90\", stone icon \"80\", fibers icon \"60\", vegetables icon \"64\", meat icon \"0\", fish icon \"0\", leather icon \"0\", medicinal leaf icon \"12\", population icon \"8/8\", then \"Dia 1 · 16:00\", then pause icon \"Ⅱ\", speed buttons \"1× 2× 3×\", eye icon. Space compact icons with numerals and subtle thin vertical separators, NO labels for resources needed, keep text very legible. All eight resource icons and counts visible ON SAME ROW along with time and controls. No second row and no floating time panel. Feed cards under bar at upper right, one \"Oca concluída\", other \"Dois moradores chegaram\". Bottom of top viewport has compact centered \"Construir\" and \"Comunidade\" dock. Bottom viewport has expanded full-widthish bottom drawer height 24%, \"Centro de coleta · Nível 1 · 1/2\", \"Construção\" \"Comunidade\", people rows \"Arara · Trabalhando · Liberar\" \"Pitanga · Livre · Atribuir\", same style as attached. Selected center uses correct existing plant collection patch, no new house selected as center. No central clock. No mini map. Single small footer \"Proposta visual · valores ilustrativos\". Request a wide enough 1920x2160 or similar output for legibility. Preserve the original art style and existing tropical scenery.",
+  "revisao": {
+    "pedido": "Uma barra única de lado a lado, com estoque e tempo juntos",
+    "barra": [
+      "madeira",
+      "pedra",
+      "fibras_vegetais",
+      "vegetais",
+      "carne",
+      "peixe",
+      "couro",
+      "plantas_medicinais",
+      "populacao",
+      "dia",
+      "horario",
+      "pausa",
+      "velocidades",
+      "ocultar_hud"
+    ],
+    "apresentacao": "Ícones e quantidades em uma linha, nomes dos recursos ao passar o mouse",
+    "painel": "Inferior recolhível",
+    "feed": "Superior direito abaixo da barra"
+  },
+  "aprovacao": "Por enquanto pode ficar assim. No polimento do jogo voltamos a ver isso. Pode fazer."
+}

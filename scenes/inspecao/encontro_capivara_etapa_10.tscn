@@ -1,0 +1,18 @@
+[gd_scene load_steps=6 format=3]
+[ext_resource type="PackedScene" path="res://scenes/ambientes/clareira.tscn" id="mata"]
+[ext_resource type="PackedScene" path="res://assets/models/animais/capivara.glb" id="capivara"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/homem_01.glb" id="homem"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/mulher_01.glb" id="mulher"]
+[ext_resource type="Script" path="res://scripts/inspecao/inspecao_encontro_capivara.gd" id="codigo"]
+
+[node name="EncontroCapivaraInspecao" type="Node3D"]
+script = ExtResource("codigo")
+[node name="Clareira1500" parent="." instance=ExtResource("mata")]
+[node name="Capivara" parent="." instance=ExtResource("capivara")]
+[node name="Cacador" parent="." instance=ExtResource("homem")]
+[node name="Cacadora" parent="." instance=ExtResource("mulher")]
+[node name="CameraEncontro" type="Camera3D" parent="."]
+near = 0.08
+far = 160.0
+fov = 42.0
+[node name="Grade" type="Node3D" parent="."]

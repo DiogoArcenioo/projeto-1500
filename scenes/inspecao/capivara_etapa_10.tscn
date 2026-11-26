@@ -1,0 +1,24 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ambientes/clareira.tscn" id="cenario"]
+[ext_resource type="PackedScene" path="res://assets/models/animais/capivara.glb" id="animal"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/homem_01.glb" id="morador"]
+[ext_resource type="Script" path="res://scripts/inspecao/inspecao_capivara.gd" id="codigo"]
+[ext_resource type="Script" path="res://scripts/camera/controle_camera.gd" id="controle"]
+
+[node name="InspecaoCapivaraA" type="Node3D"]
+script = ExtResource("codigo")
+
+[node name="Clareira1500" parent="." instance=ExtResource("cenario")]
+
+[node name="Capivara" parent="." instance=ExtResource("animal")]
+
+[node name="Morador" parent="." instance=ExtResource("morador")]
+
+[node name="CameraAvaliacao" type="Camera3D" parent="."]
+fov = 38.0
+near = 0.03
+far = 160.0
+
+[node name="ControleDaCamera" type="Node" parent="."]
+script = ExtResource("controle")

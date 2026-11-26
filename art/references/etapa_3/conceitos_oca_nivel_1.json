@@ -1,0 +1,39 @@
+{
+  "etapa": 3,
+  "portao": "A — aguardando escolha explícita",
+  "tipo": "Conceitos artísticos gerados por IA; não são capturas do jogo nem modelos 3D",
+  "povo_proposto": "Tupinambá — pendente de aprovação do responsável; recorte geográfico específico e validação cultural ainda a fechar",
+  "opcoes": {
+    "A": "Compacta: interpretação abreviada da cobertura arredondada para a primeira moradia do jogo; recomendada",
+    "B": "Alongada: aproximação da proporção de casa longa representada na gravura"
+  },
+  "capacidade": "Duas vagas são regra abstrata de gameplay do GDD, não uma afirmação histórica sobre as casas.",
+  "referencias": [
+    {
+      "titulo": "Aldeia tupinambá fortificada",
+      "autor": "Hans Staden",
+      "data": 1557,
+      "acervo": "Biblioteca Brasiliana Guita e José Mindlin",
+      "origem": "https://www.brasilianaiconografica.art.br/obras/23564/aldeia-tupinamba-fortificada",
+      "arquivo": "referencia_staden_1557.jpg",
+      "limite": "Gravura colonial posterior a 1500; não comprova por si só a moradia pré-contato."
+    },
+    {
+      "arquivo": "../referencia_visual_1500.png",
+      "papel": "Direção artística aprovada pelo responsável"
+    },
+    {
+      "arquivo": "../../../exports/revisao_etapa_2/tarde_16h.png",
+      "papel": "Amostra da arte atual do jogo usada como referência estética"
+    }
+  ],
+  "producao_recomendada": "Blender via MCP para palha em camadas, nervuras de madeira, amarrações, UVs, normais e escala; fontes .blend, exportação GLB e aprovação final no Godot.",
+  "geracao": {
+    "ferramenta": "image_gen integrada",
+    "imagem": "conceitos_oca_nivel_1.png",
+    "prompt": "Use case: stylized-concept. Asset type: ONE architectural concept comparison sheet for the Brazilian indie strategy game 1500, prior to any 3D modeling. Reference image 1 is ONLY the game's already approved low-poly tropical forest palette and sunlight style. Reference image 2 is ONLY a dated 1557 colonial woodcut attributed to Hans Staden, depicting Tupinamba village longhouses: use the continuous arched/barrel-vault thatch roof silhouette and elongated rounded-ended envelope as the architectural starting point. Do not depict the palisades or any other objects from that engraving. This is an openly labeled artistic interpretation, NOT a claim of a historically accurate house in 1500. Create one polished wide comparison sheet with two equally sized panels, identical high three-quarter camera and golden late-afternoon light, on simple warm-red earth patches with restrained green tropical foliage matching the first reference. Left option A: a compact, shortened barrel-vault dwelling with a softly rounded rectangular/oval footprint, continuous thick palm-thatch shell descending nearly to ground level, small open entrance in the rounded short end, visible handmade irregular layered thatch, dark wooden bent support ribs, fiber lashings. Right option B: the SAME building vocabulary and width but distinctly elongated along its long axis, more reminiscent of the woodcut's longhouses, one small opening. The comparison is about compact versus long silhouette, not different cultures. Level-one restraint: simple workmanship, realistic structural logic, no ornate or ceremonial ornament, no invented symbols, no patterned ethnic textiles, no European cabin/chalet features, no planked log walls, no tiled roofs, no windows, no elevated foundations, no chimneys, no metal, no furniture, no characters, no extra buildings, no torches. Strong warm straw amber and ochre, deep chocolate wood, saturated tropical greens, artistic Brazilian color and appealing faceted hand-crafted geometry; achievable Blender geometry and Godot shaders, NOT glossy photorealism. Both houses fully visible, entrance and side readable, ample separation. Clean legible Portuguese text only: top '1500 — ESTUDO DA PRIMEIRA OCA'; left 'A — COMPACTA'; right 'B — ALONGADA'; footer 'PROPOSTAS ARTÍSTICAS · NÃO SÃO CAPTURAS DO GODOT'. Do not put interface buttons or gameplay UI on this sheet."
+  },
+  "aprovacao_A": false,
+  "aprovacao_B": false,
+  "integracao_C": "Não iniciada"
+}

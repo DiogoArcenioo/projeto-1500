@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ambientes/clareira.tscn" id="cenario"]
+[ext_resource type="PackedScene" path="res://scenes/construcoes/centro_caca_nivel_1.tscn" id="centro"]
+[ext_resource type="Script" path="res://scripts/inspecao/inspecao_centro_caca.gd" id="inspecao"]
+[ext_resource type="Script" path="res://scripts/camera/controle_camera.gd" id="controle"]
+
+[node name="InspecaoCentroCaca" type="Node3D"]
+script = ExtResource("inspecao")
+
+[node name="Clareira1500" parent="." instance=ExtResource("cenario")]
+
+[node name="CentroCaca" parent="." instance=ExtResource("centro")]
+
+[node name="CameraAvaliacao" type="Camera3D" parent="."]
+fov = 39.0
+near = 0.1
+far = 160.0
+
+[node name="ControleDaCamera" type="Node" parent="."]
+script = ExtResource("controle")
