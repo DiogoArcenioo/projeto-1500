@@ -1,6 +1,6 @@
 extends RefCounted
 ## Medidas compartilhadas com a água renderizada por montar_cenario.gd.
-const TAMANHOS:={"oca":Vector2(5.4,6.2),"coleta":Vector2(3.5,3.5),"agricultura":Vector2(6.2,7),"pesca":Vector2(4.9,4.4),"caca":Vector2(4.4,3.7)}
+const TAMANHOS:={"oca":Vector2(5.4,6.2),"coleta":Vector2(3.5,3.5),"agricultura":Vector2(6.2,7),"pesca":Vector2(4.9,4.4),"caca":Vector2(4.4,3.7),"cura":Vector2(4.4,3.8)}
 const ROCHAS:=[Vector2(-13,-8),Vector2(-17,-4),Vector2(-9,-12),Vector2(11,-9),Vector2(-12,10),Vector2(-12,-11),Vector2(-17,2)]
 
 static func centro_rio(z: float) -> float:

@@ -1,14 +1,16 @@
 extends RefCounted
 ## Regras independentes da cena. Posições persistidas usam o plano XZ em metros.
 const CUSTOS := {"oca":{"madeira":30,"fibras_vegetais":20}, "coleta":{"madeira":8,"fibras_vegetais":4},
-	"agricultura":{"madeira":20,"fibras_vegetais":10},"pesca":{"madeira":15,"fibras_vegetais":8},"caca":{"madeira":25,"fibras_vegetais":12}}
-const DURACAO := {"oca":18.0, "coleta":10.0,"agricultura":60.0,"pesca":45.0,"caca":60.0}
-const RAIO := {"oca":4.05, "coleta":1.85,"agricultura":4.2,"pesca":2.8,"caca":2.9}
-const NOMES_CONSTRUCOES:={"oca":"Oca","coleta":"Centro de coleta","agricultura":"Roça","pesca":"Centro de pesca","caca":"Centro de caça"}
-const SETORES:=["coleta","agricultura","pesca","caca"]
+	"agricultura":{"madeira":20,"fibras_vegetais":10},"pesca":{"madeira":15,"fibras_vegetais":8},"caca":{"madeira":25,"fibras_vegetais":12},
+	"cura":{"madeira":20,"fibras_vegetais":12}}
+const DURACAO := {"oca":18.0, "coleta":10.0,"agricultura":60.0,"pesca":45.0,"caca":60.0,"cura":40.0}
+const RAIO := {"oca":4.05, "coleta":1.85,"agricultura":4.2,"pesca":2.8,"caca":2.9,"cura":2.6}
+const NOMES_CONSTRUCOES:={"oca":"Oca","coleta":"Centro de coleta","agricultura":"Roça","pesca":"Centro de pesca","caca":"Centro de caça","cura":"Centro de cura"}
+const SETORES:=["coleta","agricultura","pesca","caca","cura"]
 const Alimentacao=preload("res://scripts/partida/alimentacao.gd")
 const Agricultura=preload("res://scripts/partida/agricultura.gd")
 const Terreno=preload("res://scripts/partida/terreno_construcao.gd")
+const Saude=preload("res://scripts/partida/saude.gd")
 const ATRIBUTOS := ["forca","agilidade","inteligencia","resistencia","percepcao"]
 const HABILIDADES := ["caca","pesca","agricultura","coleta","construcao","combate","artesanato","cura"]
 const TRACOS := ["observador","corajoso","cauteloso","trabalhador","resistente","sortudo","frágil","aprendiz rápido"]
@@ -192,7 +194,14 @@ func avancar_aldeia(segundos: float,produtividade: float=-1) -> Array[String]:
 				avisos.append("Oca pronta. Chegaram %s e %s!" % [habitantes[-2].nome,habitantes[-1].nome])
 			else: avisos.append(NOMES_CONSTRUCOES[c.tipo]+" pronto. Atribua moradores ao setor.")
 		elif c.tipo=="coleta" and habitantes.any(func(h): return h.setor==c.id and h.estado=="trabalhando"):
-			c.ciclo+=segundos*eficiencia
+			# Feridos e cansados rendem menos (etapa 13).
+			var fator:=0.0
+			var n:=0
+			for h: Dictionary in habitantes:
+				if h.setor==c.id and h.estado=="trabalhando":
+					fator+=Saude.fator(h)
+					n+=1
+			c.ciclo+=segundos*eficiencia*fator/maxi(1,n)
 			var intervalo: float=Alimentacao.parametros.coleta_local.intervalo
 			var ciclos := floori((c.ciclo+.000001)/intervalo)
 			if ciclos<=0: continue

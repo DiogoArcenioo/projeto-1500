@@ -30,7 +30,7 @@ var retangulo_selecao: Control
 const CelulaVisual=preload("res://scripts/ambientes/celula_cultivo_visual.gd")
 const Animador=preload("res://scripts/ambientes/animador_morador.gd")
 ## Clipe de trabalho por setor; a roça alterna capina e plantio.
-const OFICIO:={"coleta":["coletar"],"agricultura":["capinar","plantar"],"pesca":["pescar"],"caca":["artesanato"]}
+const OFICIO:={"coleta":["coletar"],"agricultura":["capinar","plantar"],"pesca":["pescar"],"caca":["artesanato"],"cura":["artesanato","coletar"]}
 const DESCANSO:=["parado","olhar","parado","conversar"]
 
 static func altura(p: Vector2) -> float:
@@ -77,6 +77,7 @@ func modelo_estrutura(tipo: String) -> Node3D:
 	if tipo=="agricultura": return load("res://scenes/construcoes/centro_agricola_nivel_1.tscn").instantiate()
 	if tipo=="pesca": return load("res://scenes/construcoes/centro_pesca_nivel_1.tscn").instantiate()
 	if tipo=="caca": return load("res://scenes/construcoes/centro_caca_nivel_1.tscn").instantiate()
+	if tipo=="cura": return load("res://scenes/construcoes/centro_cura_nivel_1.tscn").instantiate()
 	return load("res://scenes/construcoes/centro_coleta.tscn").instantiate()
 
 func iniciar_previa(tipo: String) -> void:
@@ -352,8 +353,8 @@ func mover(segundos: float) -> void:
 			var ang:=float(a.fase)+float(a.visitas)*2.39
 			var destino:=Vector2.from_angle(ang)*(4.3+1.6*sin(ang))
 			if h.estado!="livre":
-				var c: Dictionary=estado.estrutura(h.setor if h.estado=="trabalhando" else h.obra)
-				destino=Aldeia.ponto(c)+Vector2.from_angle(float(a.fase))*(float(Aldeia.RAIO[c.tipo])+1.35)
+				var c: Dictionary=estado.estrutura(local_de(h))
+				if not c.is_empty(): destino=Aldeia.ponto(c)+Vector2.from_angle(float(a.fase))*(float(Aldeia.RAIO[c.tipo])+(.9 if h.estado=="em_tratamento" else 1.35))
 			var inicio:=celula_livre(p)
 			var fim:=celula_livre(destino)
 			a.rota=grade.get_point_path(inicio,fim,true)
@@ -376,12 +377,13 @@ func mover(segundos: float) -> void:
 			var clipe:=""
 			a.foco=Vector2.INF
 			if h.estado!="livre":
-				var c: Dictionary=estado.estrutura(h.setor if h.estado=="trabalhando" else h.obra)
-				a.foco=Aldeia.ponto(c)
-				if h.estado=="trabalhando":
+				var c: Dictionary=estado.estrutura(local_de(h))
+				if not c.is_empty(): a.foco=Aldeia.ponto(c)
+				if h.estado=="trabalhando" and not c.is_empty():
 					var opcoes: Array=OFICIO.get(c.tipo,["coletar"])
 					clipe=opcoes[int((tempo+a.fase*7)/14.0)%opcoes.size()]
-				else: clipe="construir"
+				elif h.estado=="construindo": clipe="construir"
+				else: clipe="parado"
 			else:
 				a.descanso-=segundos
 				if a.descanso<=0 or anim.atual in ["andar",""]:
@@ -397,6 +399,15 @@ func mover(segundos: float) -> void:
 				if olhar.length()>.1: modelo.rotation.y=lerp_angle(modelo.rotation.y,atan2(olhar.x,olhar.y),minf(1,segundos*3))
 			anim.tocar(clipe,.45,a.fase*3.1)
 		anim.avancar(segundos)
+
+## Onde o morador fica: setor, obra, centro de cura (paciente) ou a própria oca (convalescente).
+func local_de(h: Dictionary) -> String:
+	match h.estado:
+		"trabalhando": return h.setor
+		"construindo": return h.obra
+		"em_tratamento": return h.get("tratamento","")
+		"convalescente": return h.casa
+	return ""
 
 ## Morador livre e parado mais próximo (até 3 m), para conversar.
 func vizinho_livre(id: String,p: Vector2) -> Vector2:

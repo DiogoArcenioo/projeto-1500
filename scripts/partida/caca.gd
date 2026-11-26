@@ -1,6 +1,7 @@
 extends RefCounted
 const Combate=preload("res://scripts/partida/combate.gd")
 const Alimentacao=preload("res://scripts/partida/alimentacao.gd")
+const Saude=preload("res://scripts/partida/saude.gd")
 ## Animais com apresentação manual aprovada (modelo, rig e clipes no Godot).
 const APRESENTACAO_MANUAL:=["capivara","queixada","jacare_papo_amarelo","anta","onca_pintada"]
 ## Etapa 11: fração da carga perdida em retirada ou derrota (provisório, aprovado).
@@ -65,16 +66,13 @@ static func aplicar(estado,e: Dictionary) -> Array[String]:
 		if a.lado!="equipe": continue
 		var h: Dictionary=estado.pessoa(a.id)
 		if a.morto:
-			h.saude=0
-			h.estado="morto"
-			h.obra=""
-			h.setor=""
-			h.expedicao=""
+			Saude.morrer(estado,h,"no encontro com %s"%Combate.nome_animal(c.animal).to_lower())
 			relatorio.mortos.append(h.nome)
 			mensagens.append(h.nome+" morreu no encontro.")
 		else:
 			var saude:=20 if a.vida<=0 else maxi(1,ceili(100.0*a.vida/a.vida_max))
 			h.saude=minf(h.saude,saude)
+			h.descanso=maxf(0.0,float(h.descanso)+float(Saude.p.descanso.combate))
 			var xp_caca:=3 if c.resultado=="vitoria" else 0
 			var xp_combate:=mini(int(a.xp),8-xp_caca)
 			estado.experiencia(h,"combate",xp_combate)

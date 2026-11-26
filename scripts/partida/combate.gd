@@ -1,6 +1,7 @@
 extends RefCounted
 ## Regras puras, sem cena, relógio da aldeia ou efeitos aplicados a moradores.
 static var regras: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/configuracoes/combate.json"))
+const Saude=preload("res://scripts/partida/saude.gd")
 const RESULTADOS:=["","vitoria","animal_fugiu","retirada","derrota","impasse"]
 
 static func bonus(valor: float) -> int:
@@ -34,7 +35,7 @@ static func humano(h: Dictionary,arma: String,x: int,z: int,resistencia: float=-
 	var a: Dictionary={"id":h.id,"nome":h.nome,"lado":"equipe","x":x,"z":z,"vida_max":vida,
 		"vida":maxi(1,floori(vida*float(h.saude)/100)),"armadura":0,"defesa":10+bonus(h.atributos.agilidade),
 		"agilidade":bonus(h.atributos.agilidade),"percepcao":bonus(h.atributos.percepcao),"resistencia":bonus(h.atributos.resistencia),
-		"atributo_ataque":bonus(h.atributos.percepcao if arma=="arco" else h.atributos.forca),
+		"atributo_ataque":bonus(h.atributos.percepcao if arma=="arco" else h.atributos.forca)+Saude.penalidade(h),
 		"treinamento":mini(4,floori(maxf(h.habilidades.caca,h.habilidades.combate)/20)),
 		"especializacao":2 if treinado else -2,"equipamento":arma,"precisao":int(regras.equipamentos[arma].precisao),
 		"dano":regras.equipamentos[arma].dano,"alcance":int(regras.equipamentos[arma].alcance),"movimento":3,

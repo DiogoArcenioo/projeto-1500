@@ -108,7 +108,7 @@ func compacto() -> void:
 func habilidade() -> String:
 	return {"caca":"Caça","pesca":"Pesca","coleta":"Coleta","reconhecimento":"Total"}[tipo]
 func disponivel(h: Dictionary) -> bool:
-	return not h.is_empty() and h.estado in ["livre","trabalhando"] and h.saude>0 and (h.setor=="" or h.setor==centro)
+	return not h.is_empty() and h.estado in ["livre","trabalhando"] and h.saude>0 and (h.setor=="" or h.setor==centro) and Exp.Caca.Saude.impedimento_expedicao(h)==""
 func mostrar_passo(passo: int) -> void:
 	if not is_instance_valid(conteudo): return
 	equipe=equipe.filter(func(id): return disponivel(estado.pessoa(id)))

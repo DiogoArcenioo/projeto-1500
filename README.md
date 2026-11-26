@@ -2,6 +2,53 @@
 
 Projeto de game com Godot 4 e modelos produzidos no Blender.
 
+## Etapa 13 — saúde, fadiga e centro de cura
+
+**Gravidade pela saúde (0–100):**
+
+| Gravidade | Saúde | Rendimento | Ataque |
+|---|---|---|---|
+| Saudável | 75 ou mais | 100% | sem penalidade |
+| Ferimento leve | 50 a 74 | 90% | −1 |
+| Ferimento moderado | 25 a 49 | 75% | −2 |
+| Ferimento grave | 1 a 24 | indisponível | — |
+| Morto | 0 | — | — |
+
+**Fadiga:** o "descanso" (0–100) cai ao trabalhar, construir e principalmente em expedições (o combate também cansa). Ele recupera em repouso e, mais rápido, no sono (20h às 6h).
+- Com cansaço (abaixo de 50): rende 85% e tem −1 no ataque.
+- Em exaustão (abaixo de 25): rende 70%, tem −2 no ataque e **não pode sair em expedição**. Expedições seguidas levam à exaustão, o que pede revezamento.
+
+**Evolução dos ferimentos:**
+- O leve sara sozinho com repouso e comida.
+- O moderado melhora muito devagar sem tratamento.
+- O grave fica **convalescente** na oca, sem trabalhar, e **piora até a morte** se não for tratado.
+
+**Centro de cura** (custa 20 de madeira e 12 de fibras):
+- 3 leitos e 2 cuidadores vinculados.
+- Triagem automática: feridos moderados e graves entram sozinhos, os mais graves primeiro.
+- A recuperação soma repouso, plantas medicinais (1 por paciente por dia) e a experiência de cura do cuidador.
+- Alta automática aos 75 de saúde.
+- Sem cuidador, o tratamento é só repouso; sem plantas, a recuperação fica mais lenta e o feed avisa.
+
+**Morte permanente:**
+- Remove o morador do trabalho, do talhão, da obra (passada a outro morador livre) e do tratamento.
+- A carga fica com a expedição e as ferramentas pessoais ficam com a aldeia.
+- Fica registrada na **crônica da aldeia**, que também guarda ferimentos graves e recuperações e aparece na Comunidade.
+
+**Painel comunitário:**
+- Contagem por gravidade e por cansaço, leitos e plantas.
+- Alertas de casos graves sem tratamento e de exaustão.
+- Estado de cada morador e as últimas entradas da crônica.
+- A ficha de cada morador mostra a elegibilidade, o rendimento e a penalidade de ataque.
+
+**Determinismo:** saúde e fadiga mudam em ticks de 1 hora de jogo, então o resultado não depende do tamanho do passo.
+
+**Arquivos:**
+- Regras: `scripts/partida/saude.gd` e `assets/configuracoes/saude.json` (números provisórios).
+- Modelo: `tools/modelar_centro_cura.py` gera `assets/models/centro_cura_nivel_1.glb`: abrigo aberto, duas redes de dormir, jirau de ervas secando e cestos de plantas. São objetos de cuidado genéricos, sem rituais atribuídos a povos reais.
+- Testes: `tests/test_etapa_13.gd`.
+- Capturas: `tools/capturar_cura.gd`, em `exports/revisao_etapa_13/`.
+
 ## Etapa 12 — pesca manual
 
 No envio da pescaria há a opção **Pescar à mão**. Quando a equipe chega ao rio, a aldeia congela, como no combate manual, e começa a sessão: **4 iscas** com uma pessoa, **5** com duas. Cada lance conta uma única vez.

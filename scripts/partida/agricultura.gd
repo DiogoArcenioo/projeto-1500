@@ -1,4 +1,5 @@
 extends RefCounted
+const Saude=preload("res://scripts/partida/saude.gd")
 const Alimentacao=preload("res://scripts/partida/alimentacao.gd")
 
 static func talhoes_iniciais() -> Array:
@@ -120,7 +121,7 @@ static func avancar(e,segundos: float,produtividade: float=-1) -> Array[String]:
 		for t: Dictionary in c.talhoes:
 			var h: Dictionary=e.pessoa(t.trabalhador)
 			var ativos: bool=not h.is_empty() and h.estado=="trabalhando"
-			var velocidade:=fator*ritmo(t)
+			var velocidade:=fator*ritmo(t)*(Saude.fator(h) if ativos else 1.0)
 			var colhidos:=0
 			var bloqueados:=0
 			for u: Dictionary in unidades(t):

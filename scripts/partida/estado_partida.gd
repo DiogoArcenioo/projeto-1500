@@ -19,6 +19,8 @@ var sequencia_expedicao: int = 0
 var velocidade_antes_alerta: int = 0
 ## Etapa 12: espécies pescadas na partida (quantidade e maior exemplar).
 var registro_pesca: Dictionary = {}
+## Etapa 13: crônica da aldeia (mortes, ferimentos graves, recuperações).
+var cronica: Array = []
 
 static func nova(configuracao: Resource) -> RefCounted:
 	var estado = load("res://scripts/partida/estado_partida.gd").new()
@@ -36,7 +38,7 @@ func serializar() -> Dictionary:
 		"fogueira": {"nivel": nivel_fogueira}, "habitantes": habitantes.duplicate(true),
 		"construcoes": construcoes.duplicate(true), "estoque": estoque.duplicate(true), "camera": camera.duplicate(true),
 		"conhecimento":conhecimento.duplicate(true),"expedicoes":expedicoes.duplicate(true),"sequencia_expedicao":sequencia_expedicao,"velocidade_antes_alerta":velocidade_antes_alerta,
-		"tempo_economia":tempo_economia,"alimentos":alimentos.duplicate(true),"registro_pesca":registro_pesca.duplicate(true)}
+		"tempo_economia":tempo_economia,"alimentos":alimentos.duplicate(true),"registro_pesca":registro_pesca.duplicate(true),"cronica":cronica.duplicate(true)}
 
 static func numero(valor: Variant, minimo: float, maximo: float, inteiro: bool = false) -> bool:
 	if typeof(valor) not in [TYPE_INT, TYPE_FLOAT]:
@@ -86,6 +88,8 @@ static func validar(dados: Variant) -> String:
 	if not numero(dados.get("tempo_economia",tempo.tempo_total),0,1e12): return "Tempo econômico inválido."
 	var erro_alimentacao:=Alimentacao.validar(dados,numero)
 	if erro_alimentacao!="": return erro_alimentacao
+	var erro_saude:=Saude.validar(dados,numero)
+	if erro_saude!="": return erro_saude
 	var erro_registro:=Expedicoes.Pesca.validar_registro(dados.get("registro_pesca",{}),numero)
 	if erro_registro!="": return erro_registro
 	var erro_expedicoes:=Expedicoes.validar(dados,numero)
@@ -161,8 +165,8 @@ static func validar_aldeia(dados: Dictionary) -> String:
 				if h.saude!=0 or h.setor!="" or h.obra!="" or h.get("expedicao","")!="": return "Morador falecido com atividade."
 			"livre":
 				if h.setor!="" or h.obra!="": return "Morador indisponível."
-			"trabalhando","em_expedicao":
-				if h.estado=="em_expedicao" and h.setor=="":
+			"trabalhando","em_expedicao","convalescente","em_tratamento":
+				if h.estado!="trabalhando" and h.setor=="":
 					if h.obra!="": return "Integrante ocupado em obra."
 					moradores[h.id]=h
 					continue
@@ -211,6 +215,7 @@ static func desserializar(dados: Dictionary) -> RefCounted:
 	estado.tempo_economia=float(dados.get("tempo_economia",dados.relogio.tempo_total))
 	estado.alimentos=dados.get("alimentos",{}).duplicate(true)
 	estado.registro_pesca=dados.get("registro_pesca",{}).duplicate(true)
+	estado.cronica=dados.get("cronica",[]).duplicate(true)
 	Alimentacao.assegurar(estado)
 	return estado
 
@@ -228,6 +233,7 @@ func avancar_simulacao(segundos: float) -> Array[String]:
 		var eficiencia:=Alimentacao.eficiencia(self)
 		var passo:=minf(saldo,Alimentacao.proximo_evento(self,populacao))
 		passo=minf(passo,Agricultura.proximo_evento(self))
+		passo=minf(passo,Saude.proximo_evento(self))
 		var dia:=relogio.duracao_dia_segundos
 		passo=minf(passo,dia-fposmod(tempo_economia,dia))
 		for c: Dictionary in construcoes:
@@ -248,5 +254,6 @@ func avancar_simulacao(segundos: float) -> Array[String]:
 		avisos.append_array(avancar_aldeia(passo,eficiencia))
 		avisos.append_array(Expedicoes.avancar(self,passo))
 		avisos.append_array(Alimentacao.avancar(self,passo,populacao))
+		avisos.append_array(Saude.avancar(self,passo))
 		saldo-=passo
 	return avisos

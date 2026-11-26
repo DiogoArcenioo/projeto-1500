@@ -1,0 +1,15 @@
+{
+  "_nota": "Etapa 13 — valores provisórios para ajuste em testes. Taxas em pontos por dia de jogo (0-100). Noite: das 20h às 6h.",
+  "limites": {"saudavel": 75, "leve": 50, "moderado": 25},
+  "cansaco": {"cansado": 50, "exausto": 25},
+  "fator_saude": {"saudavel": 1.0, "leve": 0.9, "moderado": 0.75, "grave": 0.0, "morto": 0.0},
+  "fator_descanso": {"descansado": 1.0, "cansado": 0.85, "exausto": 0.7},
+  "penalidade_saude": {"saudavel": 0, "leve": -1, "moderado": -2, "grave": -4, "morto": 0},
+  "penalidade_descanso": {"descansado": 0, "cansado": -1, "exausto": -2},
+  "descanso": {"trabalho": -40, "obra": -45, "expedicao_viagem": -30, "expedicao_esforco": -50,
+    "acampamento": -8, "repouso": 35, "sono": 70, "combate": -15, "noite_inicio": 20, "noite_fim": 6},
+  "recuperacao": {"leve": 8, "moderado": 1.5, "piora_grave": 4, "alimentacao_minima": 40},
+  "tratamento": {"leitos_por_nivel": 3, "base": 8, "plantas": 8, "sem_cuidador": 3, "bonus_cuidador_max": 6,
+    "xp_por_bonus": 25, "plantas_por_paciente_dia": 1, "xp_cuidador_dia": 4, "alta": 75},
+  "cronica_maxima": 120
+}

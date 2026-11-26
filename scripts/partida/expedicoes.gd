@@ -38,6 +38,8 @@ static func erro_envio(estado,centro: String,tipo: String,regiao: int,equipe: Ar
 		if not id is String or vistos.has(id): return "Integrante repetido ou inválido."
 		var h: Dictionary=estado.pessoa(id)
 		if h.is_empty() or h.estado not in ["livre","trabalhando"] or h.saude<=0: return "Um integrante está indisponível."
+		var impedimento:=Caca.Saude.impedimento_expedicao(h)
+		if impedimento!="": return impedimento
 		if h.estado=="trabalhando" and h.setor!=centro: return "Libere ou transfira o morador de outro centro."
 		vistos[id]=true
 	return ""

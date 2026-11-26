@@ -13,6 +13,10 @@ signal plantar_selecao_solicitado(cultivo: String)
 signal limpar_selecao_solicitado
 const Alim=preload("res://scripts/partida/alimentacao.gd")
 const IconeRecurso=preload("res://scripts/partida/icone_recurso.gd")
+const Saude=preload("res://scripts/partida/saude.gd")
+const NOMES_ESTADO:={"livre":"Livre","trabalhando":"Trabalhando","construindo":"Construindo","em_expedicao":"Em expedição",
+	"convalescente":"Convalescente","em_tratamento":"Em tratamento","morto":"Falecido"}
+const VERMELHO:=Color("8a2b1a")
 const MINIATURAS:="res://assets/ui/construcoes/"
 ## O que cada construção faz, em uma frase curta para os cartões e dicas.
 const FUNCOES:={
@@ -21,8 +25,9 @@ const FUNCOES:={
 	"agricultura":"Roça de milho e mandioca. Precisa de um agricultor.",
 	"pesca":"Peixe do rio. Deve ficar perto da água.",
 	"caca":"Prepara caçadas por carne e couro. Tem riscos.",
+	"cura":"Trata feridos com repouso e plantas medicinais. 3 leitos e 2 cuidadores.",
 }
-const RESUMOS:={"oca":"Moradia","coleta":"Fibras e vegetais","agricultura":"Milho e mandioca","pesca":"Peixe","caca":"Carne e couro"}
+const RESUMOS:={"oca":"Moradia","coleta":"Fibras e vegetais","agricultura":"Milho e mandioca","pesca":"Peixe","caca":"Carne e couro","cura":"Tratamento"}
 const DICA_INICIO:="Passe o mouse sobre uma opção para saber o que ela faz."
 var voltar: Button
 var dica_ativa:=""
@@ -299,7 +304,7 @@ func atualizar(forcar:=false) -> void:
 		linha.alignment=BoxContainer.ALIGNMENT_CENTER
 		linha.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 		controles.add_child(linha)
-		for tipo: String in (["oca","coleta","agricultura","pesca","caca"] if estado.populacao()>0 else ["oca"]):
+		for tipo: String in (["oca","coleta","agricultura","pesca","caca","cura"] if estado.populacao()>0 else ["oca"]):
 			cartao_construcao(linha,tipo).pressed.connect(func(): iniciar_obra.emit(tipo))
 		if estado.populacao()==0:
 			var nota:=texto(linha,"Centros de trabalho liberam\ncom os primeiros moradores.",15,Casca.TINTA_SUAVE)
@@ -327,7 +332,10 @@ func atualizar(forcar:=false) -> void:
 			if not c.pronta: texto(barra,"Obra em andamento · %d s"%ceili(c.restante),16)
 			elif c.tipo=="oca": texto(barra,"%d de %d vagas ocupadas"%[c.ocupantes.filter(func(id): return estado.pessoa(id).estado!="morto").size(),estado.vagas(c)],16)
 			else: texto(barra,"%d de %d vagas de trabalho"%[estado.ocupacao(c.id),estado.vagas(c)],16)
-		if contexto=="comunidade": resumo_alimentar()
+		if contexto=="comunidade":
+			resumo_alimentar()
+			resumo_saude()
+		if not c.is_empty() and c.tipo=="cura" and c.pronta: resumo_centro_cura(c)
 		if not c.is_empty() and c.tipo=="agricultura" and c.pronta: talhoes(c)
 		for h: Dictionary in estado.moradores_vivos():
 			if not c.is_empty() and c.tipo=="oca" and h.casa!=c.id: continue
@@ -361,7 +369,11 @@ func linha_pessoa(h: Dictionary,c: Dictionary) -> void:
 	controles.add_child(linha)
 	botao_acao(linha,h.nome,selecionar_pessoa.bind(h.id),escolha==h.id)
 	var local: String=h.obra if h.estado=="construindo" else h.setor
-	texto(linha,h.estado.capitalize()+(" · %s"%local.replace("obra_","#") if local!="" else ""),16)
+	var condicao: Array[String]=[NOMES_ESTADO.get(h.estado,h.estado.capitalize())+(" · %s"%local.replace("obra_","#") if local!="" else "")]
+	if Saude.gravidade(h)!="saudavel": condicao.append(Saude.NOMES[Saude.gravidade(h)])
+	if Saude.cansaco(h)!="descansado": condicao.append(Saude.NOMES_CANSACO[Saude.cansaco(h)])
+	var rotulo:=texto(linha," · ".join(condicao),16)
+	if Saude.gravidade(h)=="grave" or Saude.cansaco(h)=="exausto": rotulo.add_theme_color_override("font_color",VERMELHO)
 	if h.estado not in ["livre","trabalhando"]: return
 	if h.setor!="": botao_acao(linha,"Liberar",func(): mudar_setor.emit(h.id,""))
 	for setor: Dictionary in estado.construcoes:
@@ -375,6 +387,46 @@ func selecionar_pessoa(id: String) -> void:
 	escolha="" if escolha==id else id
 	atualizar(true)
 	if escolha!="": rolagem.set_deferred("scroll_vertical",100000)
+
+## Etapa 13: visão comunitária da saúde, sem microgerenciar cada morador.
+func resumo_saude() -> void:
+	var vivos: Array=estado.moradores_vivos()
+	if vivos.is_empty(): return
+	var cont:={"saudavel":0,"leve":0,"moderado":0,"grave":0}
+	var cansados:=0
+	var exaustos:=0
+	for h: Dictionary in vivos:
+		cont[Saude.gravidade(h)]+=1
+		match Saude.cansaco(h):
+			"cansado": cansados+=1
+			"exausto": exaustos+=1
+	var leitos:=0
+	var ocupados:=0
+	for c: Dictionary in estado.construcoes:
+		if c.tipo=="cura" and c.pronta:
+			leitos+=Saude.leitos(c)
+			ocupados+=Saude.pacientes(estado,c).size()
+	var l:=texto(controles,"Saúde · %d saudáveis · %d leves · %d moderados · %d graves\nDescanso · %d com cansaço · %d em exaustão\nCentro de cura · %s · Plantas medicinais %d"%[cont.saudavel,cont.leve,cont.moderado,cont.grave,cansados,exaustos,
+		("%d/%d leitos"%[ocupados,leitos]) if leitos>0 else "não construído",estado.estoque.plantas_medicinais],16)
+	l.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	for h: Dictionary in vivos:
+		var alerta:=""
+		if h.estado=="convalescente": alerta="%s tem ferimento grave sem tratamento e pode morrer."%h.nome
+		elif Saude.cansaco(h)=="exausto" and h.estado!="em_expedicao": alerta="%s em exaustão: sem expedições até descansar."%h.nome
+		if alerta!="": texto(controles,alerta,15,VERMELHO).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	var recentes: Array=estado.cronica.slice(maxi(0,estado.cronica.size()-3))
+	recentes.reverse()
+	for item: Dictionary in recentes:
+		texto(controles,"Dia %d · %s"%[item.dia,item.texto],15,Casca.TINTA_SUAVE).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+
+func resumo_centro_cura(c: Dictionary) -> void:
+	var lista:=Saude.pacientes(estado,c)
+	var quem:=Saude.cuidadores(estado,c)
+	texto(controles,"Leitos %d/%d · Cuidadores %d · Plantas medicinais %d · Recuperação %d pontos/dia"%[lista.size(),Saude.leitos(c),quem.size(),estado.estoque.plantas_medicinais,roundi(Saude.taxa_tratamento(estado,c))],16).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	if quem.is_empty(): texto(controles,"Sem cuidador o tratamento é só repouso. Atribua moradores a este centro.",15,VERMELHO).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	for h: Dictionary in lista:
+		texto(controles,"%s · saúde %d · alta em %s"%[h.nome,roundi(h.saude),Saude.dias_texto(Saude.dias_para_alta(h))],16)
+	if lista.is_empty(): texto(controles,"Nenhum paciente. Feridos moderados e graves entram sozinhos, os mais graves primeiro.",15)
 
 func resumo_alimentar() -> void:
 	var consumo: int=estado.populacao()*int(Alim.parametros.consumo_por_adulto_dia)
@@ -419,7 +471,8 @@ func talhoes(c: Dictionary) -> void:
 func ficha(h: Dictionary) -> void:
 	var linhas: Array[String]=[
 		"%s · %d anos · nível %d · %d XP · Oca %s"%[h.nome,h.idade,h.nivel,h.xp,h.casa.get_slice("_",1)],
-		"Saúde %d   Descanso %d   Alimentação %d   ·   %s"%[h.saude,h.descanso,h.alimentacao,", ".join(h.tracos)],
+		"Saúde %d (%s)   Descanso %d (%s)   Alimentação %d   ·   %s"%[h.saude,Saude.NOMES[Saude.gravidade(h)],h.descanso,Saude.NOMES_CANSACO[Saude.cansaco(h)],h.alimentacao,", ".join(h.tracos)],
+		"%s · Rendimento %d%% · Ataque %+d"%[Saude.elegibilidade(h),roundi(100*Saude.fator(h)),Saude.penalidade(h)],
 		"Força %d   Agilidade %d   Inteligência %d   Resistência %d   Percepção %d"%[h.atributos.forca,h.atributos.agilidade,h.atributos.inteligencia,h.atributos.resistencia,h.atributos.percepcao],
 		"Caça %d   Pesca %d   Agricultura %d   Coleta %d   Construção %d   Combate %d   Artesanato %d   Cura %d"%[h.habilidades.caca,h.habilidades.pesca,h.habilidades.agricultura,h.habilidades.coleta,h.habilidades.construcao,h.habilidades.combate,h.habilidades.artesanato,h.habilidades.cura]]
 	for s in linhas:

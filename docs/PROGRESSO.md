@@ -1,5 +1,27 @@
 # Progresso — 1500
 
+## Etapa 13 — saúde, fadiga e centro de cura entregue para teste
+
+O responsável pediu para começar a etapa 13 logo depois do commit da 12 (`9c95ff3`).
+
+**Entregue:**
+- Gravidade em cinco níveis, com penalidades no rendimento dos centros e da roça e no ataque.
+- Fadiga por atividade e por expedições seguidas, com descanso e sono automáticos.
+- Ferimento leve que sara sozinho, moderado lento e grave que leva à morte sem tratamento.
+- Centro de cura com leitos, cuidadores, triagem automática, plantas medicinais, XP de cura e alta automática.
+- Morte permanente com crônica da aldeia.
+- Painel comunitário com alertas.
+- Modelo e miniatura do centro de cura.
+- O visual dos moradores leva os pacientes ao centro de cura e os convalescentes à oca.
+
+**Validação:**
+- `test_etapa_13`: 58 verificações, zero falhas. Cobre o ferimento numa caça simulada, o tratamento, o save e load no meio do tratamento, a alta, o consumo de plantas, o XP do cuidador, o grave sem tratamento até a morte, a crônica, o save rejeitando morto revivido, o leve que sara sozinho, a exaustão por expedições seguidas, o bloqueio de envio, o revezamento, a produção menor, a independência do passo, a lotação, a triagem, o aviso de falta de plantas e a interface.
+- Suítes anteriores (4 a 12) sem falhas.
+
+**Pendências:**
+- Aceite do responsável e ajuste dos números em testes com pessoas.
+- Validação histórica das práticas de cuidado.
+
 ## Etapa 12 — pesca manual entregue para teste
 
 O responsável pediu sentir o tamanho do peixe "já na puxada", com referências em jogos que fazem isso bem, e aprovou a proposta sem protótipo: "faça já como deverá ficar", com atenção às animações e à física. A proposta segue três fases (fisgar, brigar, tirar da água) e usa como referências a briga por tensão de Red Dead Redemption 2, a boia que conta a história de Animal Crossing/Zelda e a personalidade de movimento de Stardew Valley.
