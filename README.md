@@ -2,6 +2,14 @@
 
 Projeto de game com Godot 4 e modelos produzidos no Blender.
 
+## Moradores — pinturas corporais
+
+Cada uma das oito aparências tem uma pintura própria de jenipapo (preto-azulado) e urucum (vermelho), no rosto e no corpo. Os motivos incluem linhas nas bochechas, faixa sob os olhos, pontilhados, traços no queixo, zigue-zagues, losangos, listras, trama nas costas, braceletes e antebraços ou canelas tingidos. Cada desenho é uma película de geometria a 1,6 mm da pele, projetada por região (rosto, tronco, braços e pernas). Os vértices herdam o peso do braço, então acompanham as poses da aldeia e o rig de batalha. Os materiais são `Pintura_Jenipapo` e `Pintura_Urucum`. O gerador fica em `tools/pintura_moradores.py`, chamado por `tools/variar_moradores_v4.py`, e cada desenho está em `DESENHOS`. É uma interpretação artística inspirada em pinturas indígenas brasileiras, sem reproduzir o padrão de um povo específico.
+
+## Moradores — cabelo revisão 5 (mechas)
+
+O cabelo das oito aparências deixou de ser uma casca única e lisa: agora é um couro cabeludo fino coberto por 80–120 mechas afinadas, em camadas, com raiz embutida, ondulação leve e três tons (raiz, mecha, reflexo). O cabelo passa por cima e por trás das orelhas (sem o volume de "protetor de orelha"). O rabo, a trança de três fios e o coque enrolado também são feitos de mechas, com amarra de fibra. O gerador fica em `tools/cabelo_moradores_v5.py`, chamado por `tools/variar_moradores_v4.py`. A semente é fixa por personagem, então o resultado é reproduzível. Os modelos, os rigs de batalha e os retratos foram regenerados. A versão anterior está no commit `d6b3a9a` (cópia local, fora do Git, em `art/backup_moradores_v4/`). Os renders antigos ficam em `exports/revisao_moradores_v4/antes_cabelo_v5/`.
+
 ## Moradores — revisão 4 (estilo da referência)
 
 As oito aparências foram refeitas mais próximas da referência estilizada enviada no chat: corpo liso (sem a decimação facetada), braços relaxados junto ao corpo (~9°), variações com escala proporcional (sem cabeça desproporcional), íris maiores e escuras, cabelo rente ao crânio caindo por trás dos ombros (estilos longo, curto, coque, ombros, franja, trança e rabo), saia em duas camadas com ponta diagonal, cinto de corda com nó e top faixa listrado. Fonte e geração: `tools/modelar_moradores_v4.py -- tudo` (usa `tools/variar_moradores_v4.py`), arquivo `art/blender/moradores_1500_v4.blend`; renders em `exports/revisao_moradores_v4/`. Os GLBs mantêm `Passo_E`, `Passo_D` e `Coletar`. Rigs de batalha regenerados por `tools/animar_moradores_batalha.py`, agora com ombro/cotovelo/pulso medidos no modelo. Retratos e miniaturas de menu regenerados. Versões anteriores (GLBs, rigs, retratos e script de rig) em `art/backup_moradores_v3/`.

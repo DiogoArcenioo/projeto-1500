@@ -2,7 +2,8 @@
 Executado por tools/modelar_moradores_v4.py (modo 'tudo'), que fornece CENA e RAIZ.
 Cabelo e roupa são gerados aqui, ajustados ao corpo de cada pessoa:
  - braços relaxados junto ao corpo (~9° em vez da pose em A);
- - cabelo moldado sobre o crânio, com linha da testa e mechas caindo;
+ - cabelo em mechas (revisão 5, tools/cabelo_moradores_v5.py);
+ - pinturas corporais por personagem (tools/pintura_moradores.py);
  - saia em duas camadas (folha + terracota com barra diagonal), cinto de corda com nó;
  - top faixa nas mulheres.
 Exporta assets/models/habitantes/<tag>.glb com Passo_E, Passo_D e Coletar.
@@ -276,129 +277,14 @@ def roupa(pessoa, corpo, h, fem, mats):
 
 
 # ---------------------------------------------------------------- cabelo
-
-def cabelo(pessoa, corpo, olhos_z, h, fem, estilo, mat):
-    arvore = BVHTree.FromObject(corpo, bpy.context.evaluated_depsgraph_get())
-    vs = [v.co for v in corpo.data.vertices]
-    cabeca = [p for p in vs if p.z > olhos_z-.02]
-    c = Vector((0, (min(p.y for p in cabeca)+max(p.y for p in cabeca))/2+.005, olhos_z+.035))
-    comprido = {'longo': (.40 if fem else .26), 'ombros': .17, 'franja': .36, 'curto': .045,
-                'coque': .045, 'tranca': .06, 'rabo': .06}[estilo]
-    preso = estilo in ('coque', 'tranca', 'rabo')
-    colunas, linhas = 80, 30
-    grade = []
-    for i in range(colunas):
-        a = 2*PI*i/colunas-PI
-        d = Vector((math.sin(a), -math.cos(a), 0))
-        frente = suave(1.2, .62, abs(a))          # 1 no rosto, 0 nas laterais/nuca
-        lateral = suave(.55, 1.35, abs(a))          # cresce para trás
-        # Linha do cabelo: testa com risca lateral; laterais descem até o fim do cabelo.
-        risca = .012*math.sin(a+.6)
-        testa = olhos_z+(.058 if estilo == 'franja' else .084)+risca-.05*(abs(a)/1.2)**2
-        testa -= .009*abs(math.sin(a*13))   # pontas de mecha na linha da testa
-        fim = olhos_z-comprido*(.55+.45*lateral)-.02*math.sin(9*a+i*.7)*(0 if preso else 1)
-        if preso:
-            fim = olhos_z-.055-.05*lateral
-        parada = fim+(testa-fim)*frente
-        espessura = (.007 if preso else .010)+(.008 if estilo == 'franja' and frente > .5 else 0)
-        coluna = []
-        phi = 0.0
-        while phi <= math.radians(94):
-            direcao = (math.sin(phi)*d+math.cos(phi)*Vector((0, 0, 1))).normalized()
-            hit = arvore.ray_cast(c+direcao*.5, -direcao, .5)[0]
-            if hit is None:
-                break
-            p = hit+direcao*(espessura+.006*math.sin(phi))
-            if p.z < parada:
-                break
-            coluna.append(p)
-            phi += math.radians(3)
-        # Mechas caindo retas, sempre por fora de pescoço e ombros.
-        p = coluna[-1].copy()
-        passos = 0
-        while p.z-.02 > parada and passos < 60:
-            passos += 1
-            p = p+Vector((0, 0, -.02))
-            # Abaixo do pescoço as mechas laterais giram para as costas (caem por
-            # trás dos ombros, não por cima deles) e pousam a 1,6 cm da pele.
-            descida = suave(0, .14, (olhos_z-.09)-p.z)
-            a_ef = a+math.copysign((PI-abs(a))*.6*descida, a) if abs(a) > .45 else a
-            dirh = Vector((math.sin(a_ef), -math.cos(a_ef), 0))
-            horiz = Vector((p.x-c.x, p.y-c.y, 0))
-            alvo_hit = arvore.ray_cast(Vector((c.x, c.y, p.z))+dirh*.6, -dirh, .6)[0]
-            if alvo_hit is not None:
-                alvo_r = Vector((alvo_hit.x-c.x, alvo_hit.y-c.y, 0)).length+.016
-                novo_r = horiz.length+(alvo_r-horiz.length)*.45
-                p = Vector((c.x, c.y, p.z))+horiz.normalized().lerp(dirh, .35).normalized()*novo_r
-            perto, normal, _, dist = arvore.find_nearest(p)
-            if perto is not None and (p-perto).dot(normal) < .016:
-                # Empurra só na horizontal: no ombro a normal aponta para cima
-                # e prenderia a mecha no lugar.
-                lado = Vector((normal.x, normal.y, 0))
-                lado = lado.normalized() if lado.length > 1e-4 else d
-                fora = Vector((p.x-perto.x, p.y-perto.y, 0)).dot(lado)
-                p = p+lado*max(0.0, .016-fora)
-            coluna.append(p.copy())
-        if coluna[-1].z > parada and len(coluna) > 1:
-            fimp = coluna[-1].copy()
-            fimp.z = parada
-            coluna.append(fimp)
-        # Reamostra por comprimento para todas as colunas terem as mesmas linhas.
-        acum = [0.0]
-        for k in range(1, len(coluna)):
-            acum.append(acum[-1]+(coluna[k]-coluna[k-1]).length)
-        total = acum[-1] or 1
-        res = []
-        for k in range(linhas+1):
-            alvo = total*k/linhas
-            j = max(0, min(len(acum)-2, next((j for j in range(len(acum)-1) if acum[j+1] >= alvo), len(acum)-2)))
-            t = (alvo-acum[j])/max(1e-6, acum[j+1]-acum[j])
-            q = coluna[j].lerp(coluna[j+1], t)
-            # Mechas: leve relevo alternado na parte solta.
-            solto = k/linhas
-            q += d*(.006*abs(math.sin(a*6.5))*solto*(0 if preso else 1))
-            res.append(q)
-        grade.append(res)
-    verts = [p for col in grade for p in col]
-    faces = []
-    for i in range(colunas):
-        j = (i+1) % colunas
-        for k in range(linhas):
-            faces.append((i*(linhas+1)+k, j*(linhas+1)+k, j*(linhas+1)+k+1, i*(linhas+1)+k+1))
-    pecas = [(verts, faces, 0)]
-    nuca = c+Vector((0, .095, -.005))
-    if estilo == 'coque':
-        pecas.append(esfera(c+Vector((0, .088, .055)), (.048, .044, .042), 16, 10)+(0,))
-        pecas.append(tubo([c+Vector((0, .070, .045)), c+Vector((0, .098, .060))], [.03, .03], 12)+(0,))
-    if estilo == 'rabo':
-        base = c+Vector((0, .105, .035))
-        caminho = [base, base+Vector((0, .04, -.03)), base+Vector((0, .055, -.13)), base+Vector((0, .05, -.26)),
-                   base+Vector((0, .035, -.38))]
-        pecas.append(tubo(caminho, [.028, .034, .030, .022, .006], 12)+(0,))
-        pecas.append(esfera(base, (.03, .022, .03), 12, 8)+(0,))
-    if estilo == 'tranca':
-        inicio = c+Vector((.085, .06, -.06))
-        for k in range(15):
-            t = k/14
-            p = inicio+Vector((.035*math.sin(t*1.2), -.10*math.sin(t*1.4), -.40*t))
-            perto, normal, _, _ = arvore.find_nearest(p)
-            if perto is not None and (p-perto).dot(normal) < .03:
-                p = perto+normal*.03
-            r = .026*(1-.45*t)
-            p += Vector((.006*(1 if k % 2 else -1), 0, 0))
-            pecas.append(esfera(p, (r, r*.85, r*1.25), 12, 8)+(0,))
-    v, f, ids = juntar(pecas)
-    o = objeto(pessoa.name+'_Cabelo', v, f, [mat], ids, pessoa)
-    # Une o polo do topo (todas as colunas nascem no mesmo ponto).
-    bm = bmesh.new()
-    bm.from_mesh(o.data)
-    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=.0015)
-    bm.to_mesh(o.data)
-    bm.free()
-    o.data.update()
-    aplicar(o, ('SOLIDIFY', {'thickness': .007, 'offset': -1}), ('SUBSURF', {'levels': 1, 'render_levels': 1}))
-    for p in o.data.polygons:
-        p.use_smooth = True
+# Revisão 5: mechas separadas em vez da casca única (tools/cabelo_moradores_v5.py).
+_cabelo = {'__name__': 'cabelo_v5'}
+exec(compile((RAIZ/'tools/cabelo_moradores_v5.py').read_text(encoding='utf-8'),
+             str(RAIZ/'tools/cabelo_moradores_v5.py'), 'exec'), _cabelo)
+# Pinturas corporais de jenipapo e urucum, uma por personagem (tools/pintura_moradores.py).
+_pintura = {'__name__': 'pintura'}
+exec(compile((RAIZ/'tools/pintura_moradores.py').read_text(encoding='utf-8'),
+             str(RAIZ/'tools/pintura_moradores.py'), 'exec'), _pintura)
 
 
 # ---------------------------------------------------------------- montagem
@@ -443,7 +329,8 @@ def variar(doador, fem, indice, perfil):
             'corda': material('FibraCorda', 'd3b06e', .9), 'top': material('TecidoTop', '73823a', .85),
             'top_listra': material('TecidoTopListra', '4f5b27', .85)}
     roupa(pessoa, corpo, h, fem, mats)
-    cabelo(pessoa, corpo, olhos_z, h, fem, estilo, material('Cabelo_'+tag, cor_cabelo, .55, .06))
+    _cabelo['gerar'](CENA, pessoa, corpo, olhos_z, h, fem, estilo, tag, cor_cabelo)
+    _pintura['pintar'](CENA, pessoa, corpo, olhos_z, h, fem, tag)
     return tag, pessoa, corpo, h
 
 
