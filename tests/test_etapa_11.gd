@@ -115,7 +115,7 @@ func regras() -> void:
 	ok(avisos.any(func(m): return m.contains("PERIGO")),"Alerta enviado ao feed")
 	ok(e.relogio.velocidade==1 and e.velocidade_antes_alerta==3,"Velocidade reduzida para 1× durante o alerta")
 	ok(is_equal_approx(x.restante,X.PRAZO_ALERTA),"Prazo de 15 s")
-	ok(not X.manual_disponivel(x) and X.assumir(e,x.id)!="","Sem apresentação (onça), Assumir é recusado")
+	ok(X.manual_disponivel(x),"A onça pode ser assumida pelo alerta")
 	valido(e,"Estado com alerta")
 	e.relogio.pausado=true
 	ok(e.relogio.avancar(10)==0.0 and is_equal_approx(x.restante,X.PRAZO_ALERTA),"Pausa congela o prazo")
@@ -279,6 +279,111 @@ func interface() -> void:
 	cena.fechar_combate()
 	cena.queue_free()
 
+func rng_para_dado(valor: int) -> String:
+	var rng := RandomNumberGenerator.new()
+	for s in range(1000):
+		rng.seed = s
+		var antes := rng.state
+		if rng.randi_range(1,20) == valor:
+			return str(antes)
+	return ""
+
+func interface_onca() -> void:
+	var partida = load("res://scenes/main.tscn").instantiate()
+	partida.salvamento = S.new(pasta + "_onca")
+	root.add_child(partida)
+	partida.set_process(false)
+	var e = aldeia()
+	e.relogio.tempo_total = e.relogio.duracao_dia_segundos * 14.0 / 24.0
+	e.tempo_economia = e.relogio.tempo_total
+	e.relogio.definir_velocidade(3)
+	var ids: Array = e.habitantes.map(func(h): return h.id)
+	var viagem := coleta_com_perigo(e,[ids[0],ids[1]],18,"onca_pintada")
+	var id: String = viagem.id
+	jogo(e,5)
+	ok(partida.salvamento.salvar(e,"manual").ok and partida.carregar_partida("manual"),"Onça: alerta recuperado na partida")
+	e = partida.estado
+	viagem = X.buscar(e,id)
+	var antes: Dictionary = viagem.combate.duplicate(true)
+	partida.painel.topo_hud.atualizar()
+	var carta: Dictionary = partida.painel.topo_hud.alertas.get(id,{})
+	ok(not carta.is_empty() and carta.assumir.visible,"Onça: alerta oferece Assumir combate")
+	if carta.is_empty():
+		partida.queue_free()
+		return
+	await captura("03_onca_alerta")
+	await clicar(carta.assumir)
+	partida._process(.1)
+	var luta = partida.combate_manual
+	ok(is_instance_valid(luta),"Onça: cena manual abre pelo alerta")
+	if not is_instance_valid(luta):
+		partida.queue_free()
+		return
+	var c: Dictionary = luta.combate
+	ok(c == antes and c.tipo == "defensivo","Onça: mesmos atores, posições e RNG do encontro defensivo")
+	var modelo: Node3D = luta.atores[luta.nomes["animal"]]
+	var player: AnimationPlayer = luta.player(luta.nomes["animal"])
+	var clipes := ["parada","andar","correr","investida","errar_ataque","receber_golpe","esquivar"]
+	ok(player != null and clipes.all(func(clipe): return player.has_animation(clipe)),"Onça: modelo em combate com os sete clipes")
+	var direcao: Vector3 = luta.Orientacao.centro_equipe(luta.equipe) - modelo.global_position
+	direcao.y = 0
+	ok(modelo.global_basis.z.normalized().dot(direcao.normalized()) > .99,"Onça: focinho voltado à equipe na revelação")
+	var tempo: float = e.relogio.tempo_total
+	partida._process(2.0)
+	ok(e.relogio.tempo_total == tempo,"Onça: relógio da aldeia congelado")
+	# Posições e dados controlados em teste para exercitar erro e acerto reais.
+	var humano := B.ator(c,ids[0])
+	var animal := B.ator(c,"animal")
+	humano.x = int(animal.x) - 1
+	humano.z = animal.z
+	c.cursor = c.ordem.find(humano.id)
+	B.iniciar_turno(c)
+	luta.sincronizar_atores()
+	luta.iniciar_decisoes(true)
+	if grafico:
+		await captura("04_onca_tabuleiro")
+	for dado in [1,20]:
+		c.cursor = c.ordem.find("animal")
+		B.iniciar_turno(c)
+		c.rng = rng_para_dado(dado)
+		var hp: int = humano.vida
+		ok(luta.executar("animal","atacar",humano.id) == "","Onça: golpe executado pelo motor")
+		var clipe: String = "errar_ataque" if dado == 1 else "investida"
+		ok(player.current_animation == clipe and (humano.vida == hp if dado == 1 else humano.vida < hp),"Onça: resultado e animação de " + clipe)
+		await create_timer(.63).timeout
+		var reacao: String = "esquivar" if dado == 1 else "receber_golpe"
+		ok(luta.player(luta.nomes[humano.id]).current_animation == reacao,"Onça: reação do morador acompanha o resultado")
+		if grafico and dado == 20:
+			await captura("05_onca_investida")
+		if luta.movimento and luta.movimento.is_valid(): luta.movimento.kill()
+		luta.cancelar_transicao()
+		luta.em_movimento = false
+		luta.sincronizar_atores()
+	var saldo: Dictionary = JSON.parse_string(JSON.stringify(c))
+	ok(partida.salvar_partida("manual") and partida.carregar_partida("manual"),"Onça: F6/F7 recuperam o combate após dano")
+	luta = partida.combate_manual
+	e = partida.estado
+	viagem = X.buscar(e,id)
+	ok(is_instance_valid(luta) and viagem.combate == saldo,"Onça: vida e RNG preservados após recarregar")
+	if is_instance_valid(luta):
+		c = viagem.combate
+		humano = B.ator(c,ids[0])
+		c.cursor = c.ordem.find(humano.id)
+		B.iniciar_turno(c)
+		c.rng = rng_para_dado(20)
+		luta.iniciar_decisoes(true)
+		ok(luta.executar(humano.id,"fugir") == "" and viagem.fase == "retorno" and c.resultado == "retirada","Onça: retirada inicia o retorno")
+		await create_timer(.92).timeout
+		ok(luta.sair.visible,"Onça: botão de retorno habilitado após a animação")
+		await clicar(luta.sair)
+		ok(not is_instance_valid(partida.combate_manual),"Onça: retorna à aldeia")
+		partida._process(1.0)
+		ok(e.relogio.tempo_total > tempo and e.relogio.velocidade == 3,"Onça: tempo e velocidade anteriores restaurados")
+		jogo(e,viagem.viagem + 1.0)
+		ok(viagem.fase == "concluida" and e.pessoa(humano.id).expedicao == "","Onça: chegada libera o morador")
+		valido(e,"Onça: snapshot válido após retorno")
+	partida.queue_free()
+
 func clicar(b) -> void:
 	ok(b!=null,"Botão existe")
 	if b==null: return
@@ -312,5 +417,6 @@ func executar() -> void:
 	duas_equipes()
 	simulacao_completa()
 	await interface()
+	await interface_onca()
 	print("ETAPA_11: %d verificações; %d falhas"%[total,falhas])
 	quit(1 if falhas else 0)

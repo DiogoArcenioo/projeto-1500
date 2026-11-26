@@ -1,6 +1,8 @@
 {
   "animal": "onca_pintada",
-  "estado": "Portão A aprovado; portão B aguardando revisão do modelo no Godot",
+  "estado": "Visual escolhido e combate manual integrado para teste",
+  "autorizacao_integracao": "Faz isso então",
+  "cena_de_combate": "scenes/inspecao/combate_manual_onca_pintada.tscn",
   "escolha_do_responsavel": "B — Natural, confirmada com ‘Natural pfv’",
   "fonte_modelo": "art/blender/onca_pintada.blend",
   "fonte_animada": "art/blender/onca_pintada_animada.blend",

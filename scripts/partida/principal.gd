@@ -15,6 +15,7 @@ var _tempo_painel := 0.0
 var mapa_regional := preload("res://scripts/partida/tela_mapa.gd").new()
 var painel_expedicoes := preload("res://scripts/partida/painel_expedicoes.gd").new()
 var combate_manual: Node3D
+var pesca_manual: Node3D
 var _ambiente_aldeia: Environment
 
 func _ready() -> void:
@@ -96,6 +97,7 @@ func _ready() -> void:
 
 func nova_partida(recentrar: bool = true) -> void:
 	fechar_combate()
+	fechar_pesca()
 	estado = Estado.nova(configuracao) as Estado
 	aldeia.reiniciar(estado)
 	painel.reiniciar(estado)
@@ -113,14 +115,14 @@ func nova_partida(recentrar: bool = true) -> void:
 func _process(delta: float) -> void:
 	if estado == null:
 		return
-	if is_instance_valid(combate_manual): return
-	if abrir_combate_pendente(): return
+	if is_instance_valid(combate_manual) or is_instance_valid(pesca_manual): return
+	if abrir_combate_pendente() or abrir_pesca_pendente(): return
 	var dia_anterior: int = estado.relogio.obter_dia()
 	var decorrido: float = estado.relogio.avancar(delta)
 	if decorrido <= 0.0:
 		return
 	var avisos := estado.avancar_simulacao(decorrido)
-	abrir_combate_pendente()
+	if not abrir_combate_pendente(): abrir_pesca_pendente()
 	aldeia.sincronizar()
 	aldeia.mover(decorrido)
 	for aviso in avisos:
@@ -143,7 +145,7 @@ func _process(delta: float) -> void:
 func _unhandled_key_input(evento: InputEvent) -> void:
 	if not evento is InputEventKey or not evento.pressed or evento.echo:
 		return
-	if is_instance_valid(combate_manual):
+	if is_instance_valid(combate_manual) or is_instance_valid(pesca_manual):
 		if evento.physical_keycode==KEY_F6: salvar_partida("manual")
 		elif evento.physical_keycode==KEY_F7: carregar_partida("automatico" if evento.shift_pressed else "manual")
 		get_viewport().set_input_as_handled()
@@ -211,6 +213,7 @@ func carregar_partida(slot: String) -> bool:
 		return false
 	# Só trocar a fonte de verdade depois que todo o snapshot foi validado.
 	fechar_combate()
+	fechar_pesca()
 	estado = nova
 	aldeia.reiniciar(estado)
 	painel.reiniciar(estado)
@@ -224,7 +227,7 @@ func carregar_partida(slot: String) -> bool:
 	get_tree().paused = estado.relogio.pausado
 	iluminacao.aplicar(estado.relogio.obter_hora())
 	informar_estado("Partida carregada (" + slot + ")")
-	abrir_combate_pendente()
+	if not abrir_combate_pendente(): abrir_pesca_pendente()
 	return true
 
 func iniciar_obra(tipo: String) -> void:
@@ -321,7 +324,7 @@ func enviar_expedicao(centro: String,tipo: String,regiao: int,equipe: Array) -> 
 	var armas: Dictionary={}
 	if tipo=="caca":
 		for id in equipe: armas[id]=painel_expedicoes.armas.get(id,"arco")
-	var resultado:=Estado.Expedicoes.enviar(estado,centro,tipo,regiao,equipe,painel_expedicoes.modo_caca if tipo=="caca" else "simulado",armas,painel_expedicoes.politica)
+	var resultado:=Estado.Expedicoes.enviar(estado,centro,tipo,regiao,equipe,painel_expedicoes.modo_caca if tipo in ["caca","pesca"] else "simulado",armas,painel_expedicoes.politica)
 	if not resultado.ok:
 		painel_expedicoes.notificar(resultado.erro)
 		painel_expedicoes.apresentar("preparar")
@@ -363,8 +366,62 @@ func simular_alerta(id: String) -> void:
 	Estado.Expedicoes.ajustar_velocidade(estado)
 	painel.topo_hud.atualizar()
 
+## Etapa 12: pescaria jogada. Abre ao começar a exploração e congela a aldeia, como o combate.
+func abrir_pesca_pendente() -> bool:
+	if is_instance_valid(pesca_manual) or is_instance_valid(combate_manual): return true
+	var e:=Estado.Expedicoes.pesca_pendente(estado)
+	if e.is_empty(): return false
+	esconder_aldeia()
+	pesca_manual=load("res://scenes/encontros/pesca_manual.tscn").instantiate()
+	pesca_manual.estado=estado
+	pesca_manual.expedicao_id=e.id
+	pesca_manual.concluido.connect(func():
+		fechar_pesca()
+		aldeia.sincronizar()
+		painel.atualizar(true)
+		Estado.Expedicoes.ajustar_velocidade(estado)
+		if e.fase=="alerta": painel.topo_hud.notificar("Perigo na pescaria! Decida no alerta.")
+		else: painel.topo_hud.notificar("Pescaria encerrada. A equipe está retornando."))
+	configurar_pesca(pesca_manual)
+	add_child(pesca_manual)
+	return true
+
+## Gancho para cenas de inspeção (robô, peixe forçado); a partida normal não altera nada.
+func configurar_pesca(_cena: Node) -> void:
+	pass
+
+func fechar_pesca() -> void:
+	if not is_instance_valid(pesca_manual): return
+	remove_child(pesca_manual)
+	pesca_manual.queue_free()
+	pesca_manual=null
+	mostrar_aldeia()
+
+func esconder_aldeia() -> void:
+	fechar_expedicoes()
+	fechar_mapa()
+	$Clareira1500.hide()
+	_ambiente_aldeia=$Clareira1500/Atmosfera.environment
+	$Clareira1500/Atmosfera.environment=null
+	aldeia.hide()
+	painel.hide()
+	_controle.set_process(false)
+	_controle.set_process_unhandled_input(false)
+	aldeia.set_process_unhandled_input(false)
+
+func mostrar_aldeia() -> void:
+	$Clareira1500.show()
+	aldeia.show()
+	painel.show()
+	$Clareira1500/Atmosfera.environment=_ambiente_aldeia
+	_controle.camera.make_current()
+	_controle.set_process(true)
+	_controle.set_process_unhandled_input(true)
+	aldeia.set_process_unhandled_input(true)
+
 func abrir_combate_pendente() -> bool:
 	if is_instance_valid(combate_manual): return true
+	if is_instance_valid(pesca_manual): return false
 	var e:=Estado.Expedicoes.manual_pendente(estado)
 	if e.is_empty(): return false
 	fechar_expedicoes()
@@ -384,7 +441,8 @@ func abrir_combate_pendente() -> bool:
 		fechar_combate()
 		aldeia.sincronizar()
 		painel.atualizar(true)
-		painel.topo_hud.notificar("Encontro concluído. A equipe está retornando."))
+		var mensagem := "A equipe retomou a atividade." if e.fase == "exploracao" else "A equipe está retornando."
+		painel.topo_hud.notificar("Encontro concluído. " + mensagem))
 	add_child(combate_manual)
 	return true
 

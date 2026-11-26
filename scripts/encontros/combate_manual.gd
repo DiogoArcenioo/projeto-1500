@@ -3,6 +3,7 @@ extends "res://scripts/inspecao/inspecao_animacoes_batalha.gd"
 signal concluido
 const Exp=preload("res://scripts/partida/expedicoes.gd")
 const Regras=preload("res://scripts/partida/combate.gd")
+const MODELO_ONCA := "res://assets/models/animais/onca_pintada.glb"
 var estado
 var expedicao_id: String
 var viagem: Dictionary
@@ -35,6 +36,8 @@ func _ready() -> void:
 		remove_child(antigo);antigo.queue_free()
 		# O nó do animal mantém o nome "Capivara" da cena; o modelo segue a espécie sorteada.
 		var caminho: String="res://assets/models/animais/batalha/%s.glb"%combate.animal if a.lado=="animal" else "res://assets/models/habitantes/batalha/"+estado.pessoa(a.id).visual+".glb"
+		if a.lado == "animal" and combate.animal == "onca_pintada":
+			caminho = MODELO_ONCA
 		var modelo: Node3D=load(caminho).instantiate()
 		modelo.name=nome;add_child(modelo);atores[nome]=modelo
 		if a.lado=="equipe": equipe.append(modelo)
@@ -205,7 +208,8 @@ func atualizar_interface() -> void:
 		detalhe.text="Observe a mata ou pule a introdução com Espaço."
 		return
 	if acabou:
-		titulo_turno.text={"vitoria":"Caça concluída","animal_fugiu":"%s escapou"%Regras.nome_animal(combate.animal),"retirada":"Equipe em retirada","derrota":"Equipe derrotada","impasse":"Confronto encerrado sem avanço"}.get(combate.resultado,"Confronto encerrado")
+		var titulo_vitoria := "Equipe se defendeu" if combate.tipo == "defensivo" or viagem.tipo != "caca" else "Caça concluída"
+		titulo_turno.text={"vitoria":titulo_vitoria,"animal_fugiu":"%s escapou"%Regras.nome_animal(combate.animal),"retirada":"Equipe em retirada","derrota":"Equipe derrotada","impasse":"Confronto encerrado sem avanço"}.get(combate.resultado,"Confronto encerrado")
 		var carga: Array[String]=[]
 		for recurso in viagem.carga: carga.append("%d %s"%[viagem.carga[recurso],recurso.replace("_"," ")])
 		var condicao: Array[String]=[]
@@ -382,7 +386,7 @@ func sinal_sonoro(impacto: bool) -> void:
 func mostrar_efeito(alvo: Node3D,t: String,acertou: bool) -> void:
 	super.mostrar_efeito(alvo,t,acertou)
 	var etiqueta:=efeito
-	var desaparecer:=create_tween()
+	var desaparecer:=etiqueta.create_tween()
 	desaparecer.tween_interval(.6)
 	desaparecer.tween_property(etiqueta,"modulate:a",0.0,.3)
-	desaparecer.tween_callback(func():if is_instance_valid(etiqueta): etiqueta.queue_free())
+	desaparecer.tween_callback(etiqueta.queue_free)

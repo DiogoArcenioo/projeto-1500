@@ -165,11 +165,20 @@ func confirmacao() -> void:
 	if tipo=="caca":
 		var escolha:=seletor(conteudo)
 		escolha.add_item("Simular a caça")
-		escolha.add_item("Jogar combate manual · capivara, queixada, anta ou jacaré")
+		escolha.add_item("Jogar combate manual")
 		escolha.select(1 if modo_caca=="manual" else 0)
 		escolha.item_selected.connect(func(i: int):
 			modo_caca="manual" if i==1 else "simulado"
 			if modo_caca=="manual" and regiao not in Exp.Caca.regioes_manuais(): regiao=14
+			mostrar_passo(3))
+	if tipo=="pesca":
+		var escolha_pesca:=seletor(conteudo)
+		escolha_pesca.add_item("Simular a pescaria")
+		escolha_pesca.add_item("Pescar à mão · você joga cada lance")
+		escolha_pesca.select(1 if modo_caca=="manual" else 0)
+		escolha_pesca.tooltip_text="À mão: sinta a mordida na boia, fisgue no momento certo e canse o peixe sem arrebentar a linha."
+		escolha_pesca.item_selected.connect(func(i: int):
+			modo_caca="manual" if i==1 else "simulado"
 			mostrar_passo(3))
 	if politica=="": politica=Exp.politica_padrao(tipo)
 	var escolha_politica:=seletor(conteudo)
@@ -233,7 +242,7 @@ func rodape() -> void:
 	atualizar_resumo()
 func atualizar_resumo() -> void:
 	if not is_instance_valid(frente) or etapa==4: return
-	var erro:=Exp.erro_envio(estado,centro,tipo,regiao,equipe,modo_caca if tipo=="caca" else "simulado") if etapa==3 else ("Escolha a equipe." if equipe.is_empty() else "")
+	var erro:=Exp.erro_envio(estado,centro,tipo,regiao,equipe,modo_caca if tipo in ["caca","pesca"] else "simulado") if etapa==3 else ("Escolha a equipe." if equipe.is_empty() else "")
 	frente.disabled=erro!=""
 	frente.tooltip_text=erro
 func notificar(valor: String) -> void:

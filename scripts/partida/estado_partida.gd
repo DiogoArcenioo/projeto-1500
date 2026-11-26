@@ -17,6 +17,8 @@ var expedicoes: Array = []
 var sequencia_expedicao: int = 0
 ## Etapa 11: velocidade escolhida antes de um alerta de perigo (0 = nenhum alerta).
 var velocidade_antes_alerta: int = 0
+## Etapa 12: espécies pescadas na partida (quantidade e maior exemplar).
+var registro_pesca: Dictionary = {}
 
 static func nova(configuracao: Resource) -> RefCounted:
 	var estado = load("res://scripts/partida/estado_partida.gd").new()
@@ -34,7 +36,7 @@ func serializar() -> Dictionary:
 		"fogueira": {"nivel": nivel_fogueira}, "habitantes": habitantes.duplicate(true),
 		"construcoes": construcoes.duplicate(true), "estoque": estoque.duplicate(true), "camera": camera.duplicate(true),
 		"conhecimento":conhecimento.duplicate(true),"expedicoes":expedicoes.duplicate(true),"sequencia_expedicao":sequencia_expedicao,"velocidade_antes_alerta":velocidade_antes_alerta,
-		"tempo_economia":tempo_economia,"alimentos":alimentos.duplicate(true)}
+		"tempo_economia":tempo_economia,"alimentos":alimentos.duplicate(true),"registro_pesca":registro_pesca.duplicate(true)}
 
 static func numero(valor: Variant, minimo: float, maximo: float, inteiro: bool = false) -> bool:
 	if typeof(valor) not in [TYPE_INT, TYPE_FLOAT]:
@@ -84,6 +86,8 @@ static func validar(dados: Variant) -> String:
 	if not numero(dados.get("tempo_economia",tempo.tempo_total),0,1e12): return "Tempo econômico inválido."
 	var erro_alimentacao:=Alimentacao.validar(dados,numero)
 	if erro_alimentacao!="": return erro_alimentacao
+	var erro_registro:=Expedicoes.Pesca.validar_registro(dados.get("registro_pesca",{}),numero)
+	if erro_registro!="": return erro_registro
 	var erro_expedicoes:=Expedicoes.validar(dados,numero)
 	if erro_expedicoes!="": return erro_expedicoes
 	var visao: Variant = dados.get("camera")
@@ -206,6 +210,7 @@ static func desserializar(dados: Dictionary) -> RefCounted:
 	estado.velocidade_antes_alerta = int(dados.get("velocidade_antes_alerta",0))
 	estado.tempo_economia=float(dados.get("tempo_economia",dados.relogio.tempo_total))
 	estado.alimentos=dados.get("alimentos",{}).duplicate(true)
+	estado.registro_pesca=dados.get("registro_pesca",{}).duplicate(true)
 	Alimentacao.assegurar(estado)
 	return estado
 

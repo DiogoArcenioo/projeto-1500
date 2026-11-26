@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://scenes/ambientes/clareira.tscn" id="mata"]
+[ext_resource type="Script" path="res://scripts/encontros/pesca_manual.gd" id="codigo"]
+[node name="PescaManual" type="Node3D"]
+script = ExtResource("codigo")
+[node name="Clareira1500" parent="." instance=ExtResource("mata")]
+[node name="Camera" type="Camera3D" parent="."]
+near = 0.05
+far = 160.0
+fov = 48.0

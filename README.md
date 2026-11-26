@@ -2,9 +2,49 @@
 
 Projeto de game com Godot 4 e modelos produzidos no Blender.
 
-## Onça-pintada B — inspeção visual no Godot
+## Etapa 12 — pesca manual
 
-Abra `scenes/inspecao/onca_pintada.tscn` e pressione **F6**. **1–5** alternam entre três quartos, frente, perfil, escala na câmera tática e costas. **P/C/F** mostram repouso, caminhada e corrida. **6–9** mostram investida, erro, impacto e esquiva. **N** alterna tarde e noite. A cena é a revisão do visual antes de habilitar o encontro manual na partida.
+No envio da pescaria há a opção **Pescar à mão**. Quando a equipe chega ao rio, a aldeia congela, como no combate manual, e começa a sessão: **4 iscas** com uma pessoa, **5** com duas. Cada lance conta uma única vez.
+
+**Como se joga:**
+1. **Arremesso:** segure o botão esquerdo (ou Espaço) para armar e solte para lançar. O mouse mira o lado e o alcance respeita a largura do rio.
+2. **Mordida:** observe a boia e clique quando ela afundar de verdade. Cada espécie "fala" de um jeito: o lambari belisca várias vezes, o piau puxa de lado, a traíra ataca de uma vez e o jundiá arrasta devagar. Antes da mordida, a sombra do peixe ronda a isca com o tamanho real dele. Puxar cedo assusta o peixe, e tarde demais ele leva a isca.
+3. **Briga:** segure para puxar e solte para dar linha. Apontar a vara (com o mouse ou A/D) para o lado contrário ao do peixe o cansa mais depressa. Tensão alta desgasta a linha até arrebentar; linha frouxa demais solta o anzol. No salto (o camurupim, e às vezes o robalo) é preciso ceder, senão ele cospe o anzol.
+4. **Tirar da água:** com o peixe cansado perto da margem, puxe com calma. O peixe aparece na mão do pescador com espécie, peso, tamanho e, se for o caso, o recorde da aldeia.
+
+**Física e sinais de tamanho:**
+- O peixe tem força (proporcional à raiz do peso), fôlego, agilidade e um comportamento que alterna corrida, sacudida, salto, fundo e cansaço.
+- Um peixe grande não tem só "mais barra": dá corridas mais longas e cansa devagar. Um camurupim de dezenas de quilos pode esgotar os 30 m de linha.
+- A vara é desenhada a cada quadro e enverga pela tensão real da linha, com mola subamortecida: ela volta tremendo quando a linha estoura.
+- A linha é uma corda com física: fica reta quando esticada e faz barriga e boia na água quando frouxa.
+- O som é sintetizado: a linha "canta" mais aguda com a tensão, e há respingos e toques na boia. A câmera treme e fecha o quadro nos momentos de esforço.
+
+**Arquivos:**
+- Regras: `scripts/partida/pesca.gd` e `assets/configuracoes/pesca.json`, com números provisórios.
+- Integração: `scripts/partida/expedicoes.gd`.
+- Cena: `scenes/encontros/pesca_manual.tscn` com `scripts/encontros/pesca_manual.gd`.
+- Peixes: `tools/modelar_peixes.py` gera `assets/models/peixes/peixes.glb` (sete espécies, nado por shader em `assets/shaders/peixe_nado.gdshader`).
+- Pescador: `tools/animar_pescador.py` gera `assets/models/habitantes/pesca/<morador>.glb`, com a vara e os clipes de esperar, lançar, fisgar, puxar, ceder e erguer o peixe.
+
+**Economia:**
+- O peso pescado vira porções de peixe (1 porção a cada 0,7 kg, mínimo 1), dentro da capacidade de carga. A pesca simulada continua rendendo o mesmo de antes.
+- XP: +1 por lance e +1 por captura para a equipe.
+- O **registro de espécies** guarda a quantidade e o maior exemplar de cada espécie, nas pescarias jogadas e nas simuladas. A pesca simulada agora nomeia a espécie no feed.
+
+**Perigos:** um jacaré sorteado para a pescaria aparece entre um lance e outro e abre o **alerta comum** da etapa 11. Depois do confronto, se a equipe estiver bem, a sessão continua.
+
+**Testar:**
+- Teste rápido: `scenes/inspecao/pesca_manual.tscn` (F6). Na inspeção dá para forçar espécie e peso.
+- Capturas: `tools/capturar_pesca.gd -- <espécie> <kg>` grava em `exports/revisao_pesca/`.
+- Testes: `tests/test_etapa_12.gd`.
+
+**Validação histórica pendente.** A linha de fibra com anzol de espinho ou osso, a vara de taquara e a boia tingida de urucum são hipóteses de trabalho. As espécies (lambari, acará, piau, traíra, jundiá, robalo e camurupim) foram escolhidas para rios e lagoas do litoral baiano e ainda precisam ser conferidas em fontes primárias (Léry, Staden, Gabriel Soares de Sousa). Se a validação pedir, a mesma mecânica funciona com linha de mão.
+
+## Onça-pintada B — combate manual
+
+Abra `scenes/inspecao/combate_manual_onca_pintada.tscn` e pressione **F6** para jogar direto o confronto defensivo na Mata Fechada. A cena usa um salvamento de inspeção separado. Na partida normal (F5), clique em **Assumir combate** quando o alerta da onça aparecer. Ela continua rara e pode surgir nas matas remotas depois da primeira caça concluída. Também pode aparecer como encontro defensivo se a caça nessas regiões estiver em modo manual.
+
+Para ver o modelo e os clipes separadamente, abra `scenes/inspecao/onca_pintada.tscn` e pressione **F6**. **1–5** alternam as vistas. **P/C/F** mostram repouso, caminhada e corrida. **6–9** mostram investida, erro, impacto e esquiva. **N** alterna tarde e noite.
 
 O modelo tem pelagem com rosetas em textura UV, formas contínuas e cauda articulada. Fontes `art/blender/onca_pintada.blend` e `art/blender/onca_pintada_animada.blend`; exportação `assets/models/animais/onca_pintada.glb`. Produção reproduzível com `tools/modelar_onca_pintada.py` e `tools/animar_onca_pintada.py`. Capturas e teste técnico em `exports/revisao_onca_pintada/` e `tools/revisar_onca_pintada.gd`.
 
@@ -37,7 +77,7 @@ GLBs em `assets/models/animais/jacare_papo_amarelo.glb` e `batalha/jacare_papo_a
 
 ## Etapa 11 — encontros perigosos e alerta no feed
 
-**Como testar:** F5 → construa centros de coleta/caça e envie expedições (Expedições → equipe → confirmação). Na confirmação escolha a **política** para o caso de perigo (prudente, equilibrada ou agressiva). Coleta, pesca e reconhecimento podem ser surpreendidos por queixada, anta, jacaré ou onça; a caça simulada sempre chega a um encontro. Quando isso acontece aparece no topo do feed um **cartão de perigo** com equipe, região e prazo de 15 s; a velocidade cai para 1×. **Deixar simular** (ou esperar o prazo) resolve com a política da equipe; **Assumir combate** abre o combate manual com o sorteio já feito para capivara e queixada. Espaço pausa o prazo; F6/F7 salvam/carregam com o alerta aberto. Ao concluir, um cartão de **resumo** mostra o que foi trazido, perdas, XP e feridos; os recursos entram só ao chegar. Vitória com todos de pé retoma a coleta/pesca/reconhecimento; retirada ou derrota perdem metade da carga e voltam.
+**Como testar:** F5 → construa centros de coleta/caça e envie expedições (Expedições → equipe → confirmação). Na confirmação escolha a **política** para o caso de perigo (prudente, equilibrada ou agressiva). Coleta, pesca e reconhecimento podem ser surpreendidos por queixada, anta, jacaré ou onça; a caça simulada sempre chega a um encontro. Quando isso acontece aparece no topo do feed um **cartão de perigo** com equipe, região e prazo de 15 s; a velocidade cai para 1×. **Deixar simular** (ou esperar o prazo) resolve com a política da equipe; **Assumir combate** abre o combate manual com o mesmo sorteio para as cinco espécies. Espaço pausa o prazo; F6/F7 salvam/carregam com o alerta aberto. Ao concluir, um cartão de **resumo** mostra o que foi trazido, perdas, XP e feridos; os recursos entram só ao chegar. Vitória com todos de pé retoma a coleta/pesca/reconhecimento; retirada ou derrota perdem metade da carga e voltam.
 
 Regras em `scripts/partida/expedicoes.gd`, `caca.gd` e `combate.gd`; cartões em `scripts/partida/barra_superior.gd`; números provisórios em `assets/configuracoes/combate.json` e `art/references/etapa_11/proposta_etapa_11.json`. Teste: `tests/test_etapa_11.gd` (headless ou gráfico, com capturas em `exports/revisao_etapa_11/`).
 

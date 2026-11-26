@@ -2,7 +2,7 @@ extends RefCounted
 const Combate=preload("res://scripts/partida/combate.gd")
 const Alimentacao=preload("res://scripts/partida/alimentacao.gd")
 ## Animais com apresentação manual aprovada (modelo, rig e clipes no Godot).
-const APRESENTACAO_MANUAL:=["capivara","queixada","jacare_papo_amarelo","anta"]
+const APRESENTACAO_MANUAL:=["capivara","queixada","jacare_papo_amarelo","anta","onca_pintada"]
 ## Etapa 11: fração da carga perdida em retirada ou derrota (provisório, aprovado).
 const PERDA_CARGA:=.5
 
@@ -14,9 +14,7 @@ static func fauna(regiao: int) -> Array:
 	if regiao in [10,18,19,24,25]: return ["queixada","anta","onca_pintada"]
 	return ["queixada","anta"]
 
-## Regiões onde toda a fauna tem apresentação manual: a caça manual nunca
-## sorteia um animal sem modelo (Arredores/Margem do rio: capivara; serras e
-## encostas: queixada).
+## Regiões onde toda a fauna tem apresentação manual, inclusive encontros defensivos.
 static func regioes_manuais() -> Array:
 	var lista: Array=[]
 	for r in range(30):

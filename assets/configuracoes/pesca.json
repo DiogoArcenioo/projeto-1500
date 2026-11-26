@@ -1,0 +1,26 @@
+{
+  "_nota": "Etapa 12 — valores provisórios para ajustar em testes reais. Pesos em kg. forca: puxada por raiz do peso (1,0 = limite da linha). resistencia: fôlego. agilidade: rapidez das trocas de direção. Espécies e linha de fibra com anzol de espinho/osso dependem de validação histórica.",
+  "especies": {
+    "lambari": {"nome": "Lambari", "peso": [0.02, 0.1], "forca": 0.3, "agilidade": 0.95, "resistencia": 0.45, "comportamento": "beliscador", "cor": "b9c2bf", "comprimento": [0.08, 0.16]},
+    "acara": {"nome": "Acará", "peso": [0.08, 0.6], "forca": 0.46, "agilidade": 0.55, "resistencia": 0.6, "comportamento": "teimoso", "cor": "7f8a5c", "comprimento": [0.1, 0.25]},
+    "piau": {"nome": "Piau", "peso": [0.2, 1.8], "forca": 0.55, "agilidade": 0.8, "resistencia": 0.7, "comportamento": "ladrao", "cor": "a99f78", "comprimento": [0.2, 0.42]},
+    "traira": {"nome": "Traíra", "peso": [0.3, 4.0], "forca": 0.5, "agilidade": 0.5, "resistencia": 0.62, "comportamento": "emboscada", "cor": "5d5a3e", "comprimento": [0.25, 0.6]},
+    "jundia": {"nome": "Jundiá", "peso": [0.3, 3.5], "forca": 0.48, "agilidade": 0.35, "resistencia": 0.8, "comportamento": "fundo", "cor": "6b5c4c", "comprimento": [0.25, 0.55]},
+    "robalo": {"nome": "Robalo", "peso": [0.5, 6.0], "forca": 0.43, "agilidade": 0.7, "resistencia": 0.9, "comportamento": "corredor", "cor": "aeb4ad", "comprimento": [0.3, 0.75]},
+    "camurupim": {"nome": "Camurupim", "peso": [5.0, 45.0], "forca": 0.28, "agilidade": 0.75, "resistencia": 0.85, "comportamento": "saltador", "cor": "c9d1d0", "comprimento": [0.8, 1.9]}
+  },
+  "habitats": {
+    "cabeceira": {"lambari": 34, "acara": 26, "piau": 14, "traira": 14, "jundia": 12},
+    "rio": {"lambari": 26, "acara": 20, "piau": 15, "traira": 14, "jundia": 12, "robalo": 10, "camurupim": 1.5},
+    "baixo_rio": {"lambari": 18, "acara": 14, "piau": 12, "traira": 12, "jundia": 12, "robalo": 18, "camurupim": 4},
+    "lagoa": {"lambari": 24, "acara": 26, "traira": 22, "jundia": 14, "camurupim": 3}
+  },
+  "regioes": {"3": "cabeceira", "8": "cabeceira", "9": "rio", "15": "rio", "21": "rio", "27": "baixo_rio", "28": "lagoa"},
+  "linha": {"comprimento_maximo": 30.0, "resistencia": 1.0, "resistencia_por_xp": 0.0025, "resistencia_maxima_bonus": 0.3},
+  "pescador": {"forca": 0.5, "recolher": 3.0, "folga_recolher": 6.0, "dar_linha": 2.4},
+  "lances_base": 3,
+  "lances_por_integrante": 1,
+  "kg_por_unidade": 0.7,
+  "xp_por_lance": 1,
+  "xp_por_captura": 1
+}

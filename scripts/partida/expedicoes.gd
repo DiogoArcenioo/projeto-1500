@@ -3,6 +3,7 @@ extends RefCounted
 const Regioes=preload("res://scripts/partida/regioes.gd")
 const Alimentacao=preload("res://scripts/partida/alimentacao.gd")
 const Caca=preload("res://scripts/partida/caca.gd")
+const Pesca=preload("res://scripts/partida/pesca.gd")
 const ATIVAS:=["preparacao","ida","exploracao","alerta","confronto","retorno"]
 const POLITICAS:=["prudente","equilibrada","agressiva"]
 ## Etapa 11 (provisório, aprovado): prazo de intervenção em segundos de jogo a 1×.
@@ -12,7 +13,8 @@ static var parametros: Dictionary=JSON.parse_string(FileAccess.get_file_as_strin
 
 static func erro_envio(estado,centro: String,tipo: String,regiao: int,equipe: Array,modo: String) -> String:
 	if modo not in ["simulado","manual"]: return "Modo indisponível."
-	if modo=="manual" and (tipo!="caca" or regiao not in Caca.regioes_manuais()): return "Caça manual disponível onde vivem capivaras (Arredores, Margem do rio), queixadas (serras e encostas), antas (matas) ou jacarés (rios e lagoas)."
+	if modo=="manual" and tipo=="caca" and regiao not in Caca.regioes_manuais(): return "Escolha uma região investigada que ofereça caça manual."
+	if modo=="manual" and tipo not in ["caca","pesca"]: return "Esta atividade ainda não pode ser jogada."
 	if tipo not in ["coleta","reconhecimento","pesca","caca"]: return "Atividade desconhecida."
 	if regiao<0 or regiao>=30 or regiao==20: return "Escolha uma região fora da aldeia."
 	if tipo=="coleta" and int(estado.conhecimento[str(regiao)])<2: return "Investigue os recursos desta região primeiro."
@@ -68,6 +70,8 @@ static func enviar(estado,centro: String,tipo: String,regiao: int,equipe: Array,
 		"rng":str(rng.state),"cancelada":false,"eventos":[],"duracao_exploracao":exploracao,
 		"intervalo_atividade":float(Alimentacao.parametros.pesca.intervalo) if tipo=="pesca" else (60.0 if tipo=="coleta" else 12.0),
 		"capturas_alvo":capturas,"equilibrada":true,"vencimentos":{},"politica":politica}
+	# Pescaria jogada: campo próprio; "modo" continua sendo o do combate (alertas).
+	if tipo=="pesca": e.pesca_jogada=modo=="manual"
 	if tipo=="caca":
 		e.modo=modo
 		e.armas=armas.duplicate()
@@ -88,7 +92,7 @@ static func buscar(estado,id: String) -> Dictionary:
 static func alertas(estado) -> Array:
 	return estado.expedicoes.filter(func(e): return e.fase=="alerta")
 
-## Assumir só existe para animais com apresentação manual (capivara e queixada),
+## Assumir só existe para animais com apresentação manual,
 ## em qualquer atividade: fora da caça a equipe luta com a ferramenta básica.
 static func manual_disponivel(e: Dictionary) -> bool:
 	return e.get("fase")=="alerta" and e.get("combate",{}).get("animal","") in Caca.APRESENTACAO_MANUAL
@@ -153,6 +157,9 @@ static func retornar(estado,id: String) -> String:
 		terminar_confronto(estado,e,[])
 		return ""
 	if not e.is_empty() and e.fase=="alerta": return "Assuma o combate ou deixe a equipe simular."
+	if not e.is_empty() and pesca_ativa(e):
+		encerrar_pesca(estado,e,[])
+		return ""
 	if e.is_empty() or e.fase not in ["preparacao","ida","exploracao"]: return "Retorno indisponível nesta fase."
 	e.cancelada=true
 	if e.fase=="preparacao":
@@ -213,13 +220,17 @@ static func resumo(estado,e: Dictionary) -> String:
 	for k in e.entregue:
 		if int(e.entregue[k])>0: trazido.append("%d %s"%[e.entregue[k],str(k).replace("_"," ")])
 	linhas.append("Trazido: "+(", ".join(trazido) if not trazido.is_empty() else "nada"))
+	if e.has("pesca"):
+		var peixes: Array[String]=[]
+		for c: Dictionary in e.pesca.capturas: peixes.append("%s %s"%[Pesca.nome(c.especie),Pesca.formatar_peso(float(c.peso))])
+		linhas.append("Pescaria jogada · %d de %d lances · %s"%[e.pesca.feitos,e.pesca.lances,", ".join(peixes) if not peixes.is_empty() else "nenhum peixe"])
 	var perdas: Array[String]=[]
 	for k in r.get("perdas",{}): perdas.append("%d %s"%[r.perdas[k],str(k).replace("_"," ")])
 	var xp: Array[String]=[]
 	for id in e.equipe:
 		var h: Dictionary=estado.pessoa(id)
 		if h.is_empty(): continue
-		var ganho:=int(r.get("xp",{}).get(h.nome,0))+(0 if e.tipo=="caca" else int(e.xp))
+		var ganho:=int(r.get("xp",{}).get(h.nome,0))+(0 if e.tipo=="caca" else int(e.xp)+int(e.get("pesca",{}).get("xp",0)))
 		xp.append("%s +%d"%[h.nome,ganho])
 	linhas.append("XP: "+" · ".join(xp))
 	var condicao: Array[String]=[]
@@ -274,7 +285,7 @@ static func ajustar_velocidade(estado) -> void:
 	if aberto and int(estado.velocidade_antes_alerta)==0:
 		estado.velocidade_antes_alerta=estado.relogio.velocidade
 		estado.relogio.definir_velocidade(1)
-	elif not aberto and int(estado.velocidade_antes_alerta)>0 and manual_pendente(estado).is_empty():
+	elif not aberto and int(estado.velocidade_antes_alerta)>0 and manual_pendente(estado).is_empty() and pesca_pendente(estado).is_empty():
 		if estado.relogio.velocidade==1: estado.relogio.definir_velocidade(int(estado.velocidade_antes_alerta))
 		estado.velocidade_antes_alerta=0
 
@@ -294,6 +305,7 @@ static func praticar(estado,e: Dictionary,avisos: Array[String]) -> void:
 	if e.tipo=="pesca":
 		var q:=mini(e.equipe.size(),maxi(0,int(e.get("capturas_alvo",1))-quantidade(e.carga)))
 		encontro={"texto":"Peixe fisgado." if q>0 else "Um peixe escapou.","recursos":{"peixe":q}}
+		if q>0: encontro.especies=pescado_simulado(estado,e,q)
 	else:
 		encontro=Regioes.sortear(int(e.regiao),e.tipo,rng)
 		if e.tipo=="coleta" and e.get("equilibrada",false) and encontro.recursos.has("vegetais"):
@@ -330,6 +342,7 @@ static func praticar(estado,e: Dictionary,avisos: Array[String]) -> void:
 		var mensagem: String=encontro.texto
 		if coletado>0:
 			mensagem="%d %s na carga."%[coletado,str(encontro.recursos.keys()[0]).replace("_"," ")]
+			if encontro.has("especies"): mensagem="%s na carga."%encontro.especies
 		registrar(e,mensagem,avisos)
 		if quantidade(e.carga)>=capacidade:
 			iniciar_fase(e,"retorno",e.viagem)
@@ -358,6 +371,10 @@ static func validar(dados: Dictionary,numero: Callable) -> String:
 		if (e.tipo=="caca")!=(obras[e.centro].tipo=="caca"): return "Atividade incompatível com caça."
 		if e.get("modo","simulado") not in ["simulado","manual"]: return "Modo de expedição inválido."
 		if e.get("modo","simulado")=="manual" and e.get("combate",{}).is_empty() and (e.tipo!="caca" or int(e.regiao) not in Caca.regioes_manuais()): return "Região sem encontro manual disponível."
+		if not e.get("pesca_jogada",false) is bool or (e.get("pesca_jogada",false) and e.tipo!="pesca"): return "Pescaria jogada inválida."
+		if e.has("pesca"):
+			var erro_pesca:=validar_pesca(e,numero)
+			if erro_pesca!="": return erro_pesca
 		if e.get("politica","equilibrada") not in POLITICAS: return "Política da equipe inválida."
 		var plano: Variant=e.get("encontro",{"em":-1.0,"animal":""})
 		if not plano is Dictionary or not numero.call(plano.get("em"),-1,3600) or not plano.get("animal") is String: return "Encontro planejado inválido."
@@ -418,7 +435,7 @@ static func validar(dados: Dictionary,numero: Callable) -> String:
 static func avancar(estado,segundos: float) -> Array[String]:
 	var avisos: Array[String]=[]
 	if not is_finite(segundos) or segundos<=0: return avisos
-	if not manual_pendente(estado).is_empty(): return avisos
+	if not manual_pendente(estado).is_empty() or not pesca_pendente(estado).is_empty(): return avisos
 	for e: Dictionary in estado.expedicoes:
 		if e.fase=="exploracao": planejar_encontro(estado,e)
 		for r in e.get("vencimentos",{}):
@@ -431,6 +448,9 @@ static func avancar(estado,segundos: float) -> Array[String]:
 		var saldo:=segundos
 		while e.fase in ATIVAS and saldo>0:
 			if e.fase=="confronto" and e.get("modo","simulado")=="manual": break
+			if pesca_ativa(e):
+				preparar_pesca(estado,e)
+				break
 			var passo:=minf(saldo,e.restante)
 			if e.fase=="exploracao":
 				var proxima: float=(e.ciclos+1)*intervalo(e)-e.explorado
@@ -460,6 +480,7 @@ static func avancar(estado,segundos: float) -> Array[String]:
 				"ida":
 					iniciar_fase(e,"exploracao",e.get("duracao_exploracao",parametros.exploracao_segundos))
 					planejar_encontro(estado,e)
+					if pesca_ativa(e): preparar_pesca(estado,e)
 					registrar(e,"A equipe iniciou a exploração.",avisos)
 				"exploracao":
 					iniciar_fase(e,"retorno",e.viagem)
@@ -471,3 +492,89 @@ static func avancar(estado,segundos: float) -> Array[String]:
 					if not e.carga.is_empty(): registrar(e,"Estoque cheio. Excedente preservado para descarga.",avisos)
 	ajustar_velocidade(estado)
 	return avisos
+
+# ------------------------------------------------------------------ etapa 12: pesca jogada
+
+## A pescaria jogada substitui a exploração simulada: um número fixo de lances (iscas);
+## cada lance termina uma única vez, com ou sem peixe, e só então entra na carga e no XP.
+static func pesca_ativa(e: Dictionary) -> bool:
+	return e.get("tipo")=="pesca" and e.get("pesca_jogada",false)==true and e.get("fase")=="exploracao" and not e.get("pesca",{}).get("fim",false)
+
+static func pesca_pendente(estado) -> Dictionary:
+	for e: Dictionary in estado.expedicoes:
+		if pesca_ativa(e): return e
+	return {}
+
+static func preparar_pesca(estado,e: Dictionary) -> void:
+	if e.has("pesca"): return
+	planejar_encontro(estado,e)
+	var n:=Pesca.lances(e.equipe.size())
+	var perigo:=-1
+	if float(e.encontro.em)>=0 and e.encontro.animal!="":
+		perigo=clampi(int(float(e.encontro.em)/float(e.duracao_exploracao)*n),1,n-1)
+	e.pesca={"lances":n,"feitos":0,"capturas":[],"kg":0.0,"xp":0,"perigo":perigo,"fim":false}
+
+## Antes de cada lance. "perigo": o encontro sorteado aconteceu e abriu o alerta comum.
+static func iniciar_lance(estado,e: Dictionary,avisos: Array[String]=[]) -> String:
+	if not pesca_ativa(e): return "Pescaria encerrada."
+	preparar_pesca(estado,e)
+	if int(e.pesca.feitos)>=int(e.pesca.lances): return "Sem iscas."
+	if int(e.pesca.perigo)>=0 and int(e.pesca.feitos)>=int(e.pesca.perigo):
+		e.pesca.perigo=-1
+		disparar_encontro(estado,e,avisos)
+		if e.fase=="alerta": return "perigo"
+	return ""
+
+## Resultado de um lance; ignorado se o índice não for o lance atual (sem recompensa dupla).
+static func registrar_lance(estado,e: Dictionary,indice: int,peixe: Dictionary,capturado: bool) -> Dictionary:
+	if not pesca_ativa(e) or not e.has("pesca") or indice!=int(e.pesca.feitos): return {}
+	e.pesca.feitos=int(e.pesca.feitos)+1
+	var xp:=int(Pesca.dados.xp_por_lance)+(int(Pesca.dados.xp_por_captura) if capturado else 0)
+	e.pesca.xp=int(e.pesca.xp)+xp
+	for id in e.equipe:
+		var h: Dictionary=estado.pessoa(id)
+		if not h.is_empty() and h.estado!="morto": estado.experiencia(h,"pesca",xp)
+	var info:={"recorde":false,"registrado":true}
+	if capturado:
+		e.pesca.capturas.append({"especie":peixe.especie,"peso":float(peixe.peso)})
+		e.pesca.kg=float(e.pesca.kg)+float(peixe.peso)
+		info.recorde=Pesca.registrar(estado,peixe,estado.pessoa(e.equipe[0]).get("nome",""))
+		registrar(e,"%s de %s fisgado."%[Pesca.nome(peixe.especie),Pesca.formatar_peso(float(peixe.peso))],[])
+	if int(e.pesca.feitos)>=int(e.pesca.lances): encerrar_pesca(estado,e,[])
+	return info
+
+## Fim da pescaria (iscas esgotadas ou "Encerrar"): o peso pescado vira carga e a equipe volta.
+static func encerrar_pesca(estado,e: Dictionary,avisos: Array[String]) -> void:
+	if not pesca_ativa(e): return
+	preparar_pesca(estado,e)
+	e.pesca.fim=true
+	var capacidade: int=int(parametros.carga_por_pessoa)*e.equipe.size()
+	var q: int=mini(Pesca.unidades(float(e.pesca.kg)),capacidade-quantidade(e.carga))
+	if q>0:
+		e.carga.peixe=int(e.carga.get("peixe",0))+q
+		if not e.vencimentos.has("peixe"):
+			e.vencimentos.peixe=estado.tempo_economia+Alimentacao.parametros.validade_dias.peixe*estado.relogio.duracao_dia_segundos
+	registrar(e,"Pescaria encerrada: %d peixe(s), %s · %d na carga."%[e.pesca.capturas.size(),Pesca.formatar_peso(float(e.pesca.kg)),maxi(q,0)],avisos)
+	iniciar_fase(e,"retorno",e.viagem)
+
+## Pescaria simulada: a mesma quantidade de antes, agora com espécie e peso no registro.
+static func pescado_simulado(estado,e: Dictionary,q: int) -> String:
+	var rng:=RandomNumberGenerator.new()
+	rng.seed=hash(str(e.id)+":"+str(e.ciclos))
+	var nomes: Array[String]=[]
+	for i in range(q):
+		var peixe:=Pesca.sortear(int(e.regiao),rng)
+		var h: Dictionary=estado.pessoa(e.equipe[i%e.equipe.size()])
+		Pesca.registrar(estado,peixe,h.get("nome",""))
+		nomes.append("%s (%s)"%[Pesca.nome(peixe.especie),Pesca.formatar_peso(float(peixe.peso))])
+	return ", ".join(nomes)
+
+static func validar_pesca(e: Dictionary,numero: Callable) -> String:
+	var p: Variant=e.pesca
+	if e.tipo!="pesca" or not p is Dictionary: return "Pescaria inválida."
+	if not numero.call(p.get("lances"),1,20,true) or not numero.call(p.get("feitos"),0,p.get("lances",0),true): return "Lances de pesca inválidos."
+	if not numero.call(p.get("kg"),0,10000) or not numero.call(p.get("xp"),0,1000,true) or not numero.call(p.get("perigo"),-1,20,true): return "Pescaria inválida."
+	if not p.get("fim") is bool or not p.get("capturas") is Array or p.capturas.size()>int(p.feitos): return "Capturas de pesca inválidas."
+	for c in p.capturas:
+		if not c is Dictionary or Pesca.especie(str(c.get("especie",""))).is_empty() or not numero.call(c.get("peso"),.01,1000): return "Peixe inválido."
+	return ""

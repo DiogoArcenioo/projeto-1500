@@ -1,5 +1,33 @@
 # Progresso — 1500
 
+## Etapa 12 — pesca manual entregue para teste
+
+O responsável pediu sentir o tamanho do peixe "já na puxada", com referências em jogos que fazem isso bem, e aprovou a proposta sem protótipo: "faça já como deverá ficar", com atenção às animações e à física. A proposta segue três fases (fisgar, brigar, tirar da água) e usa como referências a briga por tensão de Red Dead Redemption 2, a boia que conta a história de Animal Crossing/Zelda e a personalidade de movimento de Stardew Valley.
+
+**Entregue:**
+- Motor puro e determinístico `pesca.gd`: sorteio por habitat, mordida por comportamento, física da briga, registro de espécies.
+- Integração às expedições: pescaria jogada com iscas limitadas, carga e XP uma única vez, perigo pelo alerta comum, save e load no meio da sessão, resumo.
+- Sete peixes modelados no Blender, com nado por shader.
+- Seis clipes de pesca para os oito moradores.
+- Cena com vara que enverga, linha com física de corda, boia, sombra, saltos, respingos, ondas, som sintetizado e câmera reativa.
+- Opção "Pescar à mão" no envio.
+
+**Validação:**
+- `test_etapa_12`: 4.884 verificações, zero falhas. Cobre as espécies e o sorteio, os sinais e a janela de fisgada, a física (peixe pequeno rápido, robalo com corridas e várias vezes mais longo, camurupim que rompe a linha se for puxado sem parar, folga que solta o anzol, jundiá no fundo, saltos, efeito do lado da vara, robô cuidadoso pegando a maioria), a sessão, a ausência de recompensa dupla, o registro, o save, o jacaré e a pesca simulada. O robô também joga a cena inteira até voltar à aldeia.
+- Suítes anteriores sem falhas: 11 (100), 10 (159), 9 (450), interface 9 (27), 6/7 (146), 8 (100), menu casca (73) e 4 (40).
+- Capturas reais em `exports/revisao_pesca/`.
+
+**Pendências:**
+- Ajustar o ritmo, a tensão e os números em testes com pessoas, conforme o aceite da etapa.
+- Validação histórica dos métodos e das espécies.
+- O responsável vai revisar os modelos 3D depois da base pronta.
+
+## Onça-pintada B — combate manual integrado
+
+O responsável autorizou a integração com “Faz isso então” depois de ver o modelo no Godot. A onça entra em combate pelo alerta da expedição, com os mesmos atores, iniciativa, posição e sorteio. O confronto defensivo raro nas matas remotas e a regra de excluir a espécie da primeira caça foram preservados. A cena rápida `scenes/inspecao/combate_manual_onca_pintada.tscn` abre o encontro às 14h do jogo e usa salvamento separado. Inspeção visual original continua disponível. O combate usa o GLB aprovado com pelagem incorporada e sete clipes.
+
+O aviso final passou a distinguir retomada da atividade de retorno. Vitória defensiva mostra “Equipe se defendeu”. Os efeitos de acerto e erro passaram a encerrar junto com a própria etiqueta para evitar chamada sobre objeto liberado. Godot 4.7.2: etapa 11 **100 verificações sem janela e 105 gráficas**, etapa 10 **159** e etapa 9 **450**, todas sem falhas. O teste da onça cobre clique no alerta, orientação, acerto e erro com reação, pausa, salvamento após dano e retirada com retorno e restauração da velocidade. A cena rápida passou pela revelação e pausa em modo gráfico. Capturas em `exports/revisao_etapa_11/03_onca_alerta.png` a `06_onca_cena_rapida.png`.
+
 ## Etapa 11 — aprovada pelo responsável
 
 Em 26/11/2026 o responsável aprovou a etapa 11 sem testá-la pessoalmente (“pode aprovar a etapa 11 e enviar o commit”), com base nos testes automatizados e nas capturas. Ficou registrado que, depois que a base estiver pronta, ele vai revisar os modelos 3D dos animais (queixada, jacaré, anta e onça). Os números da etapa (prazo, chances, políticas, perda de carga) continuam provisórios para o balanceamento com pessoas. A etapa 12 não foi iniciada.

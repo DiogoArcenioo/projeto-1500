@@ -128,7 +128,7 @@ func executar() -> void:
 		ok(e.construir(obra[0],obra[1])=="","Construir "+obra[0]);e.avancar_aldeia(60)
 	cena.aldeia.sincronizar()
 	var ids: Array=e.habitantes.map(func(h):return h.id)
-	ok(Exp.erro_envio(e,"obra_3","caca",0,ids.slice(0,2),"manual")!="","Animal sem modelo não entra no manual")
+	ok(Exp.erro_envio(e,"obra_3","caca",0,ids.slice(0,2),"manual")!="","Caça manual requer região investigada")
 	ok(Exp.enviar(e,"obra_4","coleta",14,ids.slice(2,4)).ok,"Expedição paralela enviada")
 	var p=cena.painel_expedicoes
 	cena.abrir_expedicoes("obra_3");p.equipe=ids.slice(0,2);p.armas={ids[0]:"lanca",ids[1]:"arco"};p.modo_caca="manual";p.mostrar_passo(3)
