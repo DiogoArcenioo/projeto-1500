@@ -4,8 +4,10 @@ extends "res://scripts/partida/principal.gd"
 @export var regiao_caca:=14
 ## Segundos iniciais do relógio (o encontro acontece 1.500 s depois).
 @export var tempo_inicial:=305.0
+## Só para inspeção: troca o animal sorteado (ex.: jacaré num rio onde também há capivara).
+@export var animal_forcado:=""
 func _ready() -> void:
-	salvamento=Salvamento.new("user://inspecao_etapa_10" if regiao_caca==14 else "user://inspecao_queixada")
+	salvamento=Salvamento.new("user://inspecao_etapa_10" if regiao_caca==14 else "user://inspecao_animal_%d"%regiao_caca)
 	super._ready()
 	estado.id_partida="0123456789abcdef0123456789abcdef"
 	estado.relogio.tempo_total=tempo_inicial
@@ -26,4 +28,7 @@ func _ready() -> void:
 	estado.relogio.tempo_total+=1500
 	estado.avancar_simulacao(1500)
 	aldeia.sincronizar();painel.atualizar(true)
+	var pendente:=Estado.Expedicoes.manual_pendente(estado)
+	if animal_forcado!="" and not pendente.is_empty() and pendente.combate.animal!=animal_forcado:
+		Estado.Expedicoes.Caca.criar(estado,pendente,animal_forcado)
 	abrir_combate_pendente()

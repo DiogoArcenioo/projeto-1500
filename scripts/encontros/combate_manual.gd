@@ -102,6 +102,15 @@ func criar_grade() -> void:
 				objeto.mesh=tronco;objeto.rotation.z=PI*.5;material.albedo_color=Color("755235")
 			objeto.material_override=material;add_child(objeto)
 			objeto.position=posicao_casa(Vector2i(p.x,p.z))+Vector3(0,.3,0)
+	# Água rasa (jacaré): só o animal entra; os moradores não podem pisar nessas casas.
+	if not combate.aguas.is_empty():
+		var agua:=StandardMaterial3D.new()
+		agua.albedo_color=Color(.16,.42,.46,.72);agua.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+		agua.roughness=.08;agua.metallic_specular=.8
+		for p: Dictionary in combate.aguas:
+			var lamina:=MeshInstance3D.new();var plano:=PlaneMesh.new();plano.size=Vector2(.98,.98)
+			lamina.mesh=plano;lamina.material_override=agua;add_child(lamina)
+			lamina.position=posicao_casa(Vector2i(p.x,p.z))+Vector3(0,.035,0)
 
 func interface_real() -> void:
 	var camada:=CanvasLayer.new();camada.layer=10;add_child(camada)

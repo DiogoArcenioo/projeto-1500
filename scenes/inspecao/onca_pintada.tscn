@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ambientes/clareira.tscn" id="clareira"]
+[ext_resource type="PackedScene" path="res://assets/models/animais/onca_pintada.glb" id="onca"]
+[ext_resource type="PackedScene" path="res://assets/models/habitantes/aldeia/homem_01.glb" id="morador"]
+[ext_resource type="Script" path="res://scripts/inspecao/inspecao_onca_pintada.gd" id="codigo"]
+
+[node name="InspecaoOncaPintada" type="Node3D"]
+script = ExtResource("codigo")
+
+[node name="Clareira1500" parent="." instance=ExtResource("clareira")]
+
+[node name="Onca" parent="." instance=ExtResource("onca")]
+
+[node name="Morador" parent="." instance=ExtResource("morador")]
+
+[node name="CameraAvaliacao" type="Camera3D" parent="."]
+fov = 38.0
+near = 0.04
+far = 160.0

@@ -1,0 +1,23 @@
+{
+  "animal": "onca_pintada",
+  "estado": "Portão A aprovado; portão B aguardando revisão do modelo no Godot",
+  "escolha_do_responsavel": "B — Natural, confirmada com ‘Natural pfv’",
+  "fonte_modelo": "art/blender/onca_pintada.blend",
+  "fonte_animada": "art/blender/onca_pintada_animada.blend",
+  "cena_de_inspecao": "scenes/inspecao/onca_pintada.tscn",
+  "imagem": "onca_pintada_opcoes.png",
+  "geracao": "ImageGen integrado; prancha de conceito, não render de modelo utilizável",
+  "preferencia_recomendada": "A, por volumes arredondados e rosetas legíveis na câmera tática",
+  "fontes": [
+    {
+      "url": "https://www.gov.br/icmbio/pt-br/assuntos/biodiversidade/pan/pan-grandes-felinos/1-ciclo/produtos/2023-pan-grandes-felinos-acao_3-7_manual_identificacao_partes_de_felinos_capa.pdf",
+      "uso": "Cabeça larga, patas robustas, rosetas nos flancos com pintas internas e pelagem clara no ventre."
+    },
+    {
+      "url": "https://www.zoo.df.gov.br/onca-pintada-2",
+      "uso": "Diferenças de porte e pelagem em relação ao leopardo."
+    }
+  ],
+  "producao_recomendada": "Blender para escultura contínua, topologia para deformação, textura UV e esqueleto. Godot para conferir luz, silhueta e animações na câmera do jogo.",
+  "prompt": "Use case: stylized-concept. Asset type: one polished 3D game animal comparison board for Brazilian indie game 1500. Primary request: TWO compelling adult jaguar (Panthera onca, onça-pintada) visual options, both rounded, natural, substantial and attractive game meshes. Both must read as Brazilian adult jaguars: wide skull, rounded low ears, compact powerful shoulders, big paws, short broad muzzle, proportionate eyes, moderately short thick tail, golden ochre with cream chin and belly, irregular dark rosettes with small central spots on flanks and smaller solid facial spots. No cub proportions, no leopard slender torso, no cartoon grin. Broad continuous sculpted forms and smooth normals with subtly designed planes; joints transition organically, paws grounded. No cubes or attachment seams, no photorealistic strands, no hard strong polygon facets, no texture noise. Think polished matte stylized 3D game character art with warm hand-painted gradients and good game-camera readability. Design differences: left option A \"A — ESCULTURAL\" has perfected round broad chest and muzzle, slightly larger more graphic readable irregular rosettes, caramel gold and ivory accents, grounded confident stance; right option B \"B — NATURAL\" has equally rounded transitions but more natural muscular landmarks, denser smaller varied rosettes, slightly darker amber and soft cream, same adult size and presence. Render both on a shared muted sage studio floor with warm directional daylight and subtle soft contact shadows, camera and lighting identical. Horizontal landscape layout: two balanced columns with a very thin divider, two large full-body 3/4 front renders in top row, one smaller full-body side profile of each same animal directly beneath it. Plenty of breathing room, all four paws and full tails comfortably in frame, sharp readable silhouette. Portuguese label for each column exactly as above, no other text, no scenery props, no typography over animals, no violence. This is a style reference board, emphasize forms feasible to replicate as a single sculpted game asset in Blender."
+}

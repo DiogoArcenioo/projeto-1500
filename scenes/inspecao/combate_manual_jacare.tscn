@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://scenes/main.tscn" id="base"]
+[ext_resource type="Script" path="res://scripts/inspecao/partida_caca_manual.gd" id="codigo"]
+[node name="InspecaoJacareManual" instance=ExtResource("base")]
+script = ExtResource("codigo")
+regiao_caca = 3
+tempo_inicial = 75.0
+animal_forcado = "jacare_papo_amarelo"

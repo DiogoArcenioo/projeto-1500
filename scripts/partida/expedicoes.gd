@@ -12,7 +12,7 @@ static var parametros: Dictionary=JSON.parse_string(FileAccess.get_file_as_strin
 
 static func erro_envio(estado,centro: String,tipo: String,regiao: int,equipe: Array,modo: String) -> String:
 	if modo not in ["simulado","manual"]: return "Modo indisponível."
-	if modo=="manual" and (tipo!="caca" or regiao not in Caca.regioes_manuais()): return "Caça manual disponível onde vivem capivaras (Arredores, Margem do rio) ou queixadas (serras e encostas)."
+	if modo=="manual" and (tipo!="caca" or regiao not in Caca.regioes_manuais()): return "Caça manual disponível onde vivem capivaras (Arredores, Margem do rio), queixadas (serras e encostas), antas (matas) ou jacarés (rios e lagoas)."
 	if tipo not in ["coleta","reconhecimento","pesca","caca"]: return "Atividade desconhecida."
 	if regiao<0 or regiao>=30 or regiao==20: return "Escolha uma região fora da aldeia."
 	if tipo=="coleta" and int(estado.conhecimento[str(regiao)])<2: return "Investigue os recursos desta região primeiro."

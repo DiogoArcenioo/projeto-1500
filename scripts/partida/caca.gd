@@ -2,7 +2,7 @@ extends RefCounted
 const Combate=preload("res://scripts/partida/combate.gd")
 const Alimentacao=preload("res://scripts/partida/alimentacao.gd")
 ## Animais com apresentação manual aprovada (modelo, rig e clipes no Godot).
-const APRESENTACAO_MANUAL:=["capivara","queixada"]
+const APRESENTACAO_MANUAL:=["capivara","queixada","jacare_papo_amarelo","anta"]
 ## Etapa 11: fração da carga perdida em retirada ou derrota (provisório, aprovado).
 const PERDA_CARGA:=.5
 

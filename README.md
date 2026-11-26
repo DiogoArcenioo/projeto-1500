@@ -2,11 +2,38 @@
 
 Projeto de game com Godot 4 e modelos produzidos no Blender.
 
+## Onça-pintada B — inspeção visual no Godot
+
+Abra `scenes/inspecao/onca_pintada.tscn` e pressione **F6**. **1–5** alternam entre três quartos, frente, perfil, escala na câmera tática e costas. **P/C/F** mostram repouso, caminhada e corrida. **6–9** mostram investida, erro, impacto e esquiva. **N** alterna tarde e noite. A cena é a revisão do visual antes de habilitar o encontro manual na partida.
+
+O modelo tem pelagem com rosetas em textura UV, formas contínuas e cauda articulada. Fontes `art/blender/onca_pintada.blend` e `art/blender/onca_pintada_animada.blend`; exportação `assets/models/animais/onca_pintada.glb`. Produção reproduzível com `tools/modelar_onca_pintada.py` e `tools/animar_onca_pintada.py`. Capturas e teste técnico em `exports/revisao_onca_pintada/` e `tools/revisar_onca_pintada.gd`.
+
 ## Queixada — revisão do modelo
 
 Abra `scenes/inspecao/combate_manual_queixada.tscn` e pressione **F6** para entrar direto no encontro, às 14h do jogo, com salvamento separado. Na partida F5, a queixada pode ser enfrentada na caça manual da Encosta Oeste ou ao assumir um alerta dessa espécie. O modelo revisado tem cabeça mais larga, focinho mais curto com disco e narinas em baixo relevo, bochechas claras, orelhas arredondadas e cascos fendidos. A crina curta acompanha o dorso e o animal encara a equipe antes da revelação.
 
 Fontes `art/blender/queixada.blend` e `art/blender/queixada_animada.blend`. Geração em `tools/modelar_queixada.py` e `tools/animar_capivara.py -- queixada`, com GLBs em `assets/models/animais/` e `assets/models/animais/batalha/`. Capturas do Godot em `exports/revisao_queixada/`. Referências de identificação: [ICMBio](https://www.gov.br/icmbio/pt-br/assuntos/monitoramento/guia_identificacao_de_aves_e_mamiferos_1.pdf) e [WCS Brasil](https://brasil.wcs.org/en-us/Initiatives/Peccaries-Illustrations.aspx).
+
+## Anta — combate manual
+
+Modelo orgânico (`tools/modelar_anta.py`, fonte `art/blender/anta.blend`): corpo pesado com garupa alta; cabeça alta terminando em tromba curta e romba, com osso próprio; crina curta da testa aos ombros; orelhas ovais com borda branca; olhos pequenos; toco de cauda; 4 dedos nas patas dianteiras e 3 nas traseiras. Pelagem marrom-acinzentada, com bochechas e garganta mais claras. Animações em `tools/animar_anta.py` (fonte `art/blender/anta_animada.blend`):
+- andar pesado, com o peso balançando e a tromba acompanhando;
+- trote de fuga;
+- pastar: baixa a cabeça, puxa folhas com a tromba, mastiga e olha em volta;
+- investida com empurrão de cabeça, erro, golpe recebido e esquiva.
+
+GLBs em `assets/models/animais/anta.glb` e `batalha/anta.glb`. A anta pode ser jogada à mão na caça nas matas (junto com a queixada) e assumida pelos alertas. Teste rápido: `scenes/inspecao/combate_manual_anta.tscn` (F6). Capturas por `tools/capturar_anta.gd` em `exports/revisao_anta/`.
+
+## Jacaré-de-papo-amarelo — combate manual
+
+Modelo orgânico detalhado (`tools/modelar_jacare.py`, fonte `art/blender/jacare.blend`): focinho curto e largo, típico da espécie; mandíbula articulada; dentes intercalados; olhos elevados com íris e fenda; narinas; osteodermos em fileiras; crista caudal dupla que vira simples; cauda achatada; patas abertas com dedos (mão 5, pé 4) e garras; relevo de escamas. Cores: dorso oliva-acinzentado com faixas e manchas escuras, ventre creme e papo amarelo. Animações em `tools/animar_jacare.py` (fonte `art/blender/jacare_animado.blend`):
+- andar erguido, com tronco e cauda em S;
+- correr;
+- parado com a boca aberta para se aquecer;
+- investida: bote com a boca escancarada, fechamento da mandíbula no contato e chacoalhar da cabeça;
+- erro, golpe recebido e esquiva.
+
+GLBs em `assets/models/animais/jacare_papo_amarelo.glb` e `batalha/jacare_papo_amarelo.glb`. O jacaré pode ser jogado à mão na caça em rios e lagoas e assumido pelos alertas de pesca e coleta. O tabuleiro mostra a coluna de água onde só ele entra. Teste rápido: `scenes/inspecao/combate_manual_jacare.tscn` (F6). Capturas por `tools/capturar_jacare.gd` em `exports/revisao_jacare/`.
 
 ## Etapa 11 — encontros perigosos e alerta no feed
 

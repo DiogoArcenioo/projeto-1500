@@ -165,7 +165,7 @@ func confirmacao() -> void:
 	if tipo=="caca":
 		var escolha:=seletor(conteudo)
 		escolha.add_item("Simular a caça")
-		escolha.add_item("Jogar combate manual · capivara ou queixada")
+		escolha.add_item("Jogar combate manual · capivara, queixada, anta ou jacaré")
 		escolha.select(1 if modo_caca=="manual" else 0)
 		escolha.item_selected.connect(func(i: int):
 			modo_caca="manual" if i==1 else "simulado"

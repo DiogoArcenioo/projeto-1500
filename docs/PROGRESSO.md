@@ -1,5 +1,34 @@
 # Progresso — 1500
 
+## Etapa 11 — aprovada pelo responsável
+
+Em 26/11/2026 o responsável aprovou a etapa 11 sem testá-la pessoalmente (“pode aprovar a etapa 11 e enviar o commit”), com base nos testes automatizados e nas capturas. Ficou registrado que, depois que a base estiver pronta, ele vai revisar os modelos 3D dos animais (queixada, jacaré, anta e onça). Os números da etapa (prazo, chances, políticas, perda de carga) continuam provisórios para o balanceamento com pessoas. A etapa 12 não foi iniciada.
+
+## Onça-pintada B — modelo e animações em revisão no Godot
+
+O responsável escolheu **B — Natural** no chat. Produção via conector Blender 5.2.2 LTS em malha contínua, com cabeça larga, contorno amendoado dos olhos, patas e cauda arredondadas. Pelagem de fundo dourado, queixo e ventre claros e rosetas irregulares em textura UV incorporada ao GLB. Rig com 21 ossos, incluindo cinco segmentos de cauda. Clipes: repouso, caminhada, corrida, investida, erro, impacto e esquiva. Aproximadamente 0,81 m até as orelhas e 2,30 m incluindo a cauda. A malha exportada tem 62.520 triângulos.
+
+Fontes `art/blender/onca_pintada.blend` e `art/blender/onca_pintada_animada.blend`. GLB em `assets/models/animais/onca_pintada.glb`. Produção reproduzível com `tools/modelar_onca_pintada.py` e `tools/animar_onca_pintada.py`. Abra `scenes/inspecao/onca_pintada.tscn` e use F6 para avaliar a iluminação, as proporções, a escala e os movimentos. Capturas em `exports/revisao_onca_pintada/`. Godot 4.7.2, `tools/revisar_onca_pintada.gd`: **16 verificações sem janela e 22 gráficas, zero falhas**. Estão cobertos os sete clipes, o esqueleto, a textura, a escala, a orientação inicial para o morador e a articulação da pata e da cauda. Aguardando avaliação visual do modelo para habilitar o combate manual da espécie.
+
+## Anta — combate manual entregue para teste
+
+Pedido do responsável: “Faz a anta … mais realista e fluida possível”, com os portões dispensados como nas rodadas anteriores. Ferramenta: Blender, por ser um modelo orgânico com rig e tromba articulada. O modelo tem 1,93 m e cerca de 8,2 mil vértices, com cores por vértice. O esqueleto tem 17 ossos: os mesmos nomes dos outros animais, mais a tromba. Clipes com os mesmos nomes e tempo de contato. `Caca.APRESENTACAO_MANUAL` passa a incluir a anta; as matas comuns (queixada e anta) entram na caça manual, e a onça continua só simulada. O teste da etapa 11 passou a usar a onça como exemplo de animal sem apresentação. Validação: etapas 11 (75), 10 (159), 9 (450), interface 9 (27), 6/7 (146), 8 (100) e menu casca (73), todas sem falhas. Capturas reais em `exports/revisao_anta/`.
+
+## Onça-pintada — estudo de visual para o portão A
+
+O responsável pediu uma onça estilizada com volumes mais arredondados e acabamento mais natural que o dos animais anteriores. Prancha `art/references/etapa_11/onca_pintada_opcoes.png`, gerada com ImageGen, compara **A — Escultural** (formas mais suaves e rosetas maiores, recomendada pela leitura na câmera tática) e **B — Natural** (musculatura discretamente mais marcada e rosetas mais densas). Cabeça robusta, marcas e pelagem clara de referência no guia de felinos do ICMBio. O prompt e os links estão em `art/references/etapa_11/onca_pintada_proposta.json`.
+
+Proposta de produção no Blender com malha contínua, textura e rig articulado, seguida de revisão na iluminação do Godot. A onça já tem regras de encontro defensivo no motor. Aguardando a escolha visual para produzir o primeiro modelo 3D.
+
+## Jacaré-de-papo-amarelo — combate manual entregue para teste
+
+Pedido do responsável: “faz o jacaré … o mais real e detalhado possível (mantendo o padrão do jogo)”, com os portões dispensados nesta rodada, como na queixada. Pesquisa: Wikipedia/IUCN CSG, ICMBio, Embrapa e Verdade & Piña (focinho mais largo entre os crocodilianos, dorso verde-oliva a acinzentado, osteodermos dorsais, manchas na cabeça e na nuca, até 3,5 m). Ferramenta: Blender, por ser um modelo orgânico com rig, mandíbula e cauda articuladas.
+
+- Modelo de 1,82 m e cerca de 13,4 mil vértices, com cores por vértice. Mandíbula separada; esqueleto de 21 ossos (cauda em 4 segmentos, mandíbula e patas com cinemática inversa).
+- Clipes com os mesmos nomes e tempo de contato (~0,53 s) dos outros animais.
+- Integração: `Caca.APRESENTACAO_MANUAL` inclui o jacaré. As regiões de rio passam a aceitar caça manual, e os alertas de pesca e coleta podem ser assumidos. `combate_manual.gd` desenha as casas de água. A cena rápida `combate_manual_jacare.tscn` força o jacaré apenas para inspeção.
+- Validação: etapas 11 (75), 10 (159), 9 (450), interface 9 (27), 6/7 (146), 8 (100), menu casca (73) e 4 (40), além das revisões da capivara (17) e da batalha (46), todas sem falhas. Capturas reais em `exports/revisao_jacare/`.
+
 ## Fechamento da revisão — 26/11/2026
 
 Bateria rodada novamente no Godot 4.7.2 após os ajustes da queixada e da cena rápida. Passaram **1.638 verificações sem janela** e **1.145 verificações gráficas** em Forward+ a 1280 × 720, além da gravação e leitura do salvamento em dois processos. A revisão de iluminação da etapa 2 precisa de janela para capturar os frames e foi validada nesse modo. O teste gráfico do menu da etapa 7 foi corrigido para só usar a rolagem quando ela existe. O reteste passou com 29 verificações sem janela e 37 gráficas.
