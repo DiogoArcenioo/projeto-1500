@@ -28,6 +28,10 @@ var selecionando_terrenos:=false
 var camada_selecao: CanvasLayer
 var retangulo_selecao: Control
 const CelulaVisual=preload("res://scripts/ambientes/celula_cultivo_visual.gd")
+const Animador=preload("res://scripts/ambientes/animador_morador.gd")
+## Clipe de trabalho por setor; a roça alterna capina e plantio.
+const OFICIO:={"coleta":["coletar"],"agricultura":["capinar","plantar"],"pesca":["pescar"],"caca":["artesanato"]}
+const DESCANSO:=["parado","olhar","parado","conversar"]
 
 static func altura(p: Vector2) -> float:
 	var x:=p.x
@@ -267,15 +271,18 @@ func sincronizar() -> void:
 			continue
 		if h.estado=="morto": continue
 		if not cache_modelos.has(h.visual):
-			cache_modelos[h.visual]=load("res://assets/models/habitantes/%s.glb"%h.visual)
+			cache_modelos[h.visual]=load(Animador.caminho(h.visual))
 		var modelo: Node3D=cache_modelos[h.visual].instantiate()
 		add_child(modelo)
 		modelo.visible=h.estado!="em_expedicao"
 		var casa: Dictionary=estado.estrutura(h.casa)
 		var porta:=Aldeia.ponto(casa)+Vector2(.54 if h.visual.begins_with("homem") else -.54,5.2).rotated(-float(casa.get("rotacao",0)))
 		modelo.position=no_solo(Vector2(celula_livre(porta))*PASSO)
-		var malha:=modelo.find_children("*","MeshInstance3D",true,false)[0] as MeshInstance3D
-		atores[h.id]={"modelo":modelo,"malha":malha,"rota":PackedVector2Array(),"vinculo":"?","espera":0.0,"fase":float(atores.size())*1.7,"visitas":0}
+		var fase:=float(atores.size())*1.7
+		var anim:=Animador.new(modelo,h.visual)
+		anim.tocar("parado",0.0,fase)
+		atores[h.id]={"modelo":modelo,"anim":anim,"rota":PackedVector2Array(),"vinculo":"?","espera":0.0,"fase":fase,"visitas":0,
+			"descanso":0.0,"foco":Vector2.INF,"clipe_descanso":"parado"}
 
 func atualizar_talhoes(obj: Node3D,c: Dictionary) -> void:
 	if c.talhoes.all(func(t): return t.has("celulas") and not t.has("legado")):
@@ -353,17 +360,54 @@ func mover(segundos: float) -> void:
 			a.espera=3.8+fmod(float(a.fase),3.0)
 		var rota: PackedVector2Array=a.rota
 		var andando:=not rota.is_empty()
+		var anim=a.anim
 		if andando:
 			var proximo:=rota[0]
 			var direcao:=proximo-p
-			if direcao.length()>.03: modelo.rotation.y=lerp_angle(modelo.rotation.y,atan2(direcao.x,direcao.y),minf(1,segundos*9))
-			p=p.move_toward(proximo,segundos*1.45)
+			if direcao.length()>.03: modelo.rotation.y=lerp_angle(modelo.rotation.y,atan2(direcao.x,direcao.y),minf(1,segundos*6))
+			# A velocidade vem do clipe: os pés não escorregam.
+			p=p.move_toward(proximo,segundos*anim.velocidade_andar)
 			if p.is_equal_approx(proximo): rota.remove_at(0)
 			a.rota=rota
 			modelo.position=no_solo(p)
 			if rota.is_empty(): a.espera=3.8+fmod(float(a.fase),3.0)
-		var passo:=sin(tempo*7+a.fase) if andando else 0.0
-		var trabalho:=0.0 if andando or h.estado=="livre" else .52+.40*sin(tempo*2.2+a.fase)
-		a.malha.set("blend_shapes/Passo_E",maxf(0,passo))
-		a.malha.set("blend_shapes/Passo_D",maxf(0,-passo))
-		a.malha.set("blend_shapes/Coletar",trabalho)
+			anim.tocar("andar",.3)
+		else:
+			var clipe:=""
+			a.foco=Vector2.INF
+			if h.estado!="livre":
+				var c: Dictionary=estado.estrutura(h.setor if h.estado=="trabalhando" else h.obra)
+				a.foco=Aldeia.ponto(c)
+				if h.estado=="trabalhando":
+					var opcoes: Array=OFICIO.get(c.tipo,["coletar"])
+					clipe=opcoes[int((tempo+a.fase*7)/14.0)%opcoes.size()]
+				else: clipe="construir"
+			else:
+				a.descanso-=segundos
+				if a.descanso<=0 or anim.atual in ["andar",""]:
+					a.visitas+=1
+					var escolha: String=DESCANSO[int(a.fase*3+a.visitas)%DESCANSO.size()]
+					if escolha=="conversar" and vizinho_livre(h.id,p)==Vector2.INF: escolha="olhar"
+					a.descanso=7.0+fmod(a.fase*5.3+a.visitas*2.1,6.0)
+					a.clipe_descanso=escolha
+				clipe=a.clipe_descanso
+				if clipe=="conversar": a.foco=vizinho_livre(h.id,p)
+			if a.foco!=Vector2.INF:
+				var olhar: Vector2=a.foco-p
+				if olhar.length()>.1: modelo.rotation.y=lerp_angle(modelo.rotation.y,atan2(olhar.x,olhar.y),minf(1,segundos*3))
+			anim.tocar(clipe,.45,a.fase*3.1)
+		anim.avancar(segundos)
+
+## Morador livre e parado mais próximo (até 3 m), para conversar.
+func vizinho_livre(id: String,p: Vector2) -> Vector2:
+	var melhor:=Vector2.INF
+	var menor:=9.0
+	for h: Dictionary in estado.habitantes:
+		if h.id==id or h.estado!="livre" or not atores.has(h.id): continue
+		var b: Dictionary=atores[h.id]
+		if not b.rota.is_empty(): continue
+		var q:=Vector2(b.modelo.position.x,b.modelo.position.z)
+		if q.distance_squared_to(p)<menor:
+			menor=q.distance_squared_to(p)
+			melhor=q
+	return melhor

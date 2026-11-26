@@ -38,7 +38,7 @@ func executar() -> void:
 		for a in ["atacar_arco","errar_arco","atacar_lanca","errar_lanca","receber_golpe","esquivar"]:
 			ok(p.has_animation(a),pessoa+" possui "+a)
 		var esqueletos: Array[Node]=cena.atores[pessoa].find_children("*","Skeleton3D",true,false)
-		ok(esqueletos.size()==1 and esqueletos[0].get_bone_count()==17,"Rig articulado de "+pessoa)
+		ok(esqueletos.size()==1 and esqueletos[0].get_bone_count()==20 and esqueletos[0].find_bone("pescoco")>=0,"Rig articulado (20 ossos, com pescoço e dedos) de "+pessoa)
 		p.play("atacar_lanca");p.seek(.60,true)
 		ok(esqueletos[0].get_bone_pose_rotation(esqueletos[0].find_bone("braco_D")).angle_to(Quaternion.IDENTITY)>.1,"Ataque articula o braço de "+pessoa)
 	var animal: AnimationPlayer=cena.player("Capivara")

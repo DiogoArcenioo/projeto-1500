@@ -1,0 +1,26 @@
+{
+ "homem_01": {
+  "andar": 0.9377
+ },
+ "homem_02": {
+  "andar": 0.6828
+ },
+ "homem_03": {
+  "andar": 1.0843
+ },
+ "homem_04": {
+  "andar": 0.7803
+ },
+ "mulher_01": {
+  "andar": 0.8193
+ },
+ "mulher_02": {
+  "andar": 0.8098
+ },
+ "mulher_03": {
+  "andar": 0.8257
+ },
+ "mulher_04": {
+  "andar": 0.8628
+ }
+}

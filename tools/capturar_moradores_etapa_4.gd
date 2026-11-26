@@ -38,13 +38,18 @@ func capturar() -> void:
 	for nome: String in ["Andar", "Trabalhar"]:
 		cena.definir_animacao(nome)
 		await aquecer()
-		var jogadores: Array = cena.jogadores
-		for jogador: AnimationPlayer in jogadores:
+		var animadores: Array = cena.animadores
+		for animador in animadores:
+			var jogador: AnimationPlayer = animador.jogador
 			print("ANIMACAO: ", nome, " | ", jogador.current_animation, " | duracao ", jogador.current_animation_length)
+			jogador.play(animador.atual, 0)
+			jogador.advance(0)
 			jogador.pause()
 		for i in range(12):
-			for jogador: AnimationPlayer in jogadores:
-				jogador.seek(jogador.current_animation_length * i / 12.0, true)
+			for animador in animadores:
+				var jogador: AnimationPlayer = animador.jogador
+				var duracao := jogador.get_animation(animador.atual).length
+				jogador.seek(duracao * i / 12.0, true)
 			await process_frame
 			await gravar("anim_" + nome.to_lower() + "_%02d" % i)
 	quit()

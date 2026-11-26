@@ -1,13 +1,15 @@
 extends Node3D
 ## Aprovação de modelos/animações e protótipo de UI; não usa partida ou salvamento.
 const Iluminacao = preload("res://scripts/ambientes/iluminacao_diurna.gd")
-var jogadores: Array[AnimationPlayer] = []
+const Animador = preload("res://scripts/ambientes/animador_morador.gd")
+## T percorre os ofícios; cada pessoa começa num diferente.
+const OFICIOS := ["coletar","capinar","plantar","pescar","artesanato","construir","conversar","olhar"]
+var animadores: Array = []
 var animacao: String = "Parado"
+var oficio := 0
 var vista: String = "Frente"
 var iluminacao: Node
 var noite: bool = false
-var malhas: Array[MeshInstance3D] = []
-var fase := 0.0
 
 func _ready() -> void:
 	iluminacao = Iluminacao.new()
@@ -25,29 +27,25 @@ func _ready() -> void:
 	rebatedor.omni_attenuation=.7
 	preparar($Moradores)
 	preparar($OcaNivel1)
+	for pessoa: Node3D in $Moradores.get_children():
+		animadores.append(Animador.new(pessoa,String(pessoa.name)))
 	definir_animacao("Parado")
 	definir_vista("Frente")
-	print("[Revisão ETAPA 4] 1 geral (controles habituais) | 2 frente | 3 costas | 4 rosto | P parado | C caminhada | T trabalho | Tab painel | H ocultar painel | N dia/noite")
+	print("[Revisão ETAPA 4] 1 geral (controles habituais) | 2 frente | 3 costas | 4 rosto | P parado | C caminhada | T ofícios (repetir troca) | Tab painel | H ocultar painel | N dia/noite")
 	print("[Revisão ETAPA 4] Propostas visuais no portão B, dados ilustrativos. Nenhuma regra ou gravação de partida.")
 
 func preparar(no: Node) -> void:
 	if no is MeshInstance3D:
 		(no as MeshInstance3D).layers = 3
-		if no.get_blend_shape_count()==3: malhas.append(no)
-	if no is AnimationPlayer:
-		jogadores.append(no as AnimationPlayer)
 	for filho in no.get_children():
 		preparar(filho)
 
 func definir_animacao(nome: String) -> void:
+	if nome=="Trabalhar" and animacao=="Trabalhar": oficio+=1
 	animacao = nome
-	fase=0
-	for jogador in jogadores:
-		for chave: String in jogador.get_animation_list():
-			if chave == nome or chave.ends_with("/" + nome):
-				jogador.get_animation(chave).loop_mode = Animation.LOOP_LINEAR
-				jogador.play(chave)
-				break
+	for i in range(animadores.size()):
+		var clipe: String={"Parado":"parado","Andar":"andar"}.get(nome,OFICIOS[(oficio+i)%OFICIOS.size()])
+		animadores[i].tocar(clipe,.4,i*1.3)
 
 func definir_vista(nome: String) -> void:
 	vista = nome
@@ -69,12 +67,7 @@ func definir_vista(nome: String) -> void:
 	camera.make_current()
 
 func _process(delta: float) -> void:
-	fase+=delta
-	for i in range(malhas.size()):
-		var passo:=sin(fase*7+i*.7) if animacao=="Andar" else 0.0
-		malhas[i].set("blend_shapes/Passo_E",maxf(0,passo))
-		malhas[i].set("blend_shapes/Passo_D",maxf(0,-passo))
-		malhas[i].set("blend_shapes/Coletar",.52+.4*sin(fase*2.2+i) if animacao=="Trabalhar" else 0.0)
+	for animador in animadores: animador.avancar(delta)
 
 func _unhandled_key_input(evento: InputEvent) -> void:
 	if not evento is InputEventKey or not evento.pressed or evento.echo:

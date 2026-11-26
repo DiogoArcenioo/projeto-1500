@@ -104,8 +104,9 @@ func executar() -> void:
 	var visuais:={}
 	for morador in e.habitantes:
 		visuais[morador.visual]=true
-		var malha: MeshInstance3D=cena.aldeia.atores[morador.id].malha
-		verificar(malha.get_blend_shape_count()==3 and malha.find_blend_shape_by_name("Passo_E")>=0,"GLB e poses de "+morador.visual)
+		var anim=cena.aldeia.atores[morador.id].anim
+		var clipes:=["parado","andar","coletar","capinar","plantar","pescar","artesanato","construir","conversar","olhar"]
+		verificar(clipes.all(func(c): return anim.tem(c)) and anim.velocidade_andar>.4,"GLB e animações de "+morador.visual)
 	verificar(visuais.size()==8 and e.capacidade_residencial()==8,"Oito aparências nas quatro primeiras ocas")
 	var validado: Dictionary=e.serializar()
 	verificar(Estado.validar(validado)=="","Snapshot íntegro")
